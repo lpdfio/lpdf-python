@@ -2,7 +2,12 @@ import pytest
 
 from lpdf import LpdfEngine
 
-from .snapshot_helper import EXAMPLES, FIXTURES, compare_or_update
+from .snapshot_helper import EXAMPLES, FIXTURES, HAS_FIXTURES, compare_or_update
+
+pytestmark = pytest.mark.skipif(
+    not HAS_FIXTURES,
+    reason="fixture files not available outside the monorepo",
+)
 
 
 @pytest.mark.parametrize("name", EXAMPLES)

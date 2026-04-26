@@ -10,13 +10,18 @@ from pathlib import Path
 
 # Walk up from this file: tests/ → python/ → adapters/ → src/ → workspace root
 # Accept a directory that has Cargo.toml (native) OR test/snapshots (Docker).
+# Fall back to the adapter repo root (two levels up) so that the module never
+# crashes when running from a standalone repo checkout without the monorepo.
 _here = Path(__file__).resolve()
 ROOT  = next(
-    p for p in _here.parents
-    if (p / "Cargo.toml").exists() or (p / "test" / "snapshots").is_dir()
+    (p for p in _here.parents
+     if (p / "Cargo.toml").exists() or (p / "test" / "snapshots").is_dir()),
+    _here.parent.parent,   # fallback: adapter repo root (tests/../..)
 )
 FIXTURES  = ROOT / "test" / "fixtures"
 SNAPSHOTS = ROOT / "test" / "snapshots"
+
+HAS_FIXTURES = FIXTURES.is_dir() and any(FIXTURES.glob("*.xml"))
 
 EXAMPLES = [
     *[f"example{i}" for i in range(1, 12)],
