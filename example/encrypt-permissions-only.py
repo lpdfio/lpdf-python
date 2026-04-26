@@ -7,7 +7,7 @@ Run (after 'make build-adapter-python'):
         -v "$(pwd)/src/adapters/python/lpdf:/app/lpdf" \\
         -v "$(pwd)/src/adapters/python/example:/app/example" \\
         -v "$(pwd)/example:/app/example-data" \\
-        -v "$(pwd)/docs:/app/docs" \\
+        -v "$(pwd)/test/fixtures:/app/test/fixtures" \\
         -v "$(pwd)/src/adapters/python/resources:/app/resources" \\
         -w /app lpdf-python python example/encrypt-permissions-only.py
 
@@ -24,10 +24,10 @@ from lpdf import LpdfEngine
 _docker_data = Path("/app/example-data")
 root = _docker_data if _docker_data.exists() else Path(__file__).resolve().parents[4] / "example"
 
-_docker_docs = Path("/app/docs")
-xml_file = _docker_docs / "examples/showcase-encryption.xml" \
-    if _docker_docs.exists() \
-    else Path(__file__).resolve().parents[4] / "docs/examples/showcase-encryption.xml"
+_docker_fixtures = Path("/app/test/fixtures")
+xml_file = _docker_fixtures / "showcase-encryption.xml" \
+    if _docker_fixtures.exists() \
+    else Path(__file__).resolve().parents[4] / "test/fixtures/showcase-encryption.xml"
 
 output_file = "encrypt-permissions-only-python.pdf"
 
