@@ -1,6 +1,6 @@
 # lpdfio-lpdf
 
-Python adapter for [lpdf](https://lpdf.io) — pixel-perfect, lightweight, and consistent PDF rendering.
+Python adapter for [lpdf](https://lpdf.io) — an accurate, efficient, and cross-platform PDF engine.
 
 ## Installation
 
@@ -13,7 +13,7 @@ pip install lpdfio-lpdf
 ```python
 from lpdf import LpdfEngine
 
-engine = LpdfEngine("")          # empty key → free tier (watermark)
+engine = LpdfEngine("")
 
 engine.load_font("montserrat", open("fonts/Montserrat-Regular.ttf", "rb").read())
 engine.load_image("logo", open("images/logo.png", "rb").read())
