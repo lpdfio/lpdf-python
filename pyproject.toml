@@ -1,7 +1,7 @@
 [project]
 name = "lpdfio-lpdf"
 version = "0.0.0"
-description = "Python adapter for lpdf — pixel-perfect, lightweight, and consistent PDF rendering"
+description = "Python adapter for Lpdf — an accurate, efficient, and cross-platform PDF engine"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
