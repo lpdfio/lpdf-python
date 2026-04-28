@@ -53,7 +53,9 @@ jobs:
               --pattern "lpdf-wasi.wasm" \
               --dir resources \
               --clobber
+            CORE_TAG=$(gh release view --repo lpdfio/lpdf --json tagName --jq .tagName)
           fi
+          echo "EFFECTIVE_CORE_TAG=$CORE_TAG" >> "$GITHUB_ENV"
 
       # ── Install wasmtime runtime ─────────────────────────────────────────────
       - name: Install wasmtime
@@ -71,6 +73,7 @@ jobs:
       - name: Fetch test fixtures and snapshots from core
         run: |
           git clone --depth 1 --filter=blob:none --sparse \
+            --branch "$EFFECTIVE_CORE_TAG" \
             https://github.com/lpdfio/lpdf.git _core
           git -C _core sparse-checkout set test/fixtures test/snapshots
           mkdir -p test/fixtures test/snapshots
