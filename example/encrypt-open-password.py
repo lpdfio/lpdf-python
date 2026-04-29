@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from lpdf import LpdfEngine
+from lpdf import Pdf
 
 _docker_data = Path("/app/example-data")
 root = _docker_data if _docker_data.exists() else Path(__file__).resolve().parents[4] / "example"
@@ -33,12 +33,12 @@ output_file = "encrypt-open-password-python.pdf"
 
 xml = xml_file.read_text(encoding="utf-8")
 
-engine = LpdfEngine("")  # empty key → free tier (watermark)
+engine = Pdf.engine()  # empty key → free tier (watermark)
 
 # With open password — viewers prompt for "password" before displaying content.
 engine.set_encryption("password", "owner", {"copy": False})
 
-pdf = engine.render_pdf(xml)
+pdf = engine.render(xml)
 
 (root / "result" / output_file).write_bytes(pdf)
 print(f"output: {output_file} ({len(pdf):,} bytes)")

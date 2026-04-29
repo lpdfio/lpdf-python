@@ -18,8 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from lpdf import LpdfEngine
-from lpdf.engine import RenderOptions
+from lpdf import Pdf, RenderOptions
 
 _docker_root = Path("/app/example-data")
 root = _docker_root if _docker_root.exists() else Path(__file__).resolve().parents[4] / "example"
@@ -31,9 +30,9 @@ output_file = "example-data-python.pdf"
 xml  = xml_file.read_text(encoding="utf-8")
 data = json.loads(json_file.read_bytes())
 
-engine = LpdfEngine("")  # empty key → free tier (watermark)
+engine = Pdf.engine()  # no key → free tier (watermark)
 
-pdf = engine.render_pdf(xml, options=RenderOptions(data=data))
+pdf = engine.render(xml, options=RenderOptions(data=data))
 
 (root / "result" / output_file).write_bytes(pdf)
 print(f"output: {output_file} ({len(pdf):,} bytes)")
