@@ -1,6 +1,6 @@
 from .canvas_node import CanvasNode
 from .layer_node import LayerNode
-from .layer_options import LayerOptions
+from .layer_attr import LayerAttr
 from .rect_node import RectNode
 from .line_node import LineNode
 from .ellipse_node import EllipseNode
@@ -19,7 +19,7 @@ from .styles import RectStyle, LineStyle, EllipseStyle, PathStyle
 
 __all__ = [
     "CanvasNode",
-    "LayerNode", "LayerOptions",
+    "LayerNode", "LayerAttr",
     "RectNode", "RectStyle",
     "LineNode", "LineStyle",
     "EllipseNode", "EllipseStyle",

@@ -5,10 +5,11 @@ import json
 import re
 from pathlib import Path
 
-from .exceptions import LpdfRenderError
-from .options import RenderOptions
-from .types import LpdfDocument
-from .wasm_runner import WasmRunner
+from .engine.engine_exception import EngineException
+from .engine.engine_options import EngineOptions
+from .engine.render_options import RenderOptions
+from .engine.wasm_runner import WasmRunner
+from .kit.document import PdfDocument
 
 
 def _extract_xml_font_srcs(xml: str) -> dict[str, str]:
@@ -35,19 +36,23 @@ def _extract_xml_image_srcs(xml: str) -> dict[str, str]:
     return srcs
 
 
-class LpdfEngine:
-    def __init__(self, license_key: str, options: RenderOptions | None = None):
-        self._license_key = license_key
-        self._options = options or RenderOptions()
+class PdfEngine:
+    def __init__(self, options: EngineOptions | None = None):
+        self._license_key: str = ""
+        self._options = options or EngineOptions()
         self._fonts: dict[str, bytes] = {}
         self._images: dict[str, bytes] = {}
         self._encrypt: dict | None = None
 
-    def load_font(self, name: str, data: bytes) -> LpdfEngine:
+    def set_license_key(self, key: str) -> PdfEngine:
+        self._license_key = key
+        return self
+
+    def load_font(self, name: str, data: bytes) -> PdfEngine:
         self._fonts[name] = data
         return self
 
-    def load_image(self, name: str, data: bytes) -> LpdfEngine:
+    def load_image(self, name: str, data: bytes) -> PdfEngine:
         self._images[name] = data
         return self
 
@@ -56,16 +61,7 @@ class LpdfEngine:
         user_password: str,
         owner_password: str,
         permissions: dict[str, bool] | None = None,
-    ) -> LpdfEngine:
-        """Configure RC4-128 encryption for all subsequent render_pdf() calls.
-
-        Args:
-            user_password:  Open password (empty string = no open password required).
-            owner_password: Owner (permissions) password.
-            permissions:    Dict of boolean flags: print, modify, copy, annotate,
-                            fill_forms, accessibility, assemble, print_hq.
-                            Omitted flags default to True (allowed).
-        """
+    ) -> PdfEngine:
         self._encrypt = {
             "user_password":  user_password,
             "owner_password": owner_password,
@@ -73,18 +69,16 @@ class LpdfEngine:
         }
         return self
 
-    def clear_encryption(self) -> LpdfEngine:
-        """Remove any previously configured encryption."""
+    def clear_encryption(self) -> PdfEngine:
         self._encrypt = None
         return self
 
-    def render_pdf(
+    def render(
         self,
-        input: str | LpdfDocument,
-        call_options: RenderOptions | None = None,
-        data: dict | None = None,
+        input: str | PdfDocument,
+        options: RenderOptions | None = None,
     ) -> bytes:
-        if isinstance(input, LpdfDocument):
+        if isinstance(input, PdfDocument):
             method = "render_tree_pdf"
             input_dict = input.to_dict()
             input_str = json.dumps(input_dict, ensure_ascii=False)
@@ -94,23 +88,19 @@ class LpdfEngine:
             input_dict = None
 
         runner = WasmRunner(
-            wasm_binary=call_options and call_options.wasm_binary or self._options.wasm_binary or self._default_binary(),
-            wasm_runner=call_options and call_options.wasm_runner or self._options.wasm_runner or "wasmtime",
+            wasm_binary=self._options.wasm_binary or self._default_binary(),
+            wasm_runner=self._options.wasm_runner or "wasmtime",
+            timeout=self._options.timeout or 30,
         )
 
-        merged_fonts: dict[str, bytes] = {}
-        if self._options.font_bytes:
-            merged_fonts.update(self._options.font_bytes)
-        if call_options and call_options.font_bytes:
-            merged_fonts.update(call_options.font_bytes)
-        merged_fonts.update(self._fonts)
+        # Use load_font() fonts as base; auto-load from src= paths if not already provided.
+        merged_fonts: dict[str, bytes] = dict(self._fonts)
 
-        # Auto-load fonts declared via src= that haven't been explicitly provided.
         if input_dict is not None:
             tree_fonts = ((input_dict.get("attrs") or {}).get("tokens") or {}).get("fonts") or {}
-            for name, def_ in tree_fonts.items():
+            for fname, def_ in tree_fonts.items():
                 if isinstance(def_, dict) and "src" in def_:
-                    key = def_.get("ref") or name
+                    key = def_.get("ref") or fname
                     if key not in merged_fonts:
                         try:
                             with open(def_["src"], "rb") as fh:
@@ -137,19 +127,14 @@ class LpdfEngine:
                 name: base64.b64encode(data).decode() for name, data in merged_fonts.items()
             }
 
-        merged_images: dict[str, bytes] = {}
-        if self._options.image_bytes:
-            merged_images.update(self._options.image_bytes)
-        if call_options and call_options.image_bytes:
-            merged_images.update(call_options.image_bytes)
-        merged_images.update(self._images)
+        # Images: load_image() + auto-load from src=
+        merged_images: dict[str, bytes] = dict(self._images)
 
-        # Auto-load images declared via src= that haven't been explicitly provided.
         if input_dict is not None:
             tree_images = ((input_dict.get("attrs") or {}).get("tokens") or {}).get("images") or {}
-            for name, def_ in tree_images.items():
+            for iname, def_ in tree_images.items():
                 if isinstance(def_, dict) and "src" in def_:
-                    key = def_.get("ref") or name
+                    key = def_.get("ref") or iname
                     if key not in merged_images:
                         try:
                             with open(def_["src"], "rb") as fh:
@@ -170,57 +155,21 @@ class LpdfEngine:
                 name: base64.b64encode(data).decode() for name, data in merged_images.items()
             }
 
-        created_on = (call_options and call_options.created_on) or self._options.created_on
-        if created_on is not None:
-            payload["created_on"] = created_on
+        if options is not None and options.created_on is not None:
+            payload["created_on"] = options.created_on
 
         if self._encrypt is not None:
             payload["encrypt"] = self._encrypt
 
-        if data is not None and method == "render_pdf":
-            payload["data"] = data
+        if options is not None and options.data is not None and method == "render_pdf":
+            payload["data"] = options.data
 
         response = runner.invoke(payload)
 
         if "pdf" not in response:
-            raise LpdfRenderError("Unexpected response from WASI process.")
+            raise EngineException("Unexpected response from WASI process.")
 
         return base64.b64decode(response["pdf"])
-
-    @staticmethod
-    def kit_to_xml(
-        doc: "LpdfDocument",
-        wasm_binary: str | None = None,
-        wasm_runner: str = "wasmtime",
-    ) -> str:
-        """Convert an LpdfDocument tree (built with LpdfKit) to an lpdf XML string.
-
-        The conversion is performed by the Rust core running as a WASI subprocess,
-        so the output is identical to the XML produced by the other adapters.
-
-        Args:
-            doc:         The document tree to serialise.
-            wasm_binary: Path to lpdf-wasi.wasm (defaults to bundled binary).
-            wasm_runner: WASI runtime executable (default: wasmtime).
-
-        Returns:
-            A well-formed XML string with an ``<?xml ...?>`` declaration.
-
-        Raises:
-            LpdfRenderError: On process or serialisation error.
-        """
-        runner = WasmRunner(
-            wasm_binary=wasm_binary or LpdfEngine._default_binary(),
-            wasm_runner=wasm_runner,
-        )
-        payload = {
-            "method": "kit_to_xml",
-            "input":  json.dumps(doc.to_dict(), ensure_ascii=False),
-        }
-        response = runner.invoke(payload)
-        if "xml" not in response:
-            raise LpdfRenderError("Unexpected response from WASI process (kit_to_xml).")
-        return response["xml"]
 
     @staticmethod
     def _default_binary() -> str:

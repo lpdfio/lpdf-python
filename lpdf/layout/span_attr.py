@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class SpanOptions:
+class SpanAttr:
     font: str | None = None
     font_size: str | None = None
     color: str | None = None

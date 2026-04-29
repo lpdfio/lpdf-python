@@ -4,5 +4,5 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class TheadOptions:
+class TrAttr:
     background: str | None = None

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class LinkOptions:
+class LinkAttr:
     url: str | None = None
     width: str | None = None
     height: str | None = None

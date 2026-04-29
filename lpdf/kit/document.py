@@ -4,8 +4,8 @@ from ..shared.attrs_helper import node_to_dict
 from .section_node import SectionNode
 
 
-class Document:
-    """The root document node, ready for LpdfEngine.render_pdf()."""
+class PdfDocument:
+    """The root document node, ready for PdfEngine.render()."""
 
     __slots__ = ("_attrs", "_nodes")
 

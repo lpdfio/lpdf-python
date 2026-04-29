@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class BarcodeOptions:
+class BarcodeAttr:
     type: str = ""
     data: str = ""
     size: str | None = None

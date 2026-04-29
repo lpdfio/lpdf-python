@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class SplitOptions:
+class SplitAttr:
     gap: str | None = None
     padding: str | None = None
     background: str | None = None

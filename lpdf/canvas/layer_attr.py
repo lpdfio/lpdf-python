@@ -7,7 +7,7 @@ from .clip import Clip
 
 
 @dataclass(frozen=True)
-class LayerOptions:
+class LayerAttr:
     page: str | None = None
     opacity: float | None = None
     transform: Transform | None = None

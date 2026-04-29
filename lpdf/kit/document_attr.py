@@ -7,7 +7,7 @@ from .document_tokens import DocumentTokens
 
 
 @dataclass(frozen=True)
-class DocumentOptions:
+class DocumentAttr:
     size: str | None = None
     orientation: str | None = None
     margin: str | None = None

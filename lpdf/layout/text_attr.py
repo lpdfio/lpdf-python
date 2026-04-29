@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class TextOptions:
+class TextAttr:
     font: str | None = None
     font_size: str | None = None
     text_align: str | None = None

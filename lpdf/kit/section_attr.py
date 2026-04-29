@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class SectionOptions:
+class SectionAttr:
     size: str | None = None
     orientation: str | None = None
     margin: str | None = None

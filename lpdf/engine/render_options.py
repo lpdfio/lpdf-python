@@ -5,8 +5,6 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class RenderOptions:
-    """Per-call options for LpdfEngine.render_pdf()."""
+    """Per-call options for PdfEngine.render()."""
     created_on: str | None = None
-    font_bytes: dict[str, bytes] | None = None
-    image_bytes: dict[str, bytes] | None = None
     data: dict | None = None

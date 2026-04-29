@@ -1,20 +1,20 @@
-from .document import Document
+from .document import PdfDocument
 from .document_meta import DocumentMeta
-from .document_options import DocumentOptions
+from .document_attr import DocumentAttr
 from .document_tokens import DocumentTokens
 from .section_node import SectionNode
-from .section_options import SectionOptions
+from .section_attr import SectionAttr
 from .section_layout import SectionLayout
 from .section_canvas import SectionCanvas
 from .orientation import Orientation
 
 __all__ = [
-    "Document",
+    "PdfDocument",
     "DocumentMeta",
-    "DocumentOptions",
+    "DocumentAttr",
     "DocumentTokens",
     "SectionNode",
-    "SectionOptions",
+    "SectionAttr",
     "SectionLayout",
     "SectionCanvas",
     "Orientation",

@@ -9,33 +9,33 @@ from .field_node import FieldNode
 from .region_node import RegionNode
 from .pin import Pin
 from .field_type import FieldType
-from .stack_options import StackOptions
-from .flank_options import FlankOptions
-from .split_options import SplitOptions
-from .cluster_options import ClusterOptions
-from .grid_options import GridOptions
-from .frame_options import FrameOptions
-from .link_options import LinkOptions
-from .text_options import TextOptions
-from .span_options import SpanOptions
-from .divider_options import DividerOptions
-from .img_options import ImgOptions
-from .barcode_options import BarcodeOptions
-from .field_options import FieldOptions
-from .region_options import RegionOptions
-from .table_options import TableOptions
-from .thead_options import TheadOptions
-from .tr_options import TrOptions
-from .td_options import TdOptions
+from .stack_attr import StackAttr
+from .flank_attr import FlankAttr
+from .split_attr import SplitAttr
+from .cluster_attr import ClusterAttr
+from .grid_attr import GridAttr
+from .frame_attr import FrameAttr
+from .link_attr import LinkAttr
+from .text_attr import TextAttr
+from .span_attr import SpanAttr
+from .divider_attr import DividerAttr
+from .img_attr import ImgAttr
+from .barcode_attr import BarcodeAttr
+from .field_attr import FieldAttr
+from .region_attr import RegionAttr
+from .table_attr import TableAttr
+from .thead_attr import TheadAttr
+from .tr_attr import TrAttr
+from .td_attr import TdAttr
 
 __all__ = [
     "Node",
     "ContainerNode", "TextNode", "SpanNode", "DividerNode",
     "ImgNode", "BarcodeNode", "FieldNode", "RegionNode",
     "Pin", "FieldType",
-    "StackOptions", "FlankOptions", "SplitOptions", "ClusterOptions",
-    "GridOptions", "FrameOptions", "LinkOptions",
-    "TextOptions", "SpanOptions", "DividerOptions",
-    "ImgOptions", "BarcodeOptions", "FieldOptions", "RegionOptions",
-    "TableOptions", "TheadOptions", "TrOptions", "TdOptions",
+    "StackAttr", "FlankAttr", "SplitAttr", "ClusterAttr",
+    "GridAttr", "FrameAttr", "LinkAttr",
+    "TextAttr", "SpanAttr", "DividerAttr",
+    "ImgAttr", "BarcodeAttr", "FieldAttr", "RegionAttr",
+    "TableAttr", "TheadAttr", "TrAttr", "TdAttr",
 ]

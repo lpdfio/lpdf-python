@@ -3,7 +3,7 @@ from __future__ import annotations
 from ..shared.page_scope import PageScope
 from .canvas_node import CanvasNode
 from .clip import Clip
-from .layer_options import LayerOptions
+from .layer_attr import LayerAttr
 
 
 class LayerNode(CanvasNode):
@@ -11,7 +11,7 @@ class LayerNode(CanvasNode):
 
     __slots__ = ("_nodes", "_options")
 
-    def __init__(self, nodes: list, options: LayerOptions | None = None):
+    def __init__(self, nodes: list, options: LayerAttr | None = None):
         self._nodes = nodes
         self._options = options
 

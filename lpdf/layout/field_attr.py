@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class FieldOptions:
+class FieldAttr:
     label: str | None = None
     value: str | None = None
     options: str | None = None

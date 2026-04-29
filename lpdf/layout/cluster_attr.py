@@ -4,13 +4,12 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class FlankOptions:
+class ClusterAttr:
     gap: str | None = None
     padding: str | None = None
     background: str | None = None
     align: str | None = None
     justify: str | None = None
-    end: str | None = None
     width: str | None = None
     height: str | None = None
     border: str | None = None

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class RegionOptions:
+class RegionAttr:
     page: str | None = None
     w: str | None = None
     debug: str | None = None

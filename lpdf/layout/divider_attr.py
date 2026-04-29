@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class DividerOptions:
+class DividerAttr:
     color: str | None = None
     thickness: str | None = None
     direction: str | None = None
