@@ -2,9 +2,9 @@
 
 # lpdfio-lpdf
 
-Python adapter for [Lpdf](https://lpdf.io) — PDF as Code, on every platform. 
+**Python SDK for [Lpdf](https://lpdf.io) — PDF as Code on every platform**
 
-Describe your document structure in code using the programming Kit or XML. Every PDF is compact, pixel-perfect, and identical across platforms.
+You describe a document as code or XML. Lpdf renders a compact, pixel-perfect PDF — identical across platforms.
 
 ## Installation
 
@@ -15,37 +15,41 @@ pip install lpdfio-lpdf
 ## Usage
 
 ```python
-from lpdf import LpdfEngine
+from lpdf import L, NoAttr
 
-engine = LpdfEngine("")
+engine = L.engine()
 
-engine.load_font("montserrat", open("fonts/Montserrat-Regular.ttf", "rb").read())
-engine.load_image("logo", open("images/logo.png", "rb").read())
+doc = L.document(DocumentAttr(size='letter', margin='48pt'), [
+    L.section(NoAttr, [
+        L.layout(NoAttr, [
+            L.stack(StackAttr(gap='24pt'), [
+                L.split(NoAttr, [
+                    L.text(TextAttr(font_size='8pt', color='#888888'), ['ACME CORP']),
+                    L.text(TextAttr(font_size='22pt', bold='true'), ['Project Proposal']),
+                ]),
+                L.divider(DividerAttr(thickness='xs')),
+                L.text(TextAttr(font_size='13pt', bold='true'), ['Scope of Work']),
+                L.flank(FlankAttr(gap='12pt', align='start'), [
+                    L.text(TextAttr(color='#888888', width='24pt'), ['01']),
+                    L.text(NoAttr, ['Discovery & Research']),
+                ]),
+            ]),
+        ]),
+    ]),
+])
 
-xml = open("document.xml", "r", encoding="utf-8").read()
-pdf = engine.render_pdf(xml)
-
-open("output.pdf", "wb").write(pdf)
-```
-
-## XML format
-
-Documents are defined in a layout XML format. See the [Lpdf documentation](https://lpdf.io/docs) and [examples](https://github.com/lpdfio/lpdf/tree/main/docs/examples) for the full schema.
-
-```xml
-<stack spacing="m" padding="l">
-  <text font-size="xl" font="Montserrat-Bold">Invoice #1001</text>
-  <grid columns="2">
-    <text>Date</text>      <text>2026-04-25</text>
-    <text>Due</text>       <text>2026-05-25</text>
-  </grid>
-</stack>
+pdf = engine.render(doc)
 ```
 
 ## Requirements
 
 - Python 3.8+
+- [`wasmtime`](https://wasmtime.dev) CLI must be available in `PATH` (used to run the bundled WASI binary).
 
-## License
+## Docs
+
+[lpdf.io/docs/python](https://lpdf.io/docs/python)
+
+--
 
 Dual-licensed: Community License (free) and Commercial License (paid). See [LICENSE](LICENSE) for full terms.

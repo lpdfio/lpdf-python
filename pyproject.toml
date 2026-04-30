@@ -1,7 +1,7 @@
 [project]
 name = "lpdfio-lpdf"
 version = "0.0.0"
-description = "Python adapter for Lpdf — PDF as Code, on every platform. Describe your document structure in code using the programming Kit, or XML. Every PDF is compact, pixel-perfect, and identical across platforms."
+description = "Python SDK for Lpdf — PDF as Code on every platform. You describe a document as code or XML. Lpdf renders a compact, pixel-perfect PDF — identical across platforms."
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
