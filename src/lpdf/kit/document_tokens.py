@@ -12,8 +12,13 @@ class DocumentTokens:
     border: dict[str, str] | None = None
     radius: dict[str, str] | None = None
     width: dict[str, str] | None = None
-    text: dict[str, str] | None = None
+    text_size: dict[str, str] | None = None
     fonts: dict[str, Any] | None = None
 
     def to_dict(self) -> dict:
-        return {f.name: getattr(self, f.name) for f in dc_fields(self) if getattr(self, f.name) is not None}
+        _rename = {"text_size": "text-size"}
+        return {
+            _rename.get(f.name, f.name): getattr(self, f.name)
+            for f in dc_fields(self)
+            if getattr(self, f.name) is not None
+        }
