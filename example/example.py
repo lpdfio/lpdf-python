@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from lpdf import Pdf
+from lpdf import L
 
 _docker_root = Path("/app/example-data")
 root = _docker_root if _docker_root.exists() else Path(__file__).resolve().parents[4] / "example"
@@ -15,7 +15,7 @@ examples = [
 ]
 
 # init engine
-engine = Pdf.engine()  # no key → free tier (watermark)
+engine = L.engine()  # no key → free tier (watermark)
 
 # load assets (only used if referenced in xml/layout)
 engine.load_font("montserrat", (root / "assets/fonts/Montserrat-Regular.ttf").read_bytes())

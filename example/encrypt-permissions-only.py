@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from lpdf import Pdf
+from lpdf import L
 
 _docker_data = Path("/app/example-data")
 root = _docker_data if _docker_data.exists() else Path(__file__).resolve().parents[4] / "example"
@@ -33,7 +33,7 @@ output_file = "encrypt-permissions-only-python.pdf"
 
 xml = xml_file.read_text(encoding="utf-8")
 
-engine = Pdf.engine()  # empty key → free tier (watermark)
+engine = L.engine()  # empty key → free tier (watermark)
 
 # Permissions only — no open password.
 # File opens freely; cooperative viewers enforce print=False, copy=False.

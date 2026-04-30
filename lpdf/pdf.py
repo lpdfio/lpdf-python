@@ -53,7 +53,7 @@ from .shared.attrs_helper import options_to_attrs
 NoAttr = None
 
 
-class Pdf:
+class L:
     """Flat entry point for building and rendering lpdf documents."""
 
     # ── Engine ─────────────────────────────────────────────────────────────────

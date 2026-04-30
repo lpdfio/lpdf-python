@@ -1,5 +1,5 @@
 # Top-level facades
-from .pdf import Pdf, NoAttr
+from .pdf import L, NoAttr
 from .pdf_engine import PdfEngine
 
 # engine subpackage - commonly used types

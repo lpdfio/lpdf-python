@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from lpdf import PdfEngine, Pdf, NoAttr
+from lpdf import PdfEngine, L, NoAttr
 from lpdf.engine import EngineOptions, RenderOptions, EngineException
 
 
@@ -42,8 +42,8 @@ class TestRenderTree:
     def test_render_tree(self, mock_run):
         mock_run.return_value = _mock_subprocess_run()
 
-        doc = Pdf.document(NoAttr, [
-            Pdf.section(NoAttr, [Pdf.layout(NoAttr, [Pdf.text(NoAttr, ["Hello"])])]),
+        doc = L.document(NoAttr, [
+            L.section(NoAttr, [L.layout(NoAttr, [L.text(NoAttr, ["Hello"])])]),
         ])
         engine = PdfEngine().set_license_key("test-key")
         result = engine.render(doc)
@@ -213,7 +213,7 @@ class TestDataBinding:
         """data in RenderOptions is ignored for render_tree_pdf path."""
         mock_run.return_value = _mock_subprocess_run()
 
-        doc = Pdf.document()
+        doc = L.document()
         engine = PdfEngine().set_license_key("test-key")
         engine.render(doc, options=RenderOptions(data={"name": "Acme"}))
 
