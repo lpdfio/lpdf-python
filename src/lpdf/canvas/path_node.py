@@ -22,4 +22,5 @@ class PathNode(CanvasNode):
             if s.fill_rule_evenodd is not None: attrs["fill-rule"]    = "evenodd" if s.fill_rule_evenodd else "nonzero"
             if s.line_cap is not None:          attrs["line-cap"]     = str(s.line_cap)
             if s.line_join is not None:         attrs["line-join"]    = str(s.line_join)
+            if s.opacity is not None:           attrs["opacity"]      = str(s.opacity)
         return {"type": "canvas-path", "attrs": attrs}

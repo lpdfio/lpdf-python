@@ -9,6 +9,6 @@ RUN pip install --no-cache-dir pytest
 
 WORKDIR /app
 
-COPY lpdf/ ./lpdf/
+COPY src/lpdf/ ./lpdf/
 COPY tests/ ./tests/
 COPY resources/ ./resources/

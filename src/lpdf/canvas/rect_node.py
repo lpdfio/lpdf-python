@@ -21,9 +21,11 @@ class RectNode(CanvasNode):
         }
         s = self._style
         if s is not None:
-            if s.fill is not None:         attrs["fill"]         = s.fill
-            if s.stroke is not None:       attrs["stroke"]       = s.stroke
-            if s.stroke_width is not None: attrs["stroke-width"] = str(s.stroke_width)
-            if s.stroke_dash is not None:  attrs["stroke-dash"]  = " ".join(str(v) for v in s.stroke_dash)
-            if s.border_radius is not None: attrs["radius"]      = str(s.border_radius)
+            if s.fill is not None:          attrs["fill"]         = s.fill
+            if s.stroke is not None:        attrs["stroke"]       = s.stroke
+            if s.stroke_width is not None:  attrs["stroke-width"] = str(s.stroke_width)
+            if s.stroke_dash is not None:   attrs["stroke-dash"]  = " ".join(str(v) for v in s.stroke_dash)
+            if s.border_radius is not None: attrs["radius"]       = str(s.border_radius)
+            if s.opacity is not None:       attrs["opacity"]      = str(s.opacity)
+            if s.anchor is not None:        attrs["anchor"]       = s.anchor
         return {"type": "canvas-rect", "attrs": attrs}

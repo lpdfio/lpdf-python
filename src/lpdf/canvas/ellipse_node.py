@@ -25,4 +25,6 @@ class EllipseNode(CanvasNode):
             if s.stroke is not None:       attrs["stroke"]       = s.stroke
             if s.stroke_width is not None: attrs["stroke-width"] = str(s.stroke_width)
             if s.stroke_dash is not None:  attrs["stroke-dash"]  = " ".join(str(v) for v in s.stroke_dash)
+            if s.opacity is not None:      attrs["opacity"]      = str(s.opacity)
+            if s.anchor is not None:       attrs["anchor"]       = s.anchor
         return {"type": "canvas-ellipse", "attrs": attrs}

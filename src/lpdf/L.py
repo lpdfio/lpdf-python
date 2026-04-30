@@ -15,6 +15,7 @@ from .canvas.text_style import TextStyle
 from .engine.engine_options import EngineOptions
 from .kit.document import PdfDocument
 from .kit.document_attr import DocumentAttr
+from .kit.document_tokens import DocumentTokens
 from .kit.section_attr import SectionAttr
 from .kit.section_canvas import SectionCanvas
 from .kit.section_layout import SectionLayout
@@ -101,6 +102,11 @@ class L:
     def canvas(_attrs: object, layers: list | None = None) -> SectionCanvas:
         """Wrap canvas layer nodes into a canvas block."""
         return SectionCanvas(layers or [])
+
+    @staticmethod
+    def tokens(attrs: DocumentTokens) -> DocumentTokens:
+        """Create a DocumentTokens instance (convenience factory)."""
+        return attrs
 
     # ── Layout containers ──────────────────────────────────────────────────────
 
@@ -227,5 +233,5 @@ class L:
         return CanvasTextNode(x, y, content, style, runs)
 
     @staticmethod
-    def img_at(x: float, y: float, w: float, h: float, name: str) -> ImageNode:
-        return ImageNode(x, y, w, h, name)
+    def img_at(x: float, y: float, w: float, h: float, name: str, anchor: str | None = None) -> ImageNode:
+        return ImageNode(x, y, w, h, name, anchor)

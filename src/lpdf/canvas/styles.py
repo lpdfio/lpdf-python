@@ -13,6 +13,8 @@ class RectStyle:
     stroke_width: float | None = None
     stroke_dash: list[float] | None = None
     border_radius: float | None = None
+    opacity: float | None = None
+    anchor: str | None = None
 
 
 @dataclass(frozen=True)
@@ -30,6 +32,8 @@ class EllipseStyle:
     stroke: str | None = None
     stroke_width: float | None = None
     stroke_dash: list[float] | None = None
+    opacity: float | None = None
+    anchor: str | None = None
 
 
 @dataclass(frozen=True)
@@ -41,3 +45,4 @@ class PathStyle:
     fill_rule_evenodd: bool | None = None
     line_cap: LineCap | None = None
     line_join: LineJoin | None = None
+    opacity: float | None = None

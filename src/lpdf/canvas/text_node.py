@@ -34,6 +34,8 @@ class CanvasTextNode(CanvasNode):
             if s.align is not None:       attrs["align"]       = str(s.align)
             if s.line_height is not None: attrs["line-height"] = str(s.line_height)
             if s.width is not None:       attrs["w"]           = str(s.width)
+            if s.opacity is not None:     attrs["opacity"]     = str(s.opacity)
+            if s.anchor is not None:      attrs["anchor"]      = s.anchor
         node: dict = {"type": "canvas-text", "text": self._content, "attrs": attrs}
         if self._runs:
             node["runs"] = [r.to_dict() for r in self._runs]

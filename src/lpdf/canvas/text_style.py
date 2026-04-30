@@ -13,3 +13,5 @@ class TextStyle:
     align: TextAlign | None = None
     line_height: float | None = None
     width: float | None = None
+    opacity: float | None = None
+    anchor: str | None = None
