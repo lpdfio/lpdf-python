@@ -29,7 +29,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p resources
+          mkdir -p src/resources
           PYPROJECT_VERSION=$(python -c "
           import re, pathlib
           m = re.search(r'^version\s*=\s*\"([^\"]+)\"', pathlib.Path('pyproject.toml').read_text(), re.M)
@@ -41,17 +41,17 @@ jobs:
             gh release download "$CORE_TAG" \
               --repo lpdfio/lpdf \
               --pattern "lpdf-wasi.wasm" \
-              --dir resources \
+              --dir src/resources \
               --clobber && break
             echo "Attempt $attempt failed — retrying in 10s..."
             sleep 10
           done
           # Fallback to latest release when the derived tag doesn't exist yet
-          if [ ! -f resources/lpdf-wasi.wasm ]; then
+          if [ ! -f src/resources/lpdf-wasi.wasm ]; then
             gh release download \
               --repo lpdfio/lpdf \
               --pattern "lpdf-wasi.wasm" \
-              --dir resources \
+              --dir src/resources \
               --clobber
             CORE_TAG=$(gh release view --repo lpdfio/lpdf --json tagName --jq .tagName)
           fi
