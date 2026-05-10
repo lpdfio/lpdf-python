@@ -27,17 +27,17 @@ jobs:
           echo "VERSION=$VERSION"           >> "$GITHUB_ENV"
 
       # ── Download WASI binary from core release ───────────────────────────────
-      # Python adapter expects resources/lpdf-wasi.wasm
+      # Python adapter expects src/resources/lpdf-wasi.wasm
       - name: Download lpdf-wasi.wasm
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p resources
+          mkdir -p src/resources
           for attempt in 1 2 3; do
             gh release download "$CORE_TAG" \
               --repo lpdfio/lpdf \
               --pattern "lpdf-wasi.wasm" \
-              --dir resources && break
+              --dir src/resources && break
             echo "Attempt $attempt failed — retrying in 10s..."
             sleep 10
           done
