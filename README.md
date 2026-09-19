@@ -56,6 +56,10 @@ To stay on one engine and still get this package's fixes: `pip install "lpdfio-l
 
 [lpdf.io/docs/python](https://lpdf.io/docs/python)
 
+## Issues
+
+Report bugs and request features at [github.com/lpdfio/lpdf/issues](https://github.com/lpdfio/lpdf/issues), the one tracker for the engine, the SDKs and the VS Code extension. Pull requests are not accepted.
+
 --
 
 Dual-licensed: Community License (free) and Commercial License (paid). See [LICENSE](LICENSE) for full terms.

@@ -17,6 +17,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://lpdf.io"
 Repository = "https://github.com/lpdfio/lpdf-python"
+Issues = "https://github.com/lpdfio/lpdf/issues"
 Changelog = "https://github.com/lpdfio/lpdf/releases"
 
 [build-system]
