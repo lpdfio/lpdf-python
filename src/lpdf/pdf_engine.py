@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import re
+import time
 from pathlib import Path
 
 from .engine.engine_exception import EngineException
@@ -47,6 +48,32 @@ class PdfEngine:
     def set_license_key(self, key: str) -> PdfEngine:
         self._license_key = key
         return self
+
+    def check_license_key(self, key: str | None = None) -> dict:
+        """Ask the engine what a license key is.
+
+        Returns the engine's report: ``status`` always — one of ``licensed``, ``free``,
+        ``expired``, ``version_mismatch``, ``wrong_product``, ``unknown_key``,
+        ``bad_signature`` or ``malformed`` — plus ``product``, ``tier``, ``expires``,
+        ``license`` and ``key`` once the signature verified.
+
+        This is the engine's own verdict, from the same code a render runs, so ``licensed``
+        means PDFs come out without the attribution line here. A key the portal considers
+        perfectly good still reads ``unknown_key`` in a build that does not trust the key it
+        was signed with, which is the answer worth having.
+
+        :param key: The key to check. Defaults to the one set on this engine.
+        """
+        runner = WasmRunner(
+            wasm_binary=self._options.wasm_binary or self._default_binary(),
+            wasm_runner=self._options.wasm_runner or "wasmtime",
+            timeout=self._options.timeout or 30,
+        )
+        return runner.invoke({
+            "method": "check_license",
+            "key": key if key is not None else self._license_key,
+            "now": int(time.time()),
+        })
 
     def load_font(self, name: str, data: bytes) -> PdfEngine:
         self._fonts[name] = data
@@ -120,6 +147,9 @@ class PdfEngine:
             "method": method,
             "key": self._license_key,
             "input": input_str,
+            # The engine is WebAssembly and has no clock of its own: without this it cannot check
+            # the key's expiry, and an expired key renders as though it were current.
+            "now": int(time.time()),
         }
 
         if merged_fonts:
