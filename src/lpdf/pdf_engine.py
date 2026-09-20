@@ -52,7 +52,7 @@ class PdfEngine:
     def check_license_key(self, key: str | None = None) -> dict:
         """Ask the engine what a license key is.
 
-        Returns the engine's report: ``status`` always — one of ``licensed``, ``free``,
+        Returns the engine's report: ``status`` always — one of ``licensed``, ``no_key``,
         ``expired``, ``version_mismatch``, ``wrong_product``, ``unknown_key``,
         ``bad_signature`` or ``malformed`` — plus ``product``, ``tier``, ``expires``,
         ``license`` and ``key`` once the signature verified.

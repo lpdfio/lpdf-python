@@ -33,7 +33,7 @@ output_file = "encrypt-permissions-only-python.pdf"
 
 xml = xml_file.read_text(encoding="utf-8")
 
-engine = L.engine()  # empty key → free tier (watermark)
+engine = L.engine()  # no key → renders with the attribution line
 
 # Permissions only — no open password.
 # File opens freely; cooperative viewers enforce print=False, copy=False.

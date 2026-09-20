@@ -33,7 +33,7 @@ output_file = "encrypt-open-password-python.pdf"
 
 xml = xml_file.read_text(encoding="utf-8")
 
-engine = L.engine()  # empty key → free tier (watermark)
+engine = L.engine()  # no key → renders with the attribution line
 
 # With open password — viewers prompt for "password" before displaying content.
 engine.set_encryption("password", "owner", {"copy": False})

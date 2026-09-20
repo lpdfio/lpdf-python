@@ -15,7 +15,7 @@ examples = [
 ]
 
 # init engine
-engine = L.engine()  # no key → free tier (watermark)
+engine = L.engine()  # no key → renders with the attribution line
 
 # load assets (only used if referenced in xml/layout)
 engine.load_font("montserrat", (root / "assets/fonts/Montserrat-Regular.ttf").read_bytes())

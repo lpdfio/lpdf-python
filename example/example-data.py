@@ -30,7 +30,7 @@ output_file = "example-data-python.pdf"
 xml  = xml_file.read_text(encoding="utf-8")
 data = json.loads(json_file.read_bytes())
 
-engine = L.engine()  # no key → free tier (watermark)
+engine = L.engine()  # no key → renders with the attribution line
 
 pdf = engine.render(xml, options=RenderOptions(data=data))
 
