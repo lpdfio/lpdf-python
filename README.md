@@ -43,18 +43,12 @@ pdf = engine.render(doc)
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.10+
 - [`wasmtime`](https://wasmtime.dev) CLI must be available in `PATH` (used to run the bundled WASI binary).
-
-## Versioning
-
-The first two numbers are the Lpdf engine, and the last number counts changes to this package only. `0.22.3` runs engine `0.22`, with three Python-only changes since that engine shipped. Every engine release publishes all SDKs at `X.Y.0`, so the same `X.Y` means the same engine in every language.
-
-To stay on one engine and still get this package's fixes: `pip install "lpdfio-lpdf~=0.22.0"`.
 
 ## Docs
 
-[lpdf.io/docs/python](https://lpdf.io/docs/python)
+[lpdf.io/docs/python](https://lpdf.io/docs/python?utm_source=readme&utm_medium=referral&utm_campaign=sdk-python)
 
 ## Issues
 
