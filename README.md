@@ -2,7 +2,7 @@
 
 # lpdfio-lpdf
 
-**Python SDK for [Lpdf](https://lpdf.io) — PDF as Code on every platform**
+**Python SDK for [Lpdf](https://lpdf.io?utm_source=readme&utm_medium=referral&utm_campaign=sdk-python) — PDF as Code on every platform**
 
 You describe a document as code or XML. Lpdf renders a compact, pixel-perfect PDF — identical across platforms.
 
@@ -48,7 +48,7 @@ pdf = engine.render(doc)
 
 ## Docs
 
-[lpdf.io/docs/python](https://lpdf.io/docs/python?utm_source=readme&utm_medium=referral&utm_campaign=sdk-python)
+[lpdf.io/docs](https://lpdf.io/docs/?sdk=python&p=install&utm_source=readme&utm_medium=referral&utm_campaign=sdk-python)
 
 ## Issues
 
