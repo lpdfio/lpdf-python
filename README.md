@@ -15,7 +15,7 @@ pip install lpdfio-lpdf
 ## Usage
 
 ```python
-from lpdf import L, NoAttr
+from lpdf import L, NoAttr, DocumentAttr, StackAttr, TextAttr, DividerAttr, FlankAttr
 
 engine = L.engine()
 
