@@ -48,7 +48,7 @@ pdf = engine.render(doc)
 
 ## Docs
 
-[lpdf.io/docs](https://lpdf.io/docs/?sdk=python&p=install&utm_campaign=sdk-python&utm_medium=referral&utm_source=readme)
+[lpdf.io/docs](https://lpdf.io/docs/install/?sdk=python&utm_campaign=sdk-python&utm_medium=referral&utm_source=readme)
 
 ## Issues
 
