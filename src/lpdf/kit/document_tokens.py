@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields as dc_fields
-from typing import Any
 
 
 @dataclass(frozen=True)
@@ -13,7 +12,6 @@ class DocumentTokens:
     radius: dict[str, str] | None = None
     width: dict[str, str] | None = None
     text_size: dict[str, str] | None = None
-    fonts: dict[str, Any] | None = None
 
     def to_dict(self) -> dict:
         _rename = {"text_size": "text-size"}

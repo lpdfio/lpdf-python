@@ -2,7 +2,7 @@ import pytest
 
 from lpdf import (
     L, NoAttr,
-    StackAttr, FlankAttr, GridAttr, TextAttr, SpanAttr,
+    StackAttr, FlankAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
     DividerAttr, SectionAttr, DocumentAttr, DocumentMeta, DocumentTokens,
 )
 
@@ -22,9 +22,9 @@ def test_stack_with_options():
 
 
 def test_snake_to_kebab_conversion():
-    node = L.text(TextAttr(font_size="12pt", text_align="center"), ["hello"])
+    node = L.text(TextAttr(font_size="12pt", align="center"), ["hello"])
     d = node.to_dict()
-    assert d["attrs"] == {"font-size": "12pt", "text-align": "center"}
+    assert d["attrs"] == {"font-size": "12pt", "align": "center"}
 
 
 def test_grid_col_width():
@@ -36,10 +36,11 @@ def test_grid_col_width():
 def test_container_types():
     for method, name in [
         ("stack", "stack"), ("flank", "flank"), ("split", "split"),
-        ("cluster", "cluster"), ("grid", "grid"), ("frame", "frame"), ("link", "link"),
+        ("cluster", "cluster"), ("grid", "grid"), ("frame", "frame"),
     ]:
         d = getattr(L, method)().to_dict()
         assert d["type"] == name
+    assert L.link(LinkAttr(href="https://lpdf.io")).to_dict()["type"] == "link"
 
 
 def test_text_with_string_children():

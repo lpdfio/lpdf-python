@@ -5,7 +5,7 @@ from .node import Node
 
 
 class RegionNode(Node):
-    """A pinned layout-region node. attrs must include 'pin'."""
+    """A pinned region node. attrs must include 'pin'."""
 
     __slots__ = ("_attrs", "_nodes")
 
@@ -15,7 +15,7 @@ class RegionNode(Node):
 
     def to_dict(self) -> dict:
         return {
-            "type": "layout-region",
+            "type": "region",
             "attrs": self._attrs,
             "nodes": [node_to_dict(n) for n in self._nodes],
         }

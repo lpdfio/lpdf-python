@@ -1,42 +1,21 @@
 from __future__ import annotations
 
+from ..shared.attrs_helper import node_to_dict
 from .canvas_node import CanvasNode
-from .text_style import TextStyle
-from .run import Run
 
 
 class CanvasTextNode(CanvasNode):
-    """Canvas text node at an absolute coordinate position."""
+    """Text on the canvas. Its content is strings and `span` nodes, as in a layout `text`."""
 
-    __slots__ = ("_x", "_y", "_content", "_style", "_runs")
+    __slots__ = ("_attrs", "_nodes")
 
-    def __init__(
-        self,
-        x: float,
-        y: float,
-        content: str,
-        style: TextStyle | None = None,
-        runs: list[Run] | None = None,
-    ):
-        self._x = x
-        self._y = y
-        self._content = content
-        self._style = style
-        self._runs = runs or []
+    def __init__(self, attrs: dict[str, str], nodes: list):
+        self._attrs = attrs
+        self._nodes = nodes
 
     def to_dict(self) -> dict:
-        attrs: dict = {"x": str(self._x), "y": str(self._y)}
-        s = self._style
-        if s is not None:
-            if s.font is not None:        attrs["font"]        = s.font
-            if s.size is not None:        attrs["font-size"]   = str(s.size)
-            if s.color is not None:       attrs["color"]       = s.color
-            if s.align is not None:       attrs["align"]       = str(s.align)
-            if s.line_height is not None: attrs["line-height"] = str(s.line_height)
-            if s.width is not None:       attrs["w"]           = str(s.width)
-            if s.opacity is not None:     attrs["opacity"]     = str(s.opacity)
-            if s.anchor is not None:      attrs["anchor"]      = s.anchor
-        node: dict = {"type": "canvas-text", "text": self._content, "attrs": attrs}
-        if self._runs:
-            node["runs"] = [r.to_dict() for r in self._runs]
-        return node
+        return {
+            "type": "text",
+            "attrs": self._attrs,
+            "nodes": [node_to_dict(n) for n in self._nodes],
+        }

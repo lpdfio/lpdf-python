@@ -1,19 +1,28 @@
 from __future__ import annotations
 
+import json
+
+from .canvas.canvas_img_attr import CanvasImgAttr
+from .canvas.canvas_text_attr import CanvasTextAttr
+from .canvas.circle_attr import CircleAttr
 from .canvas.circle_node import CircleNode
+from .canvas.ellipse_attr import EllipseAttr
 from .canvas.ellipse_node import EllipseNode
 from .canvas.image_node import ImageNode
 from .canvas.layer_attr import LayerAttr
 from .canvas.layer_node import LayerNode
+from .canvas.line_attr import LineAttr
 from .canvas.line_node import LineNode
+from .canvas.path_attr import PathAttr
 from .canvas.path_node import PathNode
+from .canvas.rect_attr import RectAttr
 from .canvas.rect_node import RectNode
-from .canvas.run import Run
-from .canvas.styles import EllipseStyle, LineStyle, PathStyle, RectStyle
 from .canvas.text_node import CanvasTextNode
-from .canvas.text_style import TextStyle
+from .engine.engine_exception import EngineException
 from .engine.engine_options import EngineOptions
+from .engine.wasm_runner import WasmRunner
 from .kit.document import PdfDocument
+from .kit.document_assets import DocumentAssets
 from .kit.document_attr import DocumentAttr
 from .kit.document_tokens import DocumentTokens
 from .kit.section_attr import SectionAttr
@@ -28,14 +37,12 @@ from .layout.divider_attr import DividerAttr
 from .layout.divider_node import DividerNode
 from .layout.field_attr import FieldAttr
 from .layout.field_node import FieldNode
-from .layout.field_type import FieldType
 from .layout.flank_attr import FlankAttr
 from .layout.frame_attr import FrameAttr
 from .layout.grid_attr import GridAttr
 from .layout.img_attr import ImgAttr
 from .layout.img_node import ImgNode
 from .layout.link_attr import LinkAttr
-from .layout.pin import Pin
 from .layout.region_attr import RegionAttr
 from .layout.region_node import RegionNode
 from .layout.span_attr import SpanAttr
@@ -48,7 +55,7 @@ from .layout.text_attr import TextAttr
 from .layout.text_node import TextNode
 from .layout.thead_attr import TheadAttr
 from .layout.tr_attr import TrAttr
-from .pdf_engine import PdfEngine
+from .pdf_engine import PdfEngine, default_wasm_binary
 from .shared.attrs_helper import options_to_attrs
 
 NoAttr = None
@@ -64,6 +71,21 @@ class L:
         """Create a new PdfEngine instance."""
         return PdfEngine(options)
 
+    # ── XML conversion ─────────────────────────────────────────────────────────
+
+    @staticmethod
+    def to_xml(document: PdfDocument) -> str:
+        """Convert a document tree to an lpdf XML string without rendering it."""
+        runner = WasmRunner(wasm_binary=default_wasm_binary())
+        response = runner.invoke({
+            "method": "kit_to_xml",
+            "key": "",
+            "input": json.dumps(document.to_dict(), ensure_ascii=False),
+        })
+        if "xml" not in response:
+            raise EngineException("Unexpected response from WASI kit_to_xml call.")
+        return response["xml"]
+
     # ── Document / section ─────────────────────────────────────────────────────
 
     @staticmethod
@@ -72,17 +94,13 @@ class L:
         sections: list[SectionNode] | None = None,
     ) -> PdfDocument:
         """Build the root document node."""
-        a = attrs
-        doc_attrs: dict = {}
-        if a is not None:
-            for field in ("size", "orientation", "margin", "background"):
-                val = getattr(a, field, None)
-                if val is not None:
-                    doc_attrs[field] = val
-            if getattr(a, "tokens", None) is not None:
-                doc_attrs["tokens"] = a.tokens.to_dict()
-            if getattr(a, "meta", None) is not None:
-                doc_attrs["meta"] = a.meta.to_dict()
+        doc_attrs: dict = options_to_attrs(attrs)
+        if attrs is not None and attrs.assets is not None:
+            doc_attrs["assets"] = attrs.assets.to_dict()
+        if attrs is not None and attrs.tokens is not None:
+            doc_attrs["tokens"] = attrs.tokens.to_dict()
+        if attrs is not None and attrs.meta is not None:
+            doc_attrs["meta"] = attrs.meta.to_dict()
         return PdfDocument(doc_attrs, sections or [])
 
     @staticmethod
@@ -102,6 +120,11 @@ class L:
     def canvas(_attrs: object, layers: list | None = None) -> SectionCanvas:
         """Wrap canvas layer nodes into a canvas block."""
         return SectionCanvas(layers or [])
+
+    @staticmethod
+    def assets(attrs: DocumentAssets) -> DocumentAssets:
+        """Create a DocumentAssets instance (convenience factory)."""
+        return attrs
 
     @staticmethod
     def tokens(attrs: DocumentTokens) -> DocumentTokens:
@@ -135,13 +158,13 @@ class L:
         return ContainerNode("frame", options_to_attrs(attrs), nodes or [])
 
     @staticmethod
-    def link(attrs: LinkAttr | None = None, nodes: list | None = None) -> ContainerNode:
+    def link(attrs: LinkAttr, nodes: list | None = None) -> ContainerNode:
         return ContainerNode("link", options_to_attrs(attrs), nodes or [])
 
     # ── Table ──────────────────────────────────────────────────────────────────
 
     @staticmethod
-    def table(attrs: TableAttr | None = None, nodes: list | None = None) -> ContainerNode:
+    def table(attrs: TableAttr, nodes: list | None = None) -> ContainerNode:
         return ContainerNode("table", options_to_attrs(attrs), nodes or [])
 
     @staticmethod
@@ -183,55 +206,44 @@ class L:
     @staticmethod
     def region(attrs: RegionAttr, nodes: list | None = None) -> RegionNode:
         """Build a pinned region node. attrs.pin is required."""
-        flat = options_to_attrs(attrs)
-        return RegionNode(flat, nodes or [])
+        return RegionNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
-    def field(
-        field_type: str | FieldType,
-        name: str,
-        attrs: FieldAttr | None = None,
-    ) -> FieldNode:
-        fa: dict[str, str] = {"type": str(field_type), "name": name}
-        fa.update(options_to_attrs(attrs))
-        return FieldNode(fa)
+    def field(attrs: FieldAttr) -> FieldNode:
+        """Build a form field node. attrs.type and attrs.name are required."""
+        return FieldNode(options_to_attrs(attrs))
 
     # ── Canvas ─────────────────────────────────────────────────────────────────
 
     @staticmethod
     def layer(attrs: LayerAttr | None = None, nodes: list | None = None) -> LayerNode:
-        return LayerNode(nodes=nodes or [], options=attrs)
+        return LayerNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
-    def rect(x: float, y: float, w: float, h: float, style: RectStyle | None = None) -> RectNode:
-        return RectNode(x, y, w, h, style)
+    def rect(attrs: RectAttr) -> RectNode:
+        return RectNode(options_to_attrs(attrs))
 
     @staticmethod
-    def line(x1: float, y1: float, x2: float, y2: float, style: LineStyle | None = None) -> LineNode:
-        return LineNode(x1, y1, x2, y2, style)
+    def line(attrs: LineAttr) -> LineNode:
+        return LineNode(options_to_attrs(attrs))
 
     @staticmethod
-    def ellipse(cx: float, cy: float, rx: float, ry: float, style: EllipseStyle | None = None) -> EllipseNode:
-        return EllipseNode(cx, cy, rx, ry, style)
+    def ellipse(attrs: EllipseAttr) -> EllipseNode:
+        return EllipseNode(options_to_attrs(attrs))
 
     @staticmethod
-    def circle(cx: float, cy: float, r: float, style: EllipseStyle | None = None) -> CircleNode:
-        return CircleNode(cx, cy, r, style)
+    def circle(attrs: CircleAttr) -> CircleNode:
+        return CircleNode(options_to_attrs(attrs))
 
     @staticmethod
-    def path(d: str, style: PathStyle | None = None) -> PathNode:
-        return PathNode(d, style)
+    def path(attrs: PathAttr) -> PathNode:
+        return PathNode(options_to_attrs(attrs))
 
     @staticmethod
-    def text_at(
-        x: float,
-        y: float,
-        content: str,
-        style: TextStyle | None = None,
-        runs: list[Run] | None = None,
-    ) -> CanvasTextNode:
-        return CanvasTextNode(x, y, content, style, runs)
+    def text_at(attrs: CanvasTextAttr, nodes: list | None = None) -> CanvasTextNode:
+        """Build text on the canvas. Children must be strings or SpanNode instances."""
+        return CanvasTextNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
-    def img_at(x: float, y: float, w: float, h: float, name: str, anchor: str | None = None) -> ImageNode:
-        return ImageNode(x, y, w, h, name, anchor)
+    def img_at(attrs: CanvasImgAttr) -> ImageNode:
+        return ImageNode(options_to_attrs(attrs))

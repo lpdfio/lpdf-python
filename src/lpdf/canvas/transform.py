@@ -9,6 +9,10 @@ class Transform:
     """Affine transform matrix [a, b, c, d, e, f] (SVG/PDF convention)."""
     matrix: list[float]
 
+    def __str__(self) -> str:
+        """The `matrix(a,b,c,d,e,f)` form, which a layer's `transform` attribute accepts."""
+        return "matrix(" + ",".join(str(v) for v in self.matrix) + ")"
+
     @staticmethod
     def rotate(degrees: float, cx: float = 0.0, cy: float = 0.0) -> Transform:
         """Rotate by degrees clockwise around (cx, cy)."""

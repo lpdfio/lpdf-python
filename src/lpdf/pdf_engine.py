@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import contextlib
 import json
 import re
 import time
@@ -11,6 +12,20 @@ from .engine.engine_options import EngineOptions
 from .engine.render_options import RenderOptions
 from .engine.wasm_runner import WasmRunner
 from .kit.document import PdfDocument
+
+
+def _tree_asset_srcs(attrs: dict, kind: str) -> dict[str, str]:
+    """The ``ref or name -> src`` pairs of the fonts or images a document tree declares in ``assets``."""
+    declared = (attrs.get("assets") or {}).get(kind) or []
+    return {item.get("ref") or item["name"]: item["src"] for item in declared if item.get("src")}
+
+
+def _load_declared(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
+    """Read each declared file that is not already loaded on the engine; one that cannot be read is skipped."""
+    for key, src in srcs.items():
+        if key not in loaded:
+            with contextlib.suppress(OSError):
+                loaded[key] = Path(src).read_bytes()
 
 
 def _extract_xml_font_srcs(xml: str) -> dict[str, str]:
@@ -35,6 +50,11 @@ def _extract_xml_image_srcs(xml: str) -> dict[str, str]:
             key = ref.group(1) if ref else name.group(1)
             srcs[key] = src.group(1)
     return srcs
+
+
+def default_wasm_binary() -> str:
+    """The path of the WASI binary the SDK ships."""
+    return str(Path(__file__).resolve().parent.parent / "resources" / "lpdf-wasi.wasm")
 
 
 class PdfEngine:
@@ -124,24 +144,10 @@ class PdfEngine:
         merged_fonts: dict[str, bytes] = dict(self._fonts)
 
         if input_dict is not None:
-            tree_fonts = ((input_dict.get("attrs") or {}).get("tokens") or {}).get("fonts") or {}
-            for fname, def_ in tree_fonts.items():
-                if isinstance(def_, dict) and "src" in def_:
-                    key = def_.get("ref") or fname
-                    if key not in merged_fonts:
-                        try:
-                            with open(def_["src"], "rb") as fh:
-                                merged_fonts[key] = fh.read()
-                        except OSError:
-                            pass
+            font_srcs = _tree_asset_srcs(input_dict.get("attrs") or {}, "fonts")
         else:
-            for key, src in _extract_xml_font_srcs(input_str).items():
-                if key not in merged_fonts:
-                    try:
-                        with open(src, "rb") as fh:
-                            merged_fonts[key] = fh.read()
-                    except OSError:
-                        pass
+            font_srcs = _extract_xml_font_srcs(input_str)
+        _load_declared(font_srcs, merged_fonts)
 
         payload: dict = {
             "method": method,
@@ -161,24 +167,10 @@ class PdfEngine:
         merged_images: dict[str, bytes] = dict(self._images)
 
         if input_dict is not None:
-            tree_images = ((input_dict.get("attrs") or {}).get("tokens") or {}).get("images") or {}
-            for iname, def_ in tree_images.items():
-                if isinstance(def_, dict) and "src" in def_:
-                    key = def_.get("ref") or iname
-                    if key not in merged_images:
-                        try:
-                            with open(def_["src"], "rb") as fh:
-                                merged_images[key] = fh.read()
-                        except OSError:
-                            pass
+            image_srcs = _tree_asset_srcs(input_dict.get("attrs") or {}, "images")
         else:
-            for key, src in _extract_xml_image_srcs(input_str).items():
-                if key not in merged_images:
-                    try:
-                        with open(src, "rb") as fh:
-                            merged_images[key] = fh.read()
-                    except OSError:
-                        pass
+            image_srcs = _extract_xml_image_srcs(input_str)
+        _load_declared(image_srcs, merged_images)
 
         if merged_images:
             payload["images"] = {
@@ -203,4 +195,4 @@ class PdfEngine:
 
     @staticmethod
     def _default_binary() -> str:
-        return str(Path(__file__).resolve().parent.parent / "resources" / "lpdf-wasi.wasm")
+        return default_wasm_binary()

@@ -10,9 +10,13 @@ from .engine.encrypt_options import EncryptOptions, EncryptPermissions
 
 # kit subpackage
 from .kit.document import PdfDocument
+from .kit.document_assets import DocumentAssets
 from .kit.document_attr import DocumentAttr
 from .kit.document_meta import DocumentMeta
 from .kit.document_tokens import DocumentTokens
+from .kit.font_attr import FontAttr
+from .kit.image_attr import ImageAttr
+from .kit.builtin_font import BuiltinFont
 from .kit.section_node import SectionNode
 from .kit.section_attr import SectionAttr
 from .kit.section_layout import SectionLayout
@@ -41,11 +45,13 @@ from .layout.thead_attr import TheadAttr
 from .layout.tr_attr import TrAttr
 from .layout.td_attr import TdAttr
 
-# canvas subpackage - commonly used types
+# canvas subpackage - attribute classes and the transform helper
 from .canvas.layer_attr import LayerAttr
+from .canvas.rect_attr import RectAttr
+from .canvas.line_attr import LineAttr
+from .canvas.ellipse_attr import EllipseAttr
+from .canvas.circle_attr import CircleAttr
+from .canvas.path_attr import PathAttr
+from .canvas.canvas_text_attr import CanvasTextAttr
+from .canvas.canvas_img_attr import CanvasImgAttr
 from .canvas.transform import Transform
-from .canvas.clip import Clip
-from .canvas.run import Run
-from .canvas.text_style import TextStyle
-from .canvas.text_align import TextAlign
-from .canvas.styles import RectStyle, LineStyle, EllipseStyle, PathStyle
