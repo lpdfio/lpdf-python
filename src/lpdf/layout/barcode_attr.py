@@ -18,4 +18,5 @@ class BarcodeAttr:
     hrt: str | None = None
     color: str | None = None
     background: str | None = None
+    paginate: str | None = None
     debug: str | None = None

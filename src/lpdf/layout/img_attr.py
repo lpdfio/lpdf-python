@@ -19,4 +19,5 @@ class ImgAttr:
     background: str | None = None
     border: str | None = None
     radius: str | None = None
+    paginate: str | None = None
     debug: str | None = None

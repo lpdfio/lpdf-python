@@ -22,4 +22,5 @@ class TextAttr:
     color: str | None = None
     align: str | None = None
     width: str | None = None
+    paginate: str | None = None
     debug: str | None = None
