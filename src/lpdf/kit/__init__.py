@@ -11,6 +11,7 @@ from .section_attr import SectionAttr
 from .section_layout import SectionLayout
 from .section_canvas import SectionCanvas
 from .orientation import Orientation
+from .section_type import SectionType
 
 __all__ = [
     "PdfDocument",
@@ -26,4 +27,5 @@ __all__ = [
     "SectionLayout",
     "SectionCanvas",
     "Orientation",
+    "SectionType",
 ]
