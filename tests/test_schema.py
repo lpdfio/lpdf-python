@@ -5,9 +5,9 @@ import pytest
 
 from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
-    BuiltinFont, CanvasImgAttr, CanvasTextAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr, FieldAttr,
-    FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin, RectAttr,
-    RegionAttr, SpanAttr, StackAttr, TextAttr, Transform,
+    BookmarkAttr, BuiltinFont, CanvasImgAttr, CanvasTextAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr,
+    FieldAttr, FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
+    RectAttr, RegionAttr, SectionAttr, SectionType, SpanAttr, StackAttr, TextAttr, Transform,
 )
 
 
@@ -138,6 +138,37 @@ def test_bold_text_is_the_bold_face_of_the_font():
 
     assert _render(doc('bold="true"')) == _render(doc('font="Helvetica-Bold"'))
     assert _render(doc('bold="true"')) != _render(doc(""))
+
+
+# ── Bookmarks and the table of contents ────────────────────────────────────────
+
+def test_a_bookmark_goes_in_a_layout_and_directly_in_a_section():
+    bookmark = L.bookmark(BookmarkAttr(label="Methods", level="2", id="methods"))
+    assert bookmark.to_dict() == {"type": "bookmark", "attrs": {"label": "Methods", "level": "2", "id": "methods"}}
+
+    section = L.section(SectionAttr(type=SectionType.TOC, toc_indent_step="14pt"), [
+        L.bookmark(BookmarkAttr(label="Contents")),
+        L.layout(NoAttr, []),
+    ]).to_dict()
+    assert section["attrs"] == {"type": "toc", "toc-indent-step": "14pt"}
+    assert section["nodes"][0]["type"] == "bookmark"
+
+
+def test_bookmarks_fill_the_outline_and_render_like_their_xml():
+    built = L.document(NoAttr, [
+        L.section(NoAttr, [L.bookmark(BookmarkAttr(label="Cover")), L.layout(NoAttr, [L.text(NoAttr, ["Cover"])])]),
+        L.section(NoAttr, [
+            L.layout(NoAttr, [
+                L.link(LinkAttr(href="#methods"), [L.text(NoAttr, ["Go to Methods"])]),
+                L.bookmark(BookmarkAttr(label="Methods")),
+                L.text(NoAttr, ["Methods"]),
+            ]),
+        ]),
+    ])
+    pdf = _render(built)
+    assert b"/Title (Cover)" in pdf and b"/Title (Methods)" in pdf
+    assert b"/D /methods" in pdf
+    assert pdf == _render(L.to_xml(built))
 
 
 # ── Assets ─────────────────────────────────────────────────────────────────────

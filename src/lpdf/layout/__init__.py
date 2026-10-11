@@ -7,6 +7,7 @@ from .img_node import ImgNode
 from .barcode_node import BarcodeNode
 from .field_node import FieldNode
 from .region_node import RegionNode
+from .bookmark_node import BookmarkNode
 from .pin import Pin
 from .field_type import FieldType
 from .stack_attr import StackAttr
@@ -27,15 +28,16 @@ from .table_attr import TableAttr
 from .thead_attr import TheadAttr
 from .tr_attr import TrAttr
 from .td_attr import TdAttr
+from .bookmark_attr import BookmarkAttr
 
 __all__ = [
     "Node",
     "ContainerNode", "TextNode", "SpanNode", "DividerNode",
-    "ImgNode", "BarcodeNode", "FieldNode", "RegionNode",
+    "ImgNode", "BarcodeNode", "FieldNode", "RegionNode", "BookmarkNode",
     "Pin", "FieldType",
     "StackAttr", "FlankAttr", "SplitAttr", "ClusterAttr",
     "GridAttr", "FrameAttr", "LinkAttr",
     "TextAttr", "SpanAttr", "DividerAttr",
     "ImgAttr", "BarcodeAttr", "FieldAttr", "RegionAttr",
-    "TableAttr", "TheadAttr", "TrAttr", "TdAttr",
+    "TableAttr", "TheadAttr", "TrAttr", "TdAttr", "BookmarkAttr",
 ]

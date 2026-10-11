@@ -9,6 +9,8 @@ from dataclasses import dataclass
 class LinkAttr:
     """Attributes of the `link` element."""
 
+    # Where the link goes: a URL, or #id to jump to the bookmark with that id. In an entry of a
+    # table of contents, # alone jumps to that entry's bookmark.
     href: str
     gap: str | None = None
     width: str | None = None

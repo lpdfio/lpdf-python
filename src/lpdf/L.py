@@ -31,6 +31,8 @@ from .kit.section_layout import SectionLayout
 from .kit.section_node import SectionNode
 from .layout.barcode_attr import BarcodeAttr
 from .layout.barcode_node import BarcodeNode
+from .layout.bookmark_attr import BookmarkAttr
+from .layout.bookmark_node import BookmarkNode
 from .layout.cluster_attr import ClusterAttr
 from .layout.container_node import ContainerNode
 from .layout.divider_attr import DividerAttr
@@ -212,6 +214,12 @@ class L:
     def field(attrs: FieldAttr) -> FieldNode:
         """Build a form field node. attrs.type and attrs.name are required."""
         return FieldNode(options_to_attrs(attrs))
+
+    @staticmethod
+    def bookmark(attrs: BookmarkAttr) -> BookmarkNode:
+        """Build a bookmark: an entry of the PDF's outline and a target for href="#id" links. It marks the
+        node that follows it; in a section's nodes, it marks the section's first page."""
+        return BookmarkNode(options_to_attrs(attrs))
 
     # ── Canvas ─────────────────────────────────────────────────────────────────
 

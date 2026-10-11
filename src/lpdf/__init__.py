@@ -22,6 +22,7 @@ from .kit.section_attr import SectionAttr
 from .kit.section_layout import SectionLayout
 from .kit.section_canvas import SectionCanvas
 from .kit.orientation import Orientation
+from .kit.section_type import SectionType
 
 # layout subpackage - attrs and enums
 from .layout.pin import Pin
@@ -44,6 +45,7 @@ from .layout.table_attr import TableAttr
 from .layout.thead_attr import TheadAttr
 from .layout.tr_attr import TrAttr
 from .layout.td_attr import TdAttr
+from .layout.bookmark_attr import BookmarkAttr
 
 # canvas subpackage - attribute classes and the transform helper
 from .canvas.layer_attr import LayerAttr
