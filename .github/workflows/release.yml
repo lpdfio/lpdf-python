@@ -15,7 +15,7 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # ── Resolve version ──────────────────────────────────────────────────────
       - name: Resolve version
@@ -77,7 +77,7 @@ jobs:
           wasmtime --version
 
       # ── Set version ──────────────────────────────────────────────────────────
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -128,7 +128,7 @@ jobs:
       # approved can mint it.
       - name: Mint GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.LPDF_RELEASE_APP_ID }}
           private-key: ${{ secrets.LPDF_RELEASE_APP_PRIVATE_KEY }}
