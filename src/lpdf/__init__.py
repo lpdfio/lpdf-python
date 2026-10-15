@@ -27,10 +27,10 @@ from .kit.section_type import SectionType
 # layout subpackage - attrs and enums
 from .layout.pin import Pin
 from .layout.field_type import FieldType
-from .layout.stack_attr import StackAttr
+from .layout.column_attr import ColumnAttr
 from .layout.flank_attr import FlankAttr
 from .layout.split_attr import SplitAttr
-from .layout.cluster_attr import ClusterAttr
+from .layout.row_attr import RowAttr
 from .layout.grid_attr import GridAttr
 from .layout.frame_attr import FrameAttr
 from .layout.link_attr import LinkAttr

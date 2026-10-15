@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class StackAttr:
+class ColumnAttr:
     """
     Places children top to bottom, each at the full width, with gap between them. Can split
     across pages between children.

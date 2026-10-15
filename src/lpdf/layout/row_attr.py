@@ -6,10 +6,10 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class ClusterAttr:
+class RowAttr:
     """
-    A row that wraps: children sit side by side, and continue on the next line when they run
-    out of width. Splits across pages between lines.
+    Children side by side, continuing on the next line when they run out of width. Splits
+    across pages between lines.
     """
 
     font: str | None = None
