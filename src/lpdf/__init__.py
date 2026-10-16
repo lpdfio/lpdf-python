@@ -28,8 +28,6 @@ from .kit.section_type import SectionType
 from .layout.pin import Pin
 from .layout.field_type import FieldType
 from .layout.column_attr import ColumnAttr
-from .layout.flank_attr import FlankAttr
-from .layout.split_attr import SplitAttr
 from .layout.row_attr import RowAttr
 from .layout.grid_attr import GridAttr
 from .layout.frame_attr import FrameAttr

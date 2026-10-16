@@ -20,6 +20,9 @@ class FieldAttr:
     readonly: str | None = None
     max_len: str | None = None
     action_url: str | None = None
+    # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
+    # after the other children, shared equally if several on the line use fill, and never moves
+    # to the next line; in a column it takes the full width.
     width: str | None = None
     height: str | None = None
     background: str | None = None

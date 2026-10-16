@@ -2,7 +2,7 @@ import pytest
 
 from lpdf import (
     L, NoAttr,
-    ColumnAttr, FlankAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
+    ColumnAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
     DividerAttr, SectionAttr, DocumentAttr, DocumentMeta, DocumentTokens,
 )
 
@@ -35,8 +35,7 @@ def test_grid_col_width():
 
 def test_container_types():
     for method, name in [
-        ("column", "column"), ("flank", "flank"), ("split", "split"),
-        ("row", "row"), ("grid", "grid"), ("frame", "frame"),
+        ("column", "column"), ("row", "row"), ("grid", "grid"), ("frame", "frame"),
     ]:
         d = getattr(L, method)().to_dict()
         assert d["type"] == name

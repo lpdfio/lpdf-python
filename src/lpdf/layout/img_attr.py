@@ -11,6 +11,9 @@ class ImgAttr:
 
     name: str
     height: str | None = None
+    # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
+    # after the other children, shared equally if several on the line use fill, and never moves
+    # to the next line; in a column it takes the full width.
     width: str | None = None
     font: str | None = None
     font_size: str | None = None
