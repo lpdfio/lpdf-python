@@ -4,7 +4,7 @@ from .canvas_node import CanvasNode
 
 
 class EllipseNode(CanvasNode):
-    """An `ellipse` on the canvas."""
+    """An `ellipse` in a layer."""
 
     __slots__ = ("_attrs",)
 

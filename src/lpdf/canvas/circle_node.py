@@ -4,7 +4,7 @@ from .canvas_node import CanvasNode
 
 
 class CircleNode(CanvasNode):
-    """A `circle` on the canvas."""
+    """A `circle` in a layer."""
 
     __slots__ = ("_attrs",)
 

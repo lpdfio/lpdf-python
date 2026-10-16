@@ -4,7 +4,7 @@ from .canvas_node import CanvasNode
 
 
 class RectNode(CanvasNode):
-    """A `rect` on the canvas."""
+    """A `rect` in a layer."""
 
     __slots__ = ("_attrs",)
 

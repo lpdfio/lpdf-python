@@ -20,7 +20,6 @@ from .kit.builtin_font import BuiltinFont
 from .kit.section_node import SectionNode
 from .kit.section_attr import SectionAttr
 from .kit.section_layout import SectionLayout
-from .kit.section_canvas import SectionCanvas
 from .kit.orientation import Orientation
 from .kit.section_type import SectionType
 

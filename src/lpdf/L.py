@@ -26,7 +26,6 @@ from .kit.document_assets import DocumentAssets
 from .kit.document_attr import DocumentAttr
 from .kit.document_tokens import DocumentTokens
 from .kit.section_attr import SectionAttr
-from .kit.section_canvas import SectionCanvas
 from .kit.section_layout import SectionLayout
 from .kit.section_node import SectionNode
 from .layout.barcode_attr import BarcodeAttr
@@ -108,18 +107,14 @@ class L:
         attrs: SectionAttr | None = None,
         nodes: list | None = None,
     ) -> SectionNode:
-        """Build a section (page) node."""
+        """Build a section (page) node. Its nodes are a bookmark, then layers, then at most one layout, then
+        layers: the layers before the layout paint under it, and the layers after it paint over it."""
         return SectionNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def layout(_attrs: object, nodes: list | None = None) -> SectionLayout:
         """Wrap layout nodes into a layout block."""
         return SectionLayout(nodes or [])
-
-    @staticmethod
-    def canvas(_attrs: object, layers: list | None = None) -> SectionCanvas:
-        """Wrap canvas layer nodes into a canvas block."""
-        return SectionCanvas(layers or [])
 
     @staticmethod
     def assets(attrs: DocumentAssets) -> DocumentAssets:
@@ -211,7 +206,7 @@ class L:
         node that follows it; in a section's nodes, it marks the section's first page."""
         return BookmarkNode(options_to_attrs(attrs))
 
-    # ── Canvas ─────────────────────────────────────────────────────────────────
+    # ── Layers ─────────────────────────────────────────────────────────────────
 
     @staticmethod
     def layer(attrs: LayerAttr | None = None, nodes: list | None = None) -> LayerNode:
@@ -239,7 +234,7 @@ class L:
 
     @staticmethod
     def text_at(attrs: CanvasTextAttr, nodes: list | None = None) -> CanvasTextNode:
-        """Build text on the canvas. Children must be strings or SpanNode instances."""
+        """Build text in a layer. Children must be strings or SpanNode instances."""
         return CanvasTextNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod

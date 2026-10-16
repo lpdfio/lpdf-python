@@ -4,7 +4,7 @@ from .canvas_node import CanvasNode
 
 
 class LayerNode(CanvasNode):
-    """A canvas layer containing canvas primitives."""
+    """A layer, which goes directly in a section, holding the shapes, text and images drawn at fixed places."""
 
     __slots__ = ("_attrs", "_nodes")
 

@@ -4,7 +4,7 @@ from .canvas_node import CanvasNode
 
 
 class LineNode(CanvasNode):
-    """A `line` on the canvas."""
+    """A `line` in a layer."""
 
     __slots__ = ("_attrs",)
 
