@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class EllipseAttr:
-    """Attributes of the `ellipse` element on the canvas."""
+    """Attributes of the `ellipse` element in a layer."""
 
     rx: str
     ry: str

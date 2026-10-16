@@ -4,7 +4,7 @@ from .canvas_node import CanvasNode
 
 
 class PathNode(CanvasNode):
-    """A `path` on the canvas."""
+    """A `path` in a layer."""
 
     __slots__ = ("_attrs",)
 

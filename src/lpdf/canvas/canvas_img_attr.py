@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CanvasImgAttr:
-    """Attributes of the `img` element on the canvas."""
+    """Attributes of the `img` element in a layer."""
 
     name: str
     w: str

@@ -115,12 +115,10 @@ def _built_document():
                     L.link(LinkAttr(href="https://lpdf.io"), [L.text(NoAttr, ["link"])]),
                 ]),
             ]),
-            L.canvas(NoAttr, [
-                L.layer(LayerAttr(page="each"), [
-                    L.rect(RectAttr(x="40pt", y="40pt", w="100pt", h="60pt", fill="#ff0000", radius="6pt")),
-                    L.text_at(CanvasTextAttr(x="40pt", y="120pt", font_size="10pt"),
-                              ["Canvas ", L.span(SpanAttr(color="#0000ff"), ["text"])]),
-                ]),
+            L.layer(LayerAttr(page="each"), [
+                L.rect(RectAttr(x="40pt", y="40pt", w="100pt", h="60pt", fill="#ff0000", radius="6pt")),
+                L.text_at(CanvasTextAttr(x="40pt", y="120pt", font_size="10pt"),
+                          ["Layer ", L.span(SpanAttr(color="#0000ff"), ["text"])]),
             ]),
         ]),
     ])
@@ -218,6 +216,15 @@ def test_an_image_declared_in_the_assets_can_be_used_and_renders_the_same_as_its
     )
     engine = PdfEngine().set_license_key("test-key").load_image("logo", _PIXEL)
     assert _normalised(engine.render(built)) == _normalised(engine.render(L.to_xml(built)))
+
+
+def test_a_section_with_two_layouts_is_rejected():
+    built = L.document(DocumentAttr(), [L.section(NoAttr, [
+        L.layout(NoAttr, [L.text(NoAttr, ["a"])]),
+        L.layout(NoAttr, [L.text(NoAttr, ["b"])]),
+    ])])
+    with pytest.raises(EngineException, match="at most one <layout>"):
+        PdfEngine().set_license_key("test-key").render(built)
 
 
 def test_an_image_used_but_not_declared_in_the_assets_is_an_error_that_names_it():

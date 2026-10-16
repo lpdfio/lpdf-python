@@ -4,6 +4,7 @@ from lpdf import (
     L, NoAttr,
     ColumnAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
     DividerAttr, SectionAttr, DocumentAttr, DocumentMeta, DocumentTokens,
+    LayerAttr, RectAttr,
 )
 
 
@@ -80,11 +81,20 @@ def test_layout_wrapper():
     assert "nodes" in d
 
 
-def test_canvas_wrapper():
-    canvas = L.canvas(NoAttr)
-    d = canvas.to_dict()
-    assert d["type"] == "canvas"
-    assert d["nodes"] == []
+def test_layers_go_directly_in_a_section_before_and_after_its_layout():
+    section = L.section(NoAttr, [
+        L.layer(LayerAttr(page="first"), [L.rect(RectAttr(w="10pt", h="10pt"))]),
+        L.layout(NoAttr, [L.text(NoAttr, ["hi"])]),
+        L.layer(LayerAttr(page="last"), [L.rect(RectAttr(w="20pt", h="20pt"))]),
+    ])
+    d = section.to_dict()
+    assert [n["type"] for n in d["nodes"]] == ["layer", "layout", "layer"]
+    assert d["nodes"][0]["attrs"] == {"page": "first"}
+    assert d["nodes"][2]["attrs"] == {"page": "last"}
+
+
+def test_there_is_no_canvas():
+    assert not hasattr(L, "canvas")
 
 
 def test_document_includes_version():

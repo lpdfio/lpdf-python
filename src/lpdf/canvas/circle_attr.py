@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class CircleAttr:
-    """Attributes of the `circle` element on the canvas."""
+    """Attributes of the `circle` element in a layer."""
 
     r: str
     cx: str | None = None

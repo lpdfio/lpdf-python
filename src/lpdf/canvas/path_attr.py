@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class PathAttr:
-    """Attributes of the `path` element on the canvas."""
+    """Attributes of the `path` element in a layer."""
 
     d: str
     fill: str | None = None

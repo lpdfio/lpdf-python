@@ -2,8 +2,9 @@ from __future__ import annotations
 
 
 class SectionNode:
-    """A section node. Children are SectionLayout and/or SectionCanvas in paint order, and optionally a
-    BookmarkNode that marks the section's first page."""
+    """A section node. Its children are an optional BookmarkNode that marks the section's first page, then
+    LayerNodes, then at most one SectionLayout, then LayerNodes, in paint order: the layers before the layout
+    paint under it, and the layers after it paint over it."""
 
     __slots__ = ("_attrs", "_nodes")
 

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class LineAttr:
-    """Attributes of the `line` element on the canvas."""
+    """Attributes of the `line` element in a layer."""
 
     x1: str
     y1: str

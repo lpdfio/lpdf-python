@@ -5,7 +5,7 @@ from .canvas_node import CanvasNode
 
 
 class CanvasTextNode(CanvasNode):
-    """Text on the canvas. Its content is strings and `span` nodes, as in a layout `text`."""
+    """Text in a layer. Its content is strings and `span` nodes, as in a layout `text`."""
 
     __slots__ = ("_attrs", "_nodes")
 

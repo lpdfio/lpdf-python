@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class RectAttr:
-    """Attributes of the `rect` element on the canvas."""
+    """Attributes of the `rect` element in a layer."""
 
     w: str
     h: str

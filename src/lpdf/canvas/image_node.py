@@ -4,7 +4,7 @@ from .canvas_node import CanvasNode
 
 
 class ImageNode(CanvasNode):
-    """An `img` on the canvas."""
+    """An `img` in a layer."""
 
     __slots__ = ("_attrs",)
 
