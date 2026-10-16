@@ -2,16 +2,10 @@
 encrypt-permissions-only.py — render showcase-encryption.xml with RC4-128 encryption,
 no open password, print and copy disabled.
 
-Run (after 'make build-adapter-python'):
-    docker run --rm \\
-        -v "$(pwd)/src/adapters/python/lpdf:/app/lpdf" \\
-        -v "$(pwd)/src/adapters/python/example:/app/example" \\
-        -v "$(pwd)/example:/app/example-data" \\
-        -v "$(pwd)/test/fixtures:/app/test/fixtures" \\
-        -v "$(pwd)/src/adapters/python/resources:/app/resources" \\
-        -w /app lpdf-python python example/encrypt-permissions-only.py
+Run from lpdf's root (after 'make build-sdk-python'):
+  make example-python
 
-Output: example/result/encrypt-permissions-only-python.pdf
+Output: tmp/sdk-examples/encrypt-permissions-only-python.pdf in lpdf's root.
 """
 
 import sys
@@ -21,13 +15,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from lpdf import L
 
-_docker_data = Path("/app/example-data")
-root = _docker_data if _docker_data.exists() else Path(__file__).resolve().parents[4] / "example"
-
-_docker_fixtures = Path("/app/test/fixtures")
-xml_file = _docker_fixtures / "showcase-encryption.xml" \
-    if _docker_fixtures.exists() \
-    else Path(__file__).resolve().parents[4] / "test/fixtures/showcase-encryption.xml"
+# lpdf's root: /app in make's container, which mounts test/fixtures/ and tmp/sdk-examples/ there;
+# three folders up when run from repos/lpdf-python/example
+lpdf = Path("/app") if Path("/.dockerenv").exists() else Path(__file__).resolve().parents[3]
+xml_file = lpdf / "test/fixtures/showcase-encryption.xml"
+output = lpdf / "tmp/sdk-examples"
 
 output_file = "encrypt-permissions-only-python.pdf"
 
@@ -41,5 +33,6 @@ engine.set_encryption("", "s3cr3t", {"print": False, "copy": False})
 
 pdf = engine.render(xml)
 
-(root / "result" / output_file).write_bytes(pdf)
+output.mkdir(parents=True, exist_ok=True)
+(output / output_file).write_bytes(pdf)
 print(f"output: {output_file} ({len(pdf):,} bytes)")
