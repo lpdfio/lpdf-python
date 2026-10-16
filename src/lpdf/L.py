@@ -39,7 +39,6 @@ from .layout.divider_attr import DividerAttr
 from .layout.divider_node import DividerNode
 from .layout.field_attr import FieldAttr
 from .layout.field_node import FieldNode
-from .layout.flank_attr import FlankAttr
 from .layout.frame_attr import FrameAttr
 from .layout.grid_attr import GridAttr
 from .layout.img_attr import ImgAttr
@@ -50,7 +49,6 @@ from .layout.region_node import RegionNode
 from .layout.row_attr import RowAttr
 from .layout.span_attr import SpanAttr
 from .layout.span_node import SpanNode
-from .layout.split_attr import SplitAttr
 from .layout.table_attr import TableAttr
 from .layout.td_attr import TdAttr
 from .layout.text_attr import TextAttr
@@ -138,14 +136,6 @@ class L:
     @staticmethod
     def column(attrs: ColumnAttr | None = None, nodes: list | None = None) -> ContainerNode:
         return ContainerNode("column", options_to_attrs(attrs), nodes or [])
-
-    @staticmethod
-    def flank(attrs: FlankAttr | None = None, nodes: list | None = None) -> ContainerNode:
-        return ContainerNode("flank", options_to_attrs(attrs), nodes or [])
-
-    @staticmethod
-    def split(attrs: SplitAttr | None = None, nodes: list | None = None) -> ContainerNode:
-        return ContainerNode("split", options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def row(attrs: RowAttr | None = None, nodes: list | None = None) -> ContainerNode:
