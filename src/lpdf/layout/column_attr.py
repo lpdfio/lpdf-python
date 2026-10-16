@@ -6,10 +6,10 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class ClusterAttr:
+class ColumnAttr:
     """
-    A row that wraps: children sit side by side, and continue on the next line when they run
-    out of width. Splits across pages between lines.
+    Places children top to bottom, each at the full width, with gap between them. Can split
+    across pages between children.
     """
 
     font: str | None = None
@@ -36,4 +36,7 @@ class ClusterAttr:
     debug: str | None = None
     align: str | None = None
     justify: str | None = None
+    # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
+    # after the other children, shared equally if several on the line use fill, and never moves
+    # to the next line; in a column it takes the full width.
     width: str | None = None

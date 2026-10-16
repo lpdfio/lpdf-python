@@ -6,11 +6,12 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class FlankAttr:
+class RowAttr:
     """
-    One row where the children keep their own width except one, which fills the rest. By
-    default the last child fills; set end to true and the first fills. Never splits across
-    pages.
+    Children side by side, continuing on the next line when they run out of width. A child
+    with width set to fill takes what its line leaves; justify set to between puts a line's
+    first child at the left edge, its last at the right and the others evenly between.
+    Splits across pages between lines.
     """
 
     font: str | None = None
@@ -36,8 +37,8 @@ class FlankAttr:
     paginate: str | None = None
     debug: str | None = None
     align: str | None = None
-    # false (the default): every child but the last keeps its own width at the left, and the
-    # last fills the rest. true: the first child fills, and the others keep their own width at
-    # the right.
-    end: str | None = None
+    justify: str | None = None
+    # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
+    # after the other children, shared equally if several on the line use fill, and never moves
+    # to the next line; in a column it takes the full width.
     width: str | None = None

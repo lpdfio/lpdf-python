@@ -21,6 +21,9 @@ class TextAttr:
     bold: str | None = None
     color: str | None = None
     align: str | None = None
+    # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
+    # after the other children, shared equally if several on the line use fill, and never moves
+    # to the next line; in a column it takes the full width.
     width: str | None = None
     # The fewest lines of the text that may stand alone at the top of the next page when it
     # splits. Default 2. If fewer would be left, lines move from the first page to the next; 1

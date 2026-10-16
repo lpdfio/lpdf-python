@@ -33,13 +33,12 @@ from .layout.barcode_attr import BarcodeAttr
 from .layout.barcode_node import BarcodeNode
 from .layout.bookmark_attr import BookmarkAttr
 from .layout.bookmark_node import BookmarkNode
-from .layout.cluster_attr import ClusterAttr
+from .layout.column_attr import ColumnAttr
 from .layout.container_node import ContainerNode
 from .layout.divider_attr import DividerAttr
 from .layout.divider_node import DividerNode
 from .layout.field_attr import FieldAttr
 from .layout.field_node import FieldNode
-from .layout.flank_attr import FlankAttr
 from .layout.frame_attr import FrameAttr
 from .layout.grid_attr import GridAttr
 from .layout.img_attr import ImgAttr
@@ -47,10 +46,9 @@ from .layout.img_node import ImgNode
 from .layout.link_attr import LinkAttr
 from .layout.region_attr import RegionAttr
 from .layout.region_node import RegionNode
+from .layout.row_attr import RowAttr
 from .layout.span_attr import SpanAttr
 from .layout.span_node import SpanNode
-from .layout.split_attr import SplitAttr
-from .layout.stack_attr import StackAttr
 from .layout.table_attr import TableAttr
 from .layout.td_attr import TdAttr
 from .layout.text_attr import TextAttr
@@ -136,20 +134,12 @@ class L:
     # ── Layout containers ──────────────────────────────────────────────────────
 
     @staticmethod
-    def stack(attrs: StackAttr | None = None, nodes: list | None = None) -> ContainerNode:
-        return ContainerNode("stack", options_to_attrs(attrs), nodes or [])
+    def column(attrs: ColumnAttr | None = None, nodes: list | None = None) -> ContainerNode:
+        return ContainerNode("column", options_to_attrs(attrs), nodes or [])
 
     @staticmethod
-    def flank(attrs: FlankAttr | None = None, nodes: list | None = None) -> ContainerNode:
-        return ContainerNode("flank", options_to_attrs(attrs), nodes or [])
-
-    @staticmethod
-    def split(attrs: SplitAttr | None = None, nodes: list | None = None) -> ContainerNode:
-        return ContainerNode("split", options_to_attrs(attrs), nodes or [])
-
-    @staticmethod
-    def cluster(attrs: ClusterAttr | None = None, nodes: list | None = None) -> ContainerNode:
-        return ContainerNode("cluster", options_to_attrs(attrs), nodes or [])
+    def row(attrs: RowAttr | None = None, nodes: list | None = None) -> ContainerNode:
+        return ContainerNode("row", options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def grid(attrs: GridAttr | None = None, nodes: list | None = None) -> ContainerNode:

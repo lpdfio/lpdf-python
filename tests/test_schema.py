@@ -7,7 +7,7 @@ from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
     BookmarkAttr, BuiltinFont, CanvasImgAttr, CanvasTextAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr,
     FieldAttr, FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
-    RectAttr, RegionAttr, SectionAttr, SectionType, SpanAttr, StackAttr, TextAttr, Transform,
+    RectAttr, RegionAttr, SectionAttr, SectionType, SpanAttr, ColumnAttr, TextAttr, Transform,
 )
 
 
@@ -109,7 +109,7 @@ def _built_document():
     return L.document(DocumentAttr(size="a4"), [
         L.section(NoAttr, [
             L.layout(NoAttr, [
-                L.stack(StackAttr(gap="12pt"), [
+                L.column(ColumnAttr(gap="12pt"), [
                     L.text(TextAttr(align="right", bold="true"), ["Title"]),
                     L.text(NoAttr, ["Body ", L.span(SpanAttr(bold="true"), ["bold"]), " text"]),
                     L.link(LinkAttr(href="https://lpdf.io"), [L.text(NoAttr, ["link"])]),

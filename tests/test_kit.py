@@ -2,21 +2,21 @@ import pytest
 
 from lpdf import (
     L, NoAttr,
-    StackAttr, FlankAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
+    ColumnAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
     DividerAttr, SectionAttr, DocumentAttr, DocumentMeta, DocumentTokens,
 )
 
 
 # ── Layout container nodes ────────────────────────────────────────────────────
 
-def test_stack_empty():
-    node = L.stack()
+def test_column_empty():
+    node = L.column()
     d = node.to_dict()
-    assert d == {"type": "stack", "attrs": {}, "nodes": []}
+    assert d == {"type": "column", "attrs": {}, "nodes": []}
 
 
-def test_stack_with_options():
-    node = L.stack(StackAttr(gap="10pt", padding="5pt"))
+def test_column_with_options():
+    node = L.column(ColumnAttr(gap="10pt", padding="5pt"))
     d = node.to_dict()
     assert d["attrs"] == {"gap": "10pt", "padding": "5pt"}
 
@@ -35,8 +35,7 @@ def test_grid_col_width():
 
 def test_container_types():
     for method, name in [
-        ("stack", "stack"), ("flank", "flank"), ("split", "split"),
-        ("cluster", "cluster"), ("grid", "grid"), ("frame", "frame"),
+        ("column", "column"), ("row", "row"), ("grid", "grid"), ("frame", "frame"),
     ]:
         d = getattr(L, method)().to_dict()
         assert d["type"] == name
@@ -124,7 +123,7 @@ def test_section_uses_section_type_not_page():
 
 def test_nodes_key_not_children():
     """Regression: serialised key must be 'nodes', not 'children'."""
-    node = L.stack(nodes=[L.text(NoAttr, ["x"])])
+    node = L.column(nodes=[L.text(NoAttr, ["x"])])
     d = node.to_dict()
     assert "nodes" in d
     assert "children" not in d

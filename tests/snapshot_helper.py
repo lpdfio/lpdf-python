@@ -25,8 +25,8 @@ HAS_FIXTURES = FIXTURES.is_dir() and any(FIXTURES.glob("*.xml"))
 
 EXAMPLES = [
     *[f"example{i}" for i in range(1, 12)],
-    "showcase-cluster", "showcase-flank", "showcase-frame",
-    "showcase-grid", "showcase-split", "showcase-stack",
+    "showcase-row", "showcase-row-fill", "showcase-frame",
+    "showcase-grid", "showcase-row-between", "showcase-column",
     "showcase-table", "showcase-barcode", "showcase-encryption", "showcase-forms",
     "bench_xs", "bench_s", "bench_m", "bench_l", "bench_xl",
 ]

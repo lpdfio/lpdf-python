@@ -12,6 +12,9 @@ class BarcodeAttr:
     type: str
     data: str
     size: str | None = None
+    # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
+    # after the other children, shared equally if several on the line use fill, and never moves
+    # to the next line; in a column it takes the full width.
     width: str | None = None
     height: str | None = None
     ec: str | None = None
