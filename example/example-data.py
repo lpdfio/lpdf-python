@@ -1,15 +1,10 @@
 """
-example-data.py — render data-invoice.xml with dynamic data from data-invoice.json.
+example-data.py — render the invoice in lpdf's examples/ with its data from document.json.
 
-Run (after 'make build-adapter-python'):
-  docker run --rm \\
-    -v "$(pwd)/src/adapters/python/lpdf:/app/lpdf" \\
-    -v "$(pwd)/src/adapters/python/example:/app/example" \\
-    -v "$(pwd)/example:/app/example-data" \\
-    -v "$(pwd)/src/adapters/python/resources:/app/resources" \\
-    -w /app lpdf-python python example/example-data.py
+Run from lpdf's root (after 'make build-sdk-python'):
+  make example-python
 
-Output: example/result/example-data-python.pdf
+Output: tmp/sdk-examples/example-data-python.pdf in lpdf's root.
 """
 
 import json
@@ -20,11 +15,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from lpdf import L, RenderOptions
 
-_docker_root = Path("/app/example-data")
-root = _docker_root if _docker_root.exists() else Path(__file__).resolve().parents[4] / "example"
+# lpdf's root: /app in make's container, which mounts examples/ and tmp/sdk-examples/ there;
+# three folders up when run from repos/lpdf-python/example
+lpdf = Path("/app") if Path("/.dockerenv").exists() else Path(__file__).resolve().parents[3]
 
-xml_file  = root / "xml" / "data-invoice.xml"
-json_file = root / "xml" / "data-invoice.json"
+xml_file  = lpdf / "examples/2-invoice/document.xml"
+json_file = lpdf / "examples/2-invoice/document.json"
+output = lpdf / "tmp/sdk-examples"
 output_file = "example-data-python.pdf"
 
 xml  = xml_file.read_text(encoding="utf-8")
@@ -34,5 +31,6 @@ engine = L.engine()  # no key → renders with the attribution line
 
 pdf = engine.render(xml, options=RenderOptions(data=data))
 
-(root / "result" / output_file).write_bytes(pdf)
+output.mkdir(parents=True, exist_ok=True)
+(output / output_file).write_bytes(pdf)
 print(f"output: {output_file} ({len(pdf):,} bytes)")
