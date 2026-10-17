@@ -4,8 +4,8 @@ from ..shared.attrs_helper import node_to_dict
 from .canvas_node import CanvasNode
 
 
-class CanvasTextNode(CanvasNode):
-    """Text in a layer. Its content is strings and `span` nodes, as in a layout `text`."""
+class TextAtNode(CanvasNode):
+    """A `text-at` in a layer. Its content is strings and `span` nodes, as in a layout `text`."""
 
     __slots__ = ("_attrs", "_nodes")
 
@@ -15,7 +15,7 @@ class CanvasTextNode(CanvasNode):
 
     def to_dict(self) -> dict:
         return {
-            "type": "text",
+            "type": "text-at",
             "attrs": self._attrs,
             "nodes": [node_to_dict(n) for n in self._nodes],
         }
