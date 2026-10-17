@@ -15,13 +15,13 @@ pip install lpdfio-lpdf
 ## Usage
 
 ```python
-from lpdf import L, NoAttr, DocumentAttr, ColumnAttr, RowAttr, TextAttr, DividerAttr
+from lpdf import L, NoAttr, DocumentAttr, LayoutAttr, ColumnAttr, RowAttr, TextAttr, DividerAttr
 
 engine = L.engine()
 
-doc = L.document(DocumentAttr(size='letter', margin='48pt'), [
+doc = L.document(DocumentAttr(size='letter'), [
     L.section(NoAttr, [
-        L.layout(NoAttr, [
+        L.layout(LayoutAttr(margin='48pt'), [
             L.column(ColumnAttr(gap='24pt'), [
                 L.row(RowAttr(justify='between'), [
                     L.text(TextAttr(font_size='8pt', color='#888888'), ['ACME CORP']),

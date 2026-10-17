@@ -25,6 +25,7 @@ from .kit.document import PdfDocument
 from .kit.document_assets import DocumentAssets
 from .kit.document_attr import DocumentAttr
 from .kit.document_tokens import DocumentTokens
+from .kit.layout_attr import LayoutAttr
 from .kit.section_attr import SectionAttr
 from .kit.section_layout import SectionLayout
 from .kit.section_node import SectionNode
@@ -112,9 +113,9 @@ class L:
         return SectionNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
-    def layout(_attrs: object, nodes: list | None = None) -> SectionLayout:
-        """Wrap layout nodes into a layout block."""
-        return SectionLayout(nodes or [])
+    def layout(attrs: LayoutAttr | None, nodes: list | None = None) -> SectionLayout:
+        """Wrap layout nodes into a layout block, which keeps them inside its margin."""
+        return SectionLayout(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def assets(attrs: DocumentAssets) -> DocumentAssets:

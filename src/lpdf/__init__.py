@@ -16,6 +16,7 @@ from .kit.document_meta import DocumentMeta
 from .kit.document_tokens import DocumentTokens
 from .kit.font_attr import FontAttr
 from .kit.image_attr import ImageAttr
+from .kit.layout_attr import LayoutAttr
 from .kit.builtin_font import BuiltinFont
 from .kit.section_node import SectionNode
 from .kit.section_attr import SectionAttr

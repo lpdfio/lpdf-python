@@ -11,7 +11,6 @@ from .document_tokens import DocumentTokens
 class DocumentAttr:
     size: str | None = None
     orientation: str | None = None
-    margin: str | None = None
     background: str | None = None
     font: str | None = None
     debug: str | None = None

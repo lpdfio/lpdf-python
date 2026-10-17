@@ -5,6 +5,7 @@ from .document_attr import DocumentAttr
 from .document_tokens import DocumentTokens
 from .font_attr import FontAttr
 from .image_attr import ImageAttr
+from .layout_attr import LayoutAttr
 from .builtin_font import BuiltinFont
 from .section_node import SectionNode
 from .section_attr import SectionAttr
@@ -20,6 +21,7 @@ __all__ = [
     "DocumentTokens",
     "FontAttr",
     "ImageAttr",
+    "LayoutAttr",
     "BuiltinFont",
     "SectionNode",
     "SectionAttr",
