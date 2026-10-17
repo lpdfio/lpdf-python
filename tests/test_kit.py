@@ -89,9 +89,9 @@ def test_layout_margin():
 
 def test_layers_go_directly_in_a_section_before_and_after_its_layout():
     section = L.section(NoAttr, [
-        L.layer(LayerAttr(page="first"), [L.rect(RectAttr(w="10pt", h="10pt"))]),
+        L.layer(LayerAttr(page="first"), [L.rect(RectAttr(width="10pt", height="10pt"))]),
         L.layout(NoAttr, [L.text(NoAttr, ["hi"])]),
-        L.layer(LayerAttr(page="last"), [L.rect(RectAttr(w="20pt", h="20pt"))]),
+        L.layer(LayerAttr(page="last"), [L.rect(RectAttr(width="20pt", height="20pt"))]),
     ])
     d = section.to_dict()
     assert [n["type"] for n in d["nodes"]] == ["layer", "layout", "layer"]

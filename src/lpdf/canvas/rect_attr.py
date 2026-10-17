@@ -9,8 +9,8 @@ from dataclasses import dataclass
 class RectAttr:
     """Attributes of the `rect` element in a layer."""
 
-    w: str
-    h: str
+    width: str
+    height: str
     x: str | None = None
     y: str | None = None
     anchor: str | None = None

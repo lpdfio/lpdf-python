@@ -5,7 +5,7 @@ import pytest
 
 from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
-    BookmarkAttr, BuiltinFont, CanvasImgAttr, CanvasTextAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr,
+    BarcodeAttr, BookmarkAttr, BuiltinFont, CanvasImgAttr, CanvasTextAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr,
     FieldAttr, FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, SectionAttr, SectionType, SpanAttr, ColumnAttr, TextAttr, Transform,
 )
@@ -62,20 +62,37 @@ def test_document_font_and_debug_are_written():
 # ── Canvas ─────────────────────────────────────────────────────────────────────
 
 def test_rect_writes_its_attributes_as_given():
-    node = L.rect(RectAttr(w="100pt", h="60pt", x="10pt", y="20pt", fill="#ff0000", radius="6pt"))
+    node = L.rect(RectAttr(width="100pt", height="60pt", x="10pt", y="20pt", fill="#ff0000", radius="6pt"))
     assert node.to_dict() == {
         "type": "rect",
-        "attrs": {"w": "100pt", "h": "60pt", "x": "10pt", "y": "20pt", "fill": "#ff0000", "radius": "6pt"},
+        "attrs": {"width": "100pt", "height": "60pt", "x": "10pt", "y": "20pt", "fill": "#ff0000", "radius": "6pt"},
     }
 
 
 def test_canvas_primitives_use_their_schema_names():
     assert L.line(LineAttr(x1="0pt", y1="0pt", x2="9pt", y2="9pt", line_cap="round")).to_dict()["type"] == "line"
-    assert L.circle(CircleAttr(r="5pt", cx="1pt", cy="1pt")).to_dict()["type"] == "circle"
+    assert L.circle(CircleAttr(r="5pt", x="1pt", y="1pt")).to_dict()["type"] == "circle"
     assert L.ellipse(EllipseAttr(rx="5pt", ry="3pt")).to_dict()["type"] == "ellipse"
     path = L.path(PathAttr(d="M 0 0 L 9 9", fill_rule="evenodd")).to_dict()
     assert path == {"type": "path", "attrs": {"d": "M 0 0 L 9 9", "fill-rule": "evenodd"}}
-    assert L.img_at(CanvasImgAttr(name="logo", w="10pt", h="10pt")).to_dict()["type"] == "img"
+    assert L.img_at(CanvasImgAttr(name="logo", width="10pt", height="10pt")).to_dict()["type"] == "img"
+
+
+def test_layer_shapes_are_sized_by_width_and_height_and_placed_by_x_and_y():
+    for attrs in (RectAttr, CanvasImgAttr, CanvasTextAttr):
+        assert "w" not in attrs.__dataclass_fields__
+        assert "width" in attrs.__dataclass_fields__
+    assert "h" not in RectAttr.__dataclass_fields__
+    assert "height" in RectAttr.__dataclass_fields__
+    for attrs in (CircleAttr, EllipseAttr):
+        assert "cx" not in attrs.__dataclass_fields__ and "cy" not in attrs.__dataclass_fields__
+        assert "x" in attrs.__dataclass_fields__ and "y" in attrs.__dataclass_fields__
+
+
+def test_a_barcode_is_sized_by_width_and_height_not_by_size():
+    assert "size" not in BarcodeAttr.__dataclass_fields__
+    assert "width" in BarcodeAttr.__dataclass_fields__
+    assert "height" in BarcodeAttr.__dataclass_fields__
 
 
 def test_canvas_text_takes_attributes_first_and_content_second():
@@ -116,7 +133,7 @@ def _built_document():
                 ]),
             ]),
             L.layer(LayerAttr(page="each"), [
-                L.rect(RectAttr(x="40pt", y="40pt", w="100pt", h="60pt", fill="#ff0000", radius="6pt")),
+                L.rect(RectAttr(x="40pt", y="40pt", width="100pt", height="60pt", fill="#ff0000", radius="6pt")),
                 L.text_at(CanvasTextAttr(x="40pt", y="120pt", font_size="10pt"),
                           ["Layer ", L.span(SpanAttr(color="#0000ff"), ["text"])]),
             ]),
