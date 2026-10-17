@@ -10,8 +10,8 @@ class CanvasImgAttr:
     """Attributes of the `img` element in a layer."""
 
     name: str
-    w: str
-    h: str
+    width: str
+    height: str
     x: str | None = None
     y: str | None = None
     anchor: str | None = None

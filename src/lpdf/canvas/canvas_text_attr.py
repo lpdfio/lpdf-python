@@ -19,6 +19,6 @@ class CanvasTextAttr:
     font_size: str | None = None
     color: str | None = None
     align: str | None = None
-    w: str | None = None
+    width: str | None = None
     line_height: str | None = None
     opacity: str | None = None

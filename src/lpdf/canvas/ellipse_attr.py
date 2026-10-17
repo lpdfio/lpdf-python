@@ -11,8 +11,14 @@ class EllipseAttr:
 
     rx: str
     ry: str
-    cx: str | None = None
-    cy: str | None = None
+    # Where the ellipse's box goes, 2rx wide and 2ry high around it: its left edge, or with
+    # anchor, an offset from that point of the page, where the box's matching point goes. The
+    # centre is rx further in.
+    x: str | None = None
+    # Where the ellipse's box goes, 2rx wide and 2ry high around it: its top edge, or with
+    # anchor, an offset from that point of the page, where the box's matching point goes. The
+    # centre is ry further in.
+    y: str | None = None
     anchor: str | None = None
     fill: str | None = None
     stroke: str | None = None
