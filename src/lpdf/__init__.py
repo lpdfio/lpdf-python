@@ -52,6 +52,7 @@ from .canvas.line_attr import LineAttr
 from .canvas.ellipse_attr import EllipseAttr
 from .canvas.circle_attr import CircleAttr
 from .canvas.path_attr import PathAttr
-from .canvas.canvas_text_attr import CanvasTextAttr
-from .canvas.canvas_img_attr import CanvasImgAttr
+from .canvas.text_at_attr import TextAtAttr
+from .canvas.img_at_attr import ImgAtAttr
+from .canvas.barcode_at_attr import BarcodeAtAttr
 from .canvas.transform import Transform

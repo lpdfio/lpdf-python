@@ -3,8 +3,8 @@ from __future__ import annotations
 from .canvas_node import CanvasNode
 
 
-class ImageNode(CanvasNode):
-    """An `img` in a layer."""
+class BarcodeAtNode(CanvasNode):
+    """A `barcode-at` in a layer."""
 
     __slots__ = ("_attrs",)
 
@@ -12,4 +12,4 @@ class ImageNode(CanvasNode):
         self._attrs = attrs
 
     def to_dict(self) -> dict:
-        return {"type": "img", "attrs": self._attrs}
+        return {"type": "barcode-at", "attrs": self._attrs}

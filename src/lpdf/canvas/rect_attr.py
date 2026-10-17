@@ -19,4 +19,3 @@ class RectAttr:
     stroke: str | None = None
     stroke_width: str | None = None
     stroke_dash: str | None = None
-    opacity: str | None = None

@@ -5,7 +5,7 @@ import pytest
 
 from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
-    BarcodeAttr, BookmarkAttr, BuiltinFont, CanvasImgAttr, CanvasTextAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr,
+    BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr,
     FieldAttr, FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, SectionAttr, SectionType, SpanAttr, ColumnAttr, TextAttr, Transform,
 )
@@ -75,11 +75,11 @@ def test_canvas_primitives_use_their_schema_names():
     assert L.ellipse(EllipseAttr(rx="5pt", ry="3pt")).to_dict()["type"] == "ellipse"
     path = L.path(PathAttr(d="M 0 0 L 9 9", fill_rule="evenodd")).to_dict()
     assert path == {"type": "path", "attrs": {"d": "M 0 0 L 9 9", "fill-rule": "evenodd"}}
-    assert L.img_at(CanvasImgAttr(name="logo", width="10pt", height="10pt")).to_dict()["type"] == "img"
+    assert L.img_at(ImgAtAttr(name="logo", width="10pt", height="10pt")).to_dict()["type"] == "img-at"
 
 
 def test_layer_shapes_are_sized_by_width_and_height_and_placed_by_x_and_y():
-    for attrs in (RectAttr, CanvasImgAttr, CanvasTextAttr):
+    for attrs in (RectAttr, ImgAtAttr, TextAtAttr):
         assert "w" not in attrs.__dataclass_fields__
         assert "width" in attrs.__dataclass_fields__
     assert "h" not in RectAttr.__dataclass_fields__
@@ -87,6 +87,18 @@ def test_layer_shapes_are_sized_by_width_and_height_and_placed_by_x_and_y():
     for attrs in (CircleAttr, EllipseAttr):
         assert "cx" not in attrs.__dataclass_fields__ and "cy" not in attrs.__dataclass_fields__
         assert "x" in attrs.__dataclass_fields__ and "y" in attrs.__dataclass_fields__
+
+
+def test_a_barcode_at_is_written_under_its_element_name():
+    d = L.barcode_at(BarcodeAtAttr(type="qr", data="x", x="10pt", y="20pt", width="60pt")).to_dict()
+    assert d == {"type": "barcode-at", "attrs": {"type": "qr", "data": "x", "x": "10pt", "y": "20pt", "width": "60pt"}}
+
+
+def test_a_text_at_writes_its_line_limits_under_the_schema_names():
+    d = L.text_at(TextAtAttr(x="0pt", y="0pt", width="80pt", max_lines="2", ellipsis="true", line_height="1.5"), ["Hi"]).to_dict()
+    assert d["attrs"]["max-lines"] == "2"
+    assert d["attrs"]["ellipsis"] == "true"
+    assert d["attrs"]["line-height"] == "1.5"
 
 
 def test_a_barcode_is_sized_by_width_and_height_not_by_size():
@@ -97,11 +109,11 @@ def test_a_barcode_is_sized_by_width_and_height_not_by_size():
 
 def test_canvas_text_takes_attributes_first_and_content_second():
     node = L.text_at(
-        CanvasTextAttr(x="10pt", y="20pt", font_size="12pt"),
+        TextAtAttr(x="10pt", y="20pt", font_size="12pt"),
         ["base ", L.span(SpanAttr(font="Helvetica-Bold"), ["bold"])],
     )
     d = node.to_dict()
-    assert d["type"] == "text"
+    assert d["type"] == "text-at"
     assert d["attrs"] == {"x": "10pt", "y": "20pt", "font-size": "12pt"}
     assert d["nodes"][0] == "base "
     assert d["nodes"][1] == {"type": "span", "attrs": {"font": "Helvetica-Bold"}, "nodes": ["bold"]}
@@ -134,7 +146,7 @@ def _built_document():
             ]),
             L.layer(LayerAttr(page="each"), [
                 L.rect(RectAttr(x="40pt", y="40pt", width="100pt", height="60pt", fill="#ff0000", radius="6pt")),
-                L.text_at(CanvasTextAttr(x="40pt", y="120pt", font_size="10pt"),
+                L.text_at(TextAtAttr(x="40pt", y="120pt", font_size="10pt"),
                           ["Layer ", L.span(SpanAttr(color="#0000ff"), ["text"])]),
             ]),
         ]),

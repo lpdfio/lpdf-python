@@ -16,4 +16,3 @@ class PathAttr:
     stroke_width: str | None = None
     stroke_dash: str | None = None
     line_cap: str | None = None
-    opacity: str | None = None

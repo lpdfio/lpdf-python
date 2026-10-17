@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import json
 
-from .canvas.canvas_img_attr import CanvasImgAttr
-from .canvas.canvas_text_attr import CanvasTextAttr
+from .canvas.barcode_at_attr import BarcodeAtAttr
+from .canvas.barcode_at_node import BarcodeAtNode
+from .canvas.img_at_attr import ImgAtAttr
+from .canvas.img_at_node import ImgAtNode
+from .canvas.text_at_attr import TextAtAttr
+from .canvas.text_at_node import TextAtNode
 from .canvas.circle_attr import CircleAttr
 from .canvas.circle_node import CircleNode
 from .canvas.ellipse_attr import EllipseAttr
 from .canvas.ellipse_node import EllipseNode
-from .canvas.image_node import ImageNode
 from .canvas.layer_attr import LayerAttr
 from .canvas.layer_node import LayerNode
 from .canvas.line_attr import LineAttr
@@ -17,7 +20,6 @@ from .canvas.path_attr import PathAttr
 from .canvas.path_node import PathNode
 from .canvas.rect_attr import RectAttr
 from .canvas.rect_node import RectNode
-from .canvas.text_node import CanvasTextNode
 from .engine.engine_exception import EngineException
 from .engine.engine_options import EngineOptions
 from .engine.wasm_runner import WasmRunner
@@ -234,10 +236,16 @@ class L:
         return PathNode(options_to_attrs(attrs))
 
     @staticmethod
-    def text_at(attrs: CanvasTextAttr, nodes: list | None = None) -> CanvasTextNode:
-        """Build text in a layer. Children must be strings or SpanNode instances."""
-        return CanvasTextNode(options_to_attrs(attrs), nodes or [])
+    def text_at(attrs: TextAtAttr, nodes: list | None = None) -> TextAtNode:
+        """Build a `text-at`, the text of the layout put at a fixed place. Children must be strings or SpanNode instances."""
+        return TextAtNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
-    def img_at(attrs: CanvasImgAttr) -> ImageNode:
-        return ImageNode(options_to_attrs(attrs))
+    def img_at(attrs: ImgAtAttr) -> ImgAtNode:
+        """Build an `img-at`, an image at a fixed place. It needs `width` or `height`."""
+        return ImgAtNode(options_to_attrs(attrs))
+
+    @staticmethod
+    def barcode_at(attrs: BarcodeAtAttr) -> BarcodeAtNode:
+        """Build a `barcode-at`, a barcode at a fixed place."""
+        return BarcodeAtNode(options_to_attrs(attrs))
