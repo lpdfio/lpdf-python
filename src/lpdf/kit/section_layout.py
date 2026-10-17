@@ -6,13 +6,15 @@ from ..shared.attrs_helper import node_to_dict
 class SectionLayout:
     """A layout block inside a section — wraps layout nodes."""
 
-    __slots__ = ("_nodes",)
+    __slots__ = ("_attrs", "_nodes")
 
-    def __init__(self, nodes: list):
+    def __init__(self, attrs: dict[str, str], nodes: list):
+        self._attrs = attrs
         self._nodes = nodes
 
     def to_dict(self) -> dict:
         return {
             "type": "layout",
+            "attrs": self._attrs,
             "nodes": [node_to_dict(n) for n in self._nodes],
         }

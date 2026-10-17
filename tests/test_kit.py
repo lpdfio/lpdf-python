@@ -3,7 +3,7 @@ import pytest
 from lpdf import (
     L, NoAttr,
     ColumnAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
-    DividerAttr, SectionAttr, DocumentAttr, DocumentMeta, DocumentTokens,
+    DividerAttr, SectionAttr, DocumentAttr, DocumentMeta, DocumentTokens, LayoutAttr,
     LayerAttr, RectAttr,
 )
 
@@ -67,10 +67,10 @@ def test_divider():
 
 def test_section():
     layout = L.layout(NoAttr, [L.text(NoAttr, ["Hello"])])
-    section = L.section(SectionAttr(size="a4", margin="28pt"), [layout])
+    section = L.section(SectionAttr(size="a4", background="#ffffff"), [layout])
     d = section.to_dict()
     assert d["type"] == "section"
-    assert d["attrs"] == {"size": "a4", "margin": "28pt"}
+    assert d["attrs"] == {"size": "a4", "background": "#ffffff"}
     assert len(d["nodes"]) == 1
 
 
@@ -78,7 +78,13 @@ def test_layout_wrapper():
     layout = L.layout(NoAttr, [L.text(NoAttr, ["hi"])])
     d = layout.to_dict()
     assert d["type"] == "layout"
+    assert d["attrs"] == {}
     assert "nodes" in d
+
+
+def test_layout_margin():
+    layout = L.layout(LayoutAttr(margin="20pt 30pt"), [])
+    assert layout.to_dict()["attrs"] == {"margin": "20pt 30pt"}
 
 
 def test_layers_go_directly_in_a_section_before_and_after_its_layout():

@@ -7,7 +7,6 @@ from dataclasses import dataclass
 class SectionAttr:
     size: str | None = None
     orientation: str | None = None
-    margin: str | None = None
     background: str | None = None
     title: str | None = None
     debug: str | None = None
