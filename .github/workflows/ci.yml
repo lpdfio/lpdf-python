@@ -121,3 +121,12 @@ jobs:
 
       - name: Test
         run: pytest tests -v
+
+      # ── Build the wheel ──────────────────────────────────────────────────────
+      # The tests run from the source tree, which finds the engine in src/resources/. The wheel is
+      # what users install: it must carry the engine and render from a clean virtualenv.
+      - name: Build distribution
+        run: python -m build
+
+      - name: Check the wheel
+        run: sh scripts/check-wheel.sh
