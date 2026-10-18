@@ -115,6 +115,11 @@ jobs:
       - name: Build distribution
         run: python -m build
 
+      # The wheel is what users install, so it is installed in a clean virtualenv and must render
+      # before it goes to PyPI. A wheel without the engine binary fails here.
+      - name: Check the wheel
+        run: sh scripts/check-wheel.sh
+
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__

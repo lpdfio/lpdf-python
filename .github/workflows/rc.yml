@@ -136,6 +136,11 @@ jobs:
       - name: Build distribution
         run: python -m build
 
+      # The wheel is installed in a clean virtualenv and must render. A wheel without the engine
+      # binary fails here.
+      - name: Check the wheel
+        run: sh scripts/check-wheel.sh
+
       - name: Upload distribution
         uses: actions/upload-artifact@v6
         with:
