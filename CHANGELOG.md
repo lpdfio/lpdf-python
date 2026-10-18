@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.27.1 — 2026-10-18
+### SDKs
+- **Fixed:** the `lpdfio-lpdf` package on PyPI now includes the Lpdf engine (`lpdf-wasi.wasm`). Every wheel from 0.4.0 to 0.27.0 was published without it, so after `pip install lpdfio-lpdf` the first render failed with `failed to open wasm module`. Running the SDK from a source checkout was not affected
+- No API change: the SDK is the same as 0.27.0, with the v0.27.0 engine
+
 ## v0.27.0 (core) — 2026-10-18
 ### Layers
 - **Breaking:** `<canvas>` is removed, and layers go directly in the section. Layers before the section's `<layout>` paint under it, and layers after it paint over it, so one section can draw both under and over its flow. A document that uses `<canvas>`, or `"type": "canvas"` in a JSON tree, fails with an error that says its layers go directly in the section
