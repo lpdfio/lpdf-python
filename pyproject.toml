@@ -27,5 +27,10 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/lpdf"]
 
+# The engine binary lives beside the package, where default_wasm_binary() looks: src/resources/ in
+# the repo (the workflows download it there), resources/ next to lpdf/ once installed.
+[tool.hatch.build.targets.wheel.force-include]
+"src/resources" = "resources"
+
 [tool.hatch.build]
-include = ["src/lpdf/**", "resources/**"]
+include = ["src/lpdf/**", "src/resources/**"]
