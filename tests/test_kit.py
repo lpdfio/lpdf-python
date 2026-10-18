@@ -124,6 +124,17 @@ def test_document_with_meta_and_tokens():
     assert d["attrs"]["tokens"] == {"colors": {"primary": "#000"}}
 
 
+def test_a_line_height_row_is_a_token_row_under_its_schema_name():
+    row = {"xs": "1", "m": "1.2", "xxl": "2"}
+    d = L.document(DocumentAttr(tokens=DocumentTokens(line_height=row))).to_dict()
+    assert d["attrs"]["tokens"] == {"line-height": row}
+
+
+def test_a_text_line_height_is_a_token_or_a_factor_under_its_schema_name():
+    assert L.text(TextAttr(line_height="l"), ["A token"]).to_dict()["attrs"] == {"line-height": "l"}
+    assert L.text(TextAttr(line_height="1.5"), ["A factor"]).to_dict()["attrs"] == {"line-height": "1.5"}
+
+
 def test_none_options_skipped():
     node = L.text(TextAttr(font="Arial"), ["hi"])
     d = node.to_dict()

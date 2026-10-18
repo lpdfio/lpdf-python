@@ -21,6 +21,9 @@ class TextAttr:
     bold: str | None = None
     color: str | None = None
     align: str | None = None
+    # The distance between lines, as a factor of the font size: a number above 0, such as 1.5,
+    # or a name from the line-height row of the tokens. Default 1.2, which is the token m.
+    line_height: str | None = None
     # The most lines drawn. Only whole lines are drawn, and the rest of the text is dropped. A
     # text in the layout has no cap by default and wraps at the width it has; the lines it drops
     # take no room, and a text that splits across pages keeps the cap across them. A text-at is
