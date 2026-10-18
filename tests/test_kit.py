@@ -135,6 +135,13 @@ def test_a_text_line_height_is_a_token_or_a_factor_under_its_schema_name():
     assert L.text(TextAttr(line_height="1.5"), ["A factor"]).to_dict()["attrs"] == {"line-height": "1.5"}
 
 
+def test_a_layer_gives_its_text_a_font_a_size_and_a_color_and_a_box_has_a_color_and_an_opacity():
+    layer = L.layer(LayerAttr(font="Courier", font_size="s", color="danger")).to_dict()
+    assert layer["attrs"] == {"font": "Courier", "font-size": "s", "color": "danger"}
+    column = L.column(ColumnAttr(color="text-muted", opacity="0.5")).to_dict()
+    assert column["attrs"] == {"color": "text-muted", "opacity": "0.5"}
+
+
 def test_none_options_skipped():
     node = L.text(TextAttr(font="Arial"), ["hi"])
     d = node.to_dict()

@@ -14,6 +14,10 @@ class ColumnAttr:
 
     font: str | None = None
     font_size: str | None = None
+    # The color of the text inside the box. A text that sets no color of its own takes the
+    # nearest box's, and the text token when no box sets one. A divider or a barcode in the box
+    # keeps its own color.
+    color: str | None = None
     gap: str | None = None
     # Space between the edge of the box and its content, written like CSS: one value for all
     # sides, two for top-bottom and left-right, three for top, left-right and bottom, four for
@@ -26,6 +30,11 @@ class ColumnAttr:
     background: str | None = None
     border: str | None = None
     radius: str | None = None
+    # How opaque the box and everything in it is, from 0 to 1. The box is faded as one, so
+    # children that overlap do not show through each other, and a box inside a faded box is
+    # faded further: 0.5 inside 0.5 is drawn at 0.25. A form field in the box is not faded.
+    # Default 1.
+    opacity: str | None = None
     # Where the box falls in the page flow. no: never split the box, and move it whole to the
     # next page when it does not fit. break-before: start it on a new page. break-after: start
     # the next sibling on a new page. keep-next: keep it on one page with the sibling that
