@@ -12,9 +12,10 @@ class DocumentTokens:
     radius: dict[str, str] | None = None
     width: dict[str, str] | None = None
     text_size: dict[str, str] | None = None
+    line_height: dict[str, str] | None = None
 
     def to_dict(self) -> dict:
-        _rename = {"text_size": "text-size"}
+        _rename = {"text_size": "text-size", "line_height": "line-height"}
         return {
             _rename.get(f.name, f.name): getattr(self, f.name)
             for f in dc_fields(self)
