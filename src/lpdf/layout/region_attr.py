@@ -10,7 +10,8 @@ class RegionAttr:
     """
     Pins content to the top or bottom edge of pages, outside the normal flow, for headers
     and footers. It reserves that space on every page it appears on. Only allowed directly
-    inside layout, and one per pin on a page.
+    inside layout. Where it is written among the flow does not matter: pin chooses the edge,
+    and regions on one edge stack in the order written.
     """
 
     # Which edge the region sticks to. top and bottom work. left and right pass validation but
