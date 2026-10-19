@@ -101,6 +101,12 @@ def test_a_text_at_writes_its_line_limits_under_the_schema_names():
     assert d["attrs"]["line-height"] == "1.5"
 
 
+def test_a_text_that_captures_and_one_that_shows_a_capture_use_the_schema_names():
+    assert L.text(TextAttr(capture="chapter"), ["x"]).to_dict()["attrs"] == {"capture": "chapter"}
+    sink = L.text(TextAttr(capture_ref="chapter", capture_mode="first", capture_fallback="None"), [])
+    assert sink.to_dict()["attrs"] == {"capture-ref": "chapter", "capture-mode": "first", "capture-fallback": "None"}
+
+
 def test_a_barcode_is_sized_by_width_and_height_not_by_size():
     assert "size" not in BarcodeAttr.__dataclass_fields__
     assert "width" in BarcodeAttr.__dataclass_fields__
