@@ -47,5 +47,24 @@ class TextAttr:
     # protection off. When no split can keep both widows and orphans, even on an empty page, the
     # text splits where the lines fit.
     orphans: str | None = None
+    # Records the words of this text under a name as the pages are filled, so a text with
+    # capture-ref in a header or a footer can show them. Put it on a heading in the flow. The
+    # page that holds the text counts it, the words above it on that page included, and a text
+    # that splits across pages is recorded on the page where it starts. A text cannot have both
+    # capture and capture-ref.
+    capture: str | None = None
+    # Shows what was captured under this name, as of the page the text is drawn on, in place of
+    # words of its own. Put it in a region. It takes the lines it may use, one unless max-lines
+    # says more, whatever it shows, so a header or a footer does not grow with its value; a
+    # longer value is cut, and ends in dots with ellipsis. On a page where nothing was captured
+    # it shows the latest value of an earlier page of the section, and capture-fallback before
+    # any.
+    capture_ref: str | None = None
+    # Which of the texts captured under the name on this page the text shows: the first or the
+    # last. Default last. Only for a text with capture-ref.
+    capture_mode: str | None = None
+    # What the text shows until something has been captured in the section. Default: nothing.
+    # Only for a text with capture-ref.
+    capture_fallback: str | None = None
     paginate: str | None = None
     debug: str | None = None
