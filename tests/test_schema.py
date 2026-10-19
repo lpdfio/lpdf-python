@@ -5,7 +5,7 @@ import pytest
 
 from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
-    BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, EllipseAttr,
+    BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, SectionAttr, SectionType, SpanAttr, ColumnAttr, TextAttr, Transform,
 )
@@ -151,6 +151,22 @@ def _built_document():
             ]),
         ]),
     ])
+
+
+def test_a_gradient_of_the_tokens_fills_a_box_and_renders_the_same_from_the_builder_and_its_xml():
+    def build(background: str):
+        return L.document(
+            DocumentAttr(tokens=DocumentTokens(gradients={
+                "fade": {"type": "linear", "from": "#ff0000", "to": "#0000ff", "angle": 90},
+            })),
+            [L.section(None, [L.layout(None, [L.column(ColumnAttr(background=background, height="60pt"))])])],
+        )
+
+    gradient = build("gradient:fade")
+    pdf = _render(gradient)
+    assert pdf == _render(L.to_xml(gradient))
+    assert pdf != _render(build("#336699"))
+    assert b"/ShadingType 2" in pdf
 
 
 def test_a_built_document_renders_the_same_as_its_xml():

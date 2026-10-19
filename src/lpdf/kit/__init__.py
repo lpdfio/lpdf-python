@@ -3,6 +3,8 @@ from .document_meta import DocumentMeta
 from .document_assets import DocumentAssets
 from .document_attr import DocumentAttr
 from .document_tokens import DocumentTokens
+from .gradient import Gradient
+from .gradient_stop import GradientStop
 from .font_attr import FontAttr
 from .image_attr import ImageAttr
 from .layout_attr import LayoutAttr
@@ -19,6 +21,8 @@ __all__ = [
     "DocumentAssets",
     "DocumentAttr",
     "DocumentTokens",
+    "Gradient",
+    "GradientStop",
     "FontAttr",
     "ImageAttr",
     "LayoutAttr",
