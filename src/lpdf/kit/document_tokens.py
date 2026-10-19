@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, fields as dc_fields
 
+from .gradient import Gradient
+
 
 @dataclass(frozen=True)
 class DocumentTokens:
@@ -13,6 +15,7 @@ class DocumentTokens:
     width: dict[str, str] | None = None
     text_size: dict[str, str] | None = None
     line_height: dict[str, str] | None = None
+    gradients: dict[str, Gradient] | None = None
 
     def to_dict(self) -> dict:
         _rename = {"text_size": "text-size", "line_height": "line-height"}

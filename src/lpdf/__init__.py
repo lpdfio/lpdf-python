@@ -14,6 +14,8 @@ from .kit.document_assets import DocumentAssets
 from .kit.document_attr import DocumentAttr
 from .kit.document_meta import DocumentMeta
 from .kit.document_tokens import DocumentTokens
+from .kit.gradient import Gradient
+from .kit.gradient_stop import GradientStop
 from .kit.font_attr import FontAttr
 from .kit.image_attr import ImageAttr
 from .kit.layout_attr import LayoutAttr

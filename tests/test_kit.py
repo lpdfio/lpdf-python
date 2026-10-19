@@ -130,6 +130,15 @@ def test_a_line_height_row_is_a_token_row_under_its_schema_name():
     assert d["attrs"]["tokens"] == {"line-height": row}
 
 
+def test_gradients_are_a_token_row_of_named_gradients():
+    gradients = {
+        "fade": {"type": "linear", "from": "primary", "to": "#0f3e8a", "angle": "90"},
+        "sunset": {"type": "radial", "stops": [{"offset": "0%", "color": "#f97316"}, {"offset": "100%", "color": "#8b5cf6"}]},
+    }
+    d = L.document(DocumentAttr(tokens=DocumentTokens(gradients=gradients))).to_dict()
+    assert d["attrs"]["tokens"] == {"gradients": gradients}
+
+
 def test_a_text_line_height_is_a_token_or_a_factor_under_its_schema_name():
     assert L.text(TextAttr(line_height="l"), ["A token"]).to_dict()["attrs"] == {"line-height": "l"}
     assert L.text(TextAttr(line_height="1.5"), ["A factor"]).to_dict()["attrs"] == {"line-height": "1.5"}
