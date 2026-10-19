@@ -4,7 +4,7 @@ from lpdf import (
     L, NoAttr,
     ColumnAttr, GridAttr, LinkAttr, TextAttr, SpanAttr,
     DividerAttr, SectionAttr, DocumentAttr, DocumentMeta, DocumentTokens, LayoutAttr,
-    LayerAttr, RectAttr,
+    LayerAttr, RectAttr, CircleAttr, EllipseAttr,
 )
 
 
@@ -140,6 +140,13 @@ def test_a_layer_gives_its_text_a_font_a_size_and_a_color_and_a_box_has_a_color_
     assert layer["attrs"] == {"font": "Courier", "font-size": "s", "color": "danger"}
     column = L.column(ColumnAttr(color="text-muted", opacity="0.5")).to_dict()
     assert column["attrs"] == {"color": "text-muted", "opacity": "0.5"}
+
+
+def test_a_box_and_a_layer_shape_have_a_shadow():
+    assert L.column(ColumnAttr(shadow="2pt 3pt #000000 0.2")).to_dict()["attrs"] == {"shadow": "2pt 3pt #000000 0.2"}
+    assert L.rect(RectAttr(width="50pt", height="30pt", shadow="2pt 3pt #000000")).to_dict()["attrs"]["shadow"] == "2pt 3pt #000000"
+    assert L.circle(CircleAttr(r="5pt", shadow="-2pt -3pt text")).to_dict()["attrs"]["shadow"] == "-2pt -3pt text"
+    assert L.ellipse(EllipseAttr(rx="5pt", ry="3pt", shadow="2pt 3pt #000000 0.5")).to_dict()["attrs"]["shadow"] == "2pt 3pt #000000 0.5"
 
 
 def test_none_options_skipped():
