@@ -16,6 +16,8 @@ class DocumentTokens:
     text_size: dict[str, str] | None = None
     line_height: dict[str, str] | None = None
     gradients: dict[str, Gradient] | None = None
+    # Names for the slots of the scale: {"caption": "xs"} lets font_size="caption" mean the text size xs.
+    aliases: dict[str, str] | None = None
 
     def to_dict(self) -> dict:
         _rename = {"text_size": "text-size", "line_height": "line-height"}
