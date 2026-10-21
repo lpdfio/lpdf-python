@@ -159,6 +159,29 @@ def _built_document():
     ])
 
 
+def test_an_alias_is_the_slot_it_names_and_renders_the_same_from_the_builder_and_its_xml():
+    def build(size: str):
+        return L.document(
+            DocumentAttr(tokens=DocumentTokens(aliases={"caption": "xs", "heading": "xl"})),
+            [L.section(None, [L.layout(None, [L.text(TextAttr(font_size=size), ["Sized"])])])],
+        )
+
+    caption = build("caption")
+    pdf = _render(caption)
+    assert pdf == _render(L.to_xml(caption))
+    assert pdf == _render(build("xs"))
+    assert pdf != _render(build("heading"))
+
+
+def test_a_name_that_is_neither_a_slot_nor_an_alias_is_rejected():
+    built = L.document(
+        DocumentAttr(tokens=DocumentTokens(aliases={"caption": "xs"})),
+        [L.section(None, [L.layout(None, [L.text(TextAttr(font_size="medum"), ["Sized"])])])],
+    )
+    with pytest.raises(EngineException, match=r"invalid text size: 'medum': expected a slot from xs to xxl, an alias \(caption\)"):
+        PdfEngine().set_license_key("test-key").render(built)
+
+
 def test_a_gradient_of_the_tokens_fills_a_box_and_renders_the_same_from_the_builder_and_its_xml():
     def build(background: str):
         return L.document(
