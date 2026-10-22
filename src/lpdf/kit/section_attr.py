@@ -12,3 +12,4 @@ class SectionAttr:
     debug: str | None = None
     type: str | None = None
     toc_indent_step: str | None = None
+    footnote_counter: str | None = None

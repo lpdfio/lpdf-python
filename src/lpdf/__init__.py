@@ -25,6 +25,7 @@ from .kit.section_attr import SectionAttr
 from .kit.section_layout import SectionLayout
 from .kit.orientation import Orientation
 from .kit.section_type import SectionType
+from .kit.footnote_counter import FootnoteCounter
 
 # layout subpackage - attrs and enums
 from .layout.pin import Pin

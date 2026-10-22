@@ -53,6 +53,7 @@ from .layout.region_node import RegionNode
 from .layout.row_attr import RowAttr
 from .layout.span_attr import SpanAttr
 from .layout.span_node import SpanNode
+from .layout.fn_node import FnNode
 from .layout.table_attr import TableAttr
 from .layout.td_attr import TdAttr
 from .layout.text_attr import TextAttr
@@ -175,13 +176,20 @@ class L:
 
     @staticmethod
     def text(attrs: TextAttr | None = None, nodes: list | None = None) -> TextNode:
-        """Build a text paragraph node. Children must be strings or SpanNode instances."""
+        """Build a text paragraph node. Children must be strings, SpanNode or FnNode instances."""
         return TextNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def span(attrs: SpanAttr | None = None, nodes: list[str] | None = None) -> SpanNode:
         """Build a span inline node. Children must be plain strings."""
         return SpanNode(options_to_attrs(attrs), nodes or [])
+
+    @staticmethod
+    def fn(attrs: None = None, nodes: list | None = None) -> FnNode:
+        """Build a footnote, for the nodes of a text. The engine numbers it and puts a small raised number at its
+        place in the text; its words go at the bottom of the page where that number lands. It has no attributes:
+        pass NoAttr. Its words are strings and SpanNode instances."""
+        return FnNode({}, nodes or [])
 
     @staticmethod
     def divider(attrs: DividerAttr | None = None) -> DividerNode:

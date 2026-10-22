@@ -14,6 +14,7 @@ from .section_attr import SectionAttr
 from .section_layout import SectionLayout
 from .orientation import Orientation
 from .section_type import SectionType
+from .footnote_counter import FootnoteCounter
 
 __all__ = [
     "PdfDocument",
@@ -32,4 +33,5 @@ __all__ = [
     "SectionLayout",
     "Orientation",
     "SectionType",
+    "FootnoteCounter",
 ]

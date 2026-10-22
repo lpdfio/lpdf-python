@@ -6,8 +6,8 @@ import pytest
 from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
-    FieldAttr, FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
-    RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, ColumnAttr, TextAttr, Transform,
+    FieldAttr, FieldType, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
+    RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, ColumnAttr, TextAttr, Transform,
 )
 
 
@@ -233,6 +233,42 @@ def test_a_shape_of_each_type_is_drawn_and_renders_the_same_from_the_builder_and
         pdf = _render(document)
         assert pdf != without
         assert pdf == _render(L.to_xml(document))
+
+
+def test_a_footnote_is_an_fn_child_of_a_text_and_the_counter_is_an_attribute_of_the_document_and_a_section():
+    text = L.text(None, ["Total", L.fn(NoAttr, ["See ", L.span(SpanAttr(bold="true"), ["this"]), "."]), " here"])
+    document = L.document(
+        DocumentAttr(footnote_counter=FootnoteCounter.DOCUMENT),
+        [L.section(SectionAttr(footnote_counter=FootnoteCounter.PAGE), [L.layout(None, [text])])],
+    )
+    xml = L.to_xml(document)
+    assert re.search(r'<document [^>]*footnote-counter="document"', xml), xml
+    assert re.search(r'<section [^>]*footnote-counter="page"', xml), xml
+    assert '<text>Total<fn>See <span bold="true">this</span>.</fn> here</text>' in xml
+    assert L.fn(NoAttr, ["a"]).to_dict() == {"type": "fn", "attrs": {}, "nodes": ["a"]}
+
+
+def test_a_footnote_is_drawn_and_renders_the_same_from_the_builder_and_its_xml_and_one_in_a_table_is_rejected():
+    def build(*nodes):
+        return L.document(None, [L.section(None, [L.layout(None, [L.text(None, ["Total", *nodes, " here"])])])])
+
+    without = _render(build())
+    noted = build(L.fn(NoAttr, ["The note."]))
+    assert _render(noted) != without
+    assert _render(noted) == _render(L.to_xml(noted))
+
+    def counted(counter):
+        return L.document(DocumentAttr(footnote_counter=counter), [
+            L.section(None, [L.layout(None, [L.text(None, ["One", L.fn(NoAttr, ["A."])])])]),
+            L.section(None, [L.layout(None, [L.text(None, ["Two", L.fn(NoAttr, ["B."])])])]),
+        ])
+    assert _render(counted(FootnoteCounter.DOCUMENT)) != _render(counted(FootnoteCounter.SECTION))
+
+    table = L.document(None, [L.section(None, [L.layout(None, [
+        L.table(TableAttr(cols="1fr"), [L.tr(None, [L.td(None, [L.text(None, ["x", L.fn(NoAttr, ["y"])])])])]),
+    ])])])
+    with pytest.raises(EngineException, match=r"<fn> is not supported in a table"):
+        PdfEngine().set_license_key("test-key").render(table)
 
 
 def test_a_circle_without_r_is_rejected_and_says_so():

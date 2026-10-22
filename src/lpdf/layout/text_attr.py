@@ -8,8 +8,8 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class TextAttr:
     """
-    A block of wrapping text. Use span children to style parts of it. Splits across pages
-    between lines.
+    A block of wrapping text. Use span children to style parts of it, and fn children for
+    footnotes. Splits across pages between lines.
     """
 
     font_size: str | None = None
