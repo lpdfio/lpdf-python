@@ -45,6 +45,8 @@ from .layout.frame_attr import FrameAttr
 from .layout.grid_attr import GridAttr
 from .layout.img_attr import ImgAttr
 from .layout.img_node import ImgNode
+from .layout.shape_attr import ShapeAttr
+from .layout.shape_node import ShapeNode
 from .layout.link_attr import LinkAttr
 from .layout.region_attr import RegionAttr
 from .layout.region_node import RegionNode
@@ -188,6 +190,11 @@ class L:
     @staticmethod
     def img(attrs: ImgAttr) -> ImgNode:
         return ImgNode(options_to_attrs(attrs))
+
+    @staticmethod
+    def shape(attrs: ShapeAttr) -> ShapeNode:
+        """Build a shape node: a rect, circle or ellipse that takes its box in the layout, as an image does."""
+        return ShapeNode(options_to_attrs(attrs))
 
     @staticmethod
     def barcode(attrs: BarcodeAttr) -> BarcodeNode:
