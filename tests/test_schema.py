@@ -305,6 +305,23 @@ def test_a_table_cell_that_spans_columns_moves_the_cells_after_it_and_renders_th
         _render(build(TdAttr(colspan="3")))
 
 
+def test_a_table_cell_that_spans_rows_moves_the_cells_under_it_and_renders_the_same_from_the_builder_and_its_xml():
+    def build(first: TdAttr | None):
+        return L.document(None, [L.section(None, [L.layout(None, [
+            L.table(TableAttr(cols="1fr 1fr"), [
+                L.tr(None, [L.td(first, [L.text(None, ["A"])]), L.td(None, [L.text(None, ["B"])])]),
+                L.tr(None, [L.td(None, [L.text(None, ["C"])])]),
+            ]),
+        ])])])
+
+    spanning = build(TdAttr(rowspan="2"))
+    assert L.td(TdAttr(rowspan="2")).to_dict()["attrs"] == {"rowspan": "2"}
+    assert _render(spanning) != _render(build(None))
+    assert _render(spanning) == _render(L.to_xml(spanning))
+    with pytest.raises(EngineException, match=r"a rowspan that runs 1 row past the last row of the table"):
+        _render(build(TdAttr(rowspan="3")))
+
+
 def test_a_circle_without_r_is_rejected_and_says_so():
     built = L.document(None, [L.section(None, [L.layout(None, [L.shape(ShapeAttr(type="circle"))])])])
     with pytest.raises(EngineException, match=r"a circle needs 'r'"):
