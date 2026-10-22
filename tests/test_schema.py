@@ -7,7 +7,7 @@ from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FontAttr, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
-    RectAttr, RegionAttr, SectionAttr, SectionType, SpanAttr, ColumnAttr, TextAttr, Transform,
+    RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, ColumnAttr, TextAttr, Transform,
 )
 
 
@@ -202,6 +202,42 @@ def test_a_height_is_the_slot_it_names_and_renders_the_same_from_the_builder_and
 def test_a_height_that_is_not_a_slot_a_length_fill_or_full_is_rejected():
     built = L.document(None, [L.section(None, [L.layout(None, [L.column(ColumnAttr(height="medum"))])])])
     with pytest.raises(EngineException, match=r"invalid height value: 'medum' — expected full, fill, a slot from xs to xxl or a pt value"):
+        PdfEngine().set_license_key("test-key").render(built)
+
+
+def test_a_shape_has_the_attributes_of_its_type_under_the_schema_names():
+    node = L.shape(ShapeAttr(
+        type="rect", width="14pt", height="m", radius="2pt", fill="primary",
+        stroke="#000000", stroke_width="1pt", stroke_dash="3 2", opacity="0.5",
+    ))
+    assert node.to_dict() == {"type": "shape", "attrs": {
+        "type": "rect", "width": "14pt", "height": "m", "radius": "2pt", "fill": "primary",
+        "stroke": "#000000", "stroke-width": "1pt", "stroke-dash": "3 2", "opacity": "0.5",
+    }}
+    assert L.shape(ShapeAttr(type="circle", r="5pt")).to_dict()["attrs"] == {"type": "circle", "r": "5pt"}
+
+
+def test_a_shape_of_each_type_is_drawn_and_renders_the_same_from_the_builder_and_its_xml():
+    def build(*shapes):
+        return L.document(None, [L.section(None, [L.layout(None, [
+            L.row(RowAttr(align="center"), [*shapes, L.text(None, ["After"])]),
+        ])])])
+
+    without = _render(build())
+    for shape in [
+        L.shape(ShapeAttr(type="rect", width="60pt", height="12pt", fill="#00aa00")),
+        L.shape(ShapeAttr(type="circle", r="8pt", fill="#00aa00")),
+        L.shape(ShapeAttr(type="ellipse", width="40pt", height="20pt", fill="#00aa00")),
+    ]:
+        document = build(shape)
+        pdf = _render(document)
+        assert pdf != without
+        assert pdf == _render(L.to_xml(document))
+
+
+def test_a_circle_without_r_is_rejected_and_says_so():
+    built = L.document(None, [L.section(None, [L.layout(None, [L.shape(ShapeAttr(type="circle"))])])])
+    with pytest.raises(EngineException, match=r"a circle needs 'r'"):
         PdfEngine().set_license_key("test-key").render(built)
 
 

@@ -38,6 +38,7 @@ from .layout.text_attr import TextAttr
 from .layout.span_attr import SpanAttr
 from .layout.divider_attr import DividerAttr
 from .layout.img_attr import ImgAttr
+from .layout.shape_attr import ShapeAttr
 from .layout.barcode_attr import BarcodeAttr
 from .layout.field_attr import FieldAttr
 from .layout.region_attr import RegionAttr
