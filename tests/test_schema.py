@@ -182,6 +182,29 @@ def test_a_name_that_is_neither_a_slot_nor_an_alias_is_rejected():
         PdfEngine().set_license_key("test-key").render(built)
 
 
+def test_a_height_is_the_slot_it_names_and_renders_the_same_from_the_builder_and_its_xml():
+    def build(height: str, row: dict | None = None):
+        return L.document(
+            DocumentAttr(tokens=DocumentTokens(height=row)) if row else None,
+            [L.section(None, [L.layout(None, [L.column(ColumnAttr(background="#cccccc", height=height))])])],
+        )
+
+    slot = build("m")
+    pdf = _render(slot)
+    assert pdf == _render(L.to_xml(slot))
+    assert pdf == _render(build("32pt"))
+    assert pdf != _render(build("xl"))
+
+    row = {"xs": "10pt", "s": "20pt", "m": "50pt", "l": "60pt", "xl": "70pt", "xxl": "80pt"}
+    assert _render(build("m", row)) == _render(build("50pt"))
+
+
+def test_a_height_that_is_not_a_slot_a_length_fill_or_full_is_rejected():
+    built = L.document(None, [L.section(None, [L.layout(None, [L.column(ColumnAttr(height="medum"))])])])
+    with pytest.raises(EngineException, match=r"invalid height value: 'medum' — expected full, fill, a slot from xs to xxl or a pt value"):
+        PdfEngine().set_license_key("test-key").render(built)
+
+
 def test_a_gradient_of_the_tokens_fills_a_box_and_renders_the_same_from_the_builder_and_its_xml():
     def build(background: str):
         return L.document(

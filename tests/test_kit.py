@@ -136,6 +136,12 @@ def test_aliases_are_a_token_row_of_names_for_slots():
     assert d["attrs"]["tokens"] == {"aliases": aliases}
 
 
+def test_a_height_row_is_a_token_row_under_its_schema_name():
+    row = {"xs": "10pt", "m": "30pt", "xxl": "60pt"}
+    d = L.document(DocumentAttr(tokens=DocumentTokens(height=row))).to_dict()
+    assert d["attrs"]["tokens"] == {"height": row}
+
+
 def test_gradients_are_a_token_row_of_named_gradients():
     gradients = {
         "fade": {"type": "linear", "from": "primary", "to": "#0f3e8a", "angle": "90"},
