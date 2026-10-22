@@ -49,5 +49,11 @@ class TdAttr:
     # box they are not applied. no applies at any depth.
     paginate: str | None = None
     debug: str | None = None
+    # How many of the table's columns the cell spans. It is as wide as those columns and the
+    # gaps between them, and the cells after it in the row start at the column after its last. A
+    # row whose cells span more columns than the table's cols names is an error; a row with
+    # fewer leaves its last columns empty. It changes widths only: row heights and page breaks
+    # work as before. Default 1.
+    colspan: str | None = None
     align: str | None = None
     valign: str | None = None

@@ -289,6 +289,22 @@ def test_a_kept_table_row_moves_on_with_the_row_after_it_and_renders_the_same_fr
     assert _render(kept) == _render(L.to_xml(kept))
 
 
+def test_a_table_cell_that_spans_columns_moves_the_cells_after_it_and_renders_the_same_from_the_builder_and_its_xml():
+    def build(first: TdAttr | None):
+        return L.document(None, [L.section(None, [L.layout(None, [
+            L.table(TableAttr(cols="1fr 1fr 1fr"), [
+                L.tr(None, [L.td(first, [L.text(None, ["A"])]), L.td(None, [L.text(None, ["B"])])]),
+            ]),
+        ])])])
+
+    spanning = build(TdAttr(colspan="2"))
+    assert L.td(TdAttr(colspan="2")).to_dict()["attrs"] == {"colspan": "2"}
+    assert _render(spanning) != _render(build(None))
+    assert _render(spanning) == _render(L.to_xml(spanning))
+    with pytest.raises(EngineException, match=r"span 4 columns, but the table has 3"):
+        _render(build(TdAttr(colspan="3")))
+
+
 def test_a_circle_without_r_is_rejected_and_says_so():
     built = L.document(None, [L.section(None, [L.layout(None, [L.shape(ShapeAttr(type="circle"))])])])
     with pytest.raises(EngineException, match=r"a circle needs 'r'"):
