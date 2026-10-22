@@ -7,7 +7,7 @@ from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
-    RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, ColumnAttr, TextAttr, Transform,
+    RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, TextAttr, Transform,
 )
 
 
@@ -269,6 +269,24 @@ def test_a_footnote_is_drawn_and_renders_the_same_from_the_builder_and_its_xml_a
     ])])])
     with pytest.raises(EngineException, match=r"<fn> is not supported in a table"):
         PdfEngine().set_license_key("test-key").render(table)
+
+
+def test_a_kept_table_row_moves_on_with_the_row_after_it_and_renders_the_same_from_the_builder_and_its_xml():
+    # The table starts 30pt above the foot of the page, so rows A and B fit and C does not.
+    def build(keep: TrAttr | None):
+        return L.document(None, [L.section(None, [L.layout(None, [
+            L.frame(FrameAttr(height="739pt")),
+            L.table(TableAttr(cols="1fr"), [
+                L.tr(None, [L.td(None, [L.text(None, ["A"])])]),
+                L.tr(keep, [L.td(None, [L.text(None, ["B"])])]),
+                L.tr(None, [L.td(None, [L.text(None, ["C"])])]),
+            ]),
+        ])])])
+
+    kept = build(TrAttr(keep="with-next"))
+    assert L.tr(TrAttr(keep="with-next")).to_dict()["attrs"] == {"keep": "with-next"}
+    assert _render(kept) != _render(build(None))
+    assert _render(kept) == _render(L.to_xml(kept))
 
 
 def test_a_circle_without_r_is_rejected_and_says_so():
