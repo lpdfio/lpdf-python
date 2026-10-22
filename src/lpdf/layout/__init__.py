@@ -2,6 +2,7 @@ from .node import Node
 from .container_node import ContainerNode
 from .text_node import TextNode
 from .span_node import SpanNode
+from .fn_node import FnNode
 from .divider_node import DividerNode
 from .img_node import ImgNode
 from .shape_node import ShapeNode
@@ -32,7 +33,7 @@ from .bookmark_attr import BookmarkAttr
 
 __all__ = [
     "Node",
-    "ContainerNode", "TextNode", "SpanNode", "DividerNode",
+    "ContainerNode", "TextNode", "SpanNode", "FnNode", "DividerNode",
     "ImgNode", "ShapeNode", "BarcodeNode", "FieldNode", "RegionNode", "BookmarkNode",
     "Pin", "FieldType",
     "ColumnAttr", "RowAttr",

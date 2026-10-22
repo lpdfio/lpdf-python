@@ -17,3 +17,4 @@ class DocumentAttr:
     assets: DocumentAssets | None = None
     tokens: DocumentTokens | None = None
     meta: DocumentMeta | None = None
+    footnote_counter: str | None = None
