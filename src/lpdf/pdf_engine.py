@@ -4,6 +4,7 @@ import base64
 import contextlib
 import json
 import re
+import secrets
 import time
 from pathlib import Path
 
@@ -18,6 +19,18 @@ def _tree_asset_srcs(attrs: dict, kind: str) -> dict[str, str]:
     """The ``ref or name -> src`` pairs of the fonts or images a document tree declares in ``assets``."""
     declared = (attrs.get("assets") or {}).get(kind) or []
     return {item.get("ref") or item["name"]: item["src"] for item in declared if item.get("src")}
+
+
+_ENTROPY_BYTES = 32
+
+
+def _encrypt_payload(encrypt: dict) -> dict:
+    """The ``encrypt`` object of a request. AES-256 needs random bytes, which the engine does not make:
+    they come from the operating system's secure generator, fresh for each render."""
+    if encrypt["algorithm"] != "aes-256":
+        return encrypt
+    entropy = base64.b64encode(secrets.token_bytes(_ENTROPY_BYTES)).decode()
+    return {**encrypt, "entropy": entropy}
 
 
 def _load_declared(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
@@ -108,11 +121,19 @@ class PdfEngine:
         user_password: str,
         owner_password: str,
         permissions: dict[str, bool] | None = None,
+        algorithm: str = "aes-256",
     ) -> PdfEngine:
+        """Encrypt every PDF this engine renders.
+
+        ``algorithm`` is ``"aes-256"`` (the default) or ``"rc4-128"``, which PDF 2.0 deprecates:
+        use it only for readers that cannot open AES-256. Each AES-256 render gets a fresh random
+        key, so two renders of one document differ in their bytes.
+        """
         self._encrypt = {
             "user_password":  user_password,
             "owner_password": owner_password,
             "permissions":    permissions or {},
+            "algorithm":      algorithm,
         }
         return self
 
@@ -181,7 +202,7 @@ class PdfEngine:
             payload["created_on"] = options.created_on
 
         if self._encrypt is not None:
-            payload["encrypt"] = self._encrypt
+            payload["encrypt"] = _encrypt_payload(self._encrypt)
 
         if options is not None and options.data is not None and method == "render_pdf":
             payload["data"] = options.data

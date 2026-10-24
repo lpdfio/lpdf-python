@@ -1,5 +1,5 @@
 """
-encrypt-open-password.py — render showcase-encryption.xml with RC4-128 encryption,
+encrypt-open-password.py — render showcase-encryption.xml with AES-256 encryption,
 open password required, copy disabled.
 
 Run from lpdf's root (after 'make build-sdk-python'):
