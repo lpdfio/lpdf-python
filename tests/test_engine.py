@@ -128,6 +128,56 @@ class TestEncryption:
         assert payload["encrypt"]["permissions"] == {}
 
 
+    @patch("lpdf.engine.wasm_runner.subprocess.run")
+    def test_encrypt_defaults_to_aes_256_with_entropy(self, mock_run):
+        mock_run.return_value = _mock_subprocess_run()
+
+        engine = PdfEngine().set_license_key("key")
+        engine.set_encryption("", "owner")
+        engine.render("<doc/>")
+
+        encrypt = _extract_payload(mock_run)["encrypt"]
+        assert encrypt["algorithm"] == "aes-256"
+        assert len(base64.b64decode(encrypt["entropy"])) == 32
+
+    @patch("lpdf.engine.wasm_runner.subprocess.run")
+    def test_every_aes_256_render_gets_fresh_entropy(self, mock_run):
+        mock_run.return_value = _mock_subprocess_run()
+
+        engine = PdfEngine().set_license_key("key")
+        engine.set_encryption("", "owner")
+        engine.render("<doc/>")
+        first = _extract_payload(mock_run)["encrypt"]["entropy"]
+        engine.render("<doc/>")
+        second = _extract_payload(mock_run)["encrypt"]["entropy"]
+
+        assert first != second
+
+    @patch("lpdf.engine.wasm_runner.subprocess.run")
+    def test_rc4_128_sends_no_entropy(self, mock_run):
+        mock_run.return_value = _mock_subprocess_run()
+
+        engine = PdfEngine().set_license_key("key")
+        engine.set_encryption("", "owner", algorithm="rc4-128")
+        engine.render("<doc/>")
+
+        encrypt = _extract_payload(mock_run)["encrypt"]
+        assert encrypt["algorithm"] == "rc4-128"
+        assert "entropy" not in encrypt
+
+    @patch("lpdf.engine.wasm_runner.subprocess.run")
+    def test_unknown_algorithm_is_left_for_the_engine_to_refuse(self, mock_run):
+        mock_run.return_value = _mock_subprocess_run()
+
+        engine = PdfEngine().set_license_key("key")
+        engine.set_encryption("", "owner", algorithm="aes-128")
+        engine.render("<doc/>")
+
+        encrypt = _extract_payload(mock_run)["encrypt"]
+        assert encrypt["algorithm"] == "aes-128"
+        assert "entropy" not in encrypt
+
+
 class TestLoadImage:
     @patch("lpdf.engine.wasm_runner.subprocess.run")
     def test_image_sent_in_payload(self, mock_run):

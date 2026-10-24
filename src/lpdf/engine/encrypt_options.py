@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class EncryptPermissions:
-    """Permission flags for RC4-128 PDF encryption.
+    """Permission flags for PDF encryption.
 
     All flags default to True (allowed). Set a flag to False to restrict.
     """
@@ -25,7 +25,11 @@ class EncryptPermissions:
 
 @dataclass(frozen=True)
 class EncryptOptions:
-    """RC4-128 encryption configuration for LpdfEngine.set_encryption()."""
+    """Encryption configuration for LpdfEngine.set_encryption().
+
+    ``algorithm`` is ``"aes-256"`` (the default) or ``"rc4-128"``, which PDF 2.0 deprecates.
+    """
     user_password: str = ""
     owner_password: str = ""
     permissions: EncryptPermissions | None = None
+    algorithm: str = "aes-256"
