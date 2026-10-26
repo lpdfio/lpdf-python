@@ -12,7 +12,8 @@ class LiAttr:
     table or another list, and sits beside the item's marker. The words go in a text.
     data-source repeats the item once for each entry of the data, and the numbers of a
     number list follow what is made. The item's own box (padding, background, border)
-    surrounds the marker and the content.
+    surrounds the marker and the content, and its gap goes between its children: the gap of
+    the list, unless the item sets one.
     """
 
     font: str | None = None
