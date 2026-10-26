@@ -5,7 +5,7 @@ import pytest
 
 from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
-    BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
+    BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, TextAttr, Transform,
 )
@@ -274,6 +274,37 @@ def test_a_code_keeps_its_spaces_and_one_longer_than_a_page_goes_on_in_the_next_
     bad = L.document(None, [L.section(None, [L.layout(None, [L.code(CodeAttr(tab_size="0"), ["x"])])])])
     with pytest.raises(EngineException, match=r"invalid tab-size"):
         PdfEngine().set_license_key("test-key").render(bad)
+
+
+def test_a_list_is_written_with_its_items_and_renders_the_same_from_the_builder_and_its_xml():
+    document = L.document(None, [L.section(None, [L.layout(None, [
+        L.list(ListAttr(type="number", format="lower-alpha", suffix=")"), [
+            L.li(None, [L.text(None, ["One"])]),
+            L.li(None, [L.text(None, ["Two"]), L.list(ListAttr(bullet="dash"), [L.li(None, [L.text(None, ["Nested"])])])]),
+        ]),
+    ])])])
+
+    xml = L.to_xml(document)
+    assert re.search(r'<list format="lower-alpha" suffix="\)" type="number">\s*<li>\s*<text>One</text>\s*</li>', xml), xml
+    assert re.search(r'<list bullet="dash">\s*<li>\s*<text>Nested</text>', xml), xml
+    assert L.list().to_dict()["type"] == "list"
+    assert L.li().to_dict()["type"] == "li"
+    assert _render(document) == _render(xml)
+
+
+def test_a_number_list_writes_its_numbers_and_a_bullet_list_refuses_what_numbers_them():
+    def build(attrs):
+        items = [L.li(None, [L.text(None, ["A"])]), L.li(None, [L.text(None, ["B"])])]
+        return L.document(None, [L.section(None, [L.layout(None, [L.list(attrs, items)])])])
+
+    bullets = _render(build(None))
+    numbers = _render(build(ListAttr(type="number")))
+    roman = _render(build(ListAttr(type="number", format="lower-roman", start="3")))
+    assert bullets != numbers
+    assert numbers != roman
+
+    with pytest.raises(EngineException, match=r"numbers the items of a list"):
+        PdfEngine().set_license_key("test-key").render(build(ListAttr(format="lower-alpha")))
 
 
 def test_a_footnote_is_drawn_and_renders_the_same_from_the_builder_and_its_xml_and_one_in_a_table_is_rejected():

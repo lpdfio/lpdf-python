@@ -19,6 +19,8 @@ from .row_attr import RowAttr
 from .grid_attr import GridAttr
 from .frame_attr import FrameAttr
 from .link_attr import LinkAttr
+from .list_attr import ListAttr
+from .li_attr import LiAttr
 from .text_attr import TextAttr
 from .span_attr import SpanAttr
 from .code_attr import CodeAttr
@@ -41,7 +43,7 @@ __all__ = [
     "ImgNode", "ShapeNode", "BarcodeNode", "FieldNode", "RegionNode", "BookmarkNode",
     "Pin", "FieldType",
     "ColumnAttr", "RowAttr",
-    "GridAttr", "FrameAttr", "LinkAttr",
+    "GridAttr", "ListAttr", "LiAttr", "FrameAttr", "LinkAttr",
     "TextAttr", "CodeAttr", "SpanAttr", "CodeSpanAttr", "DividerAttr",
     "ImgAttr", "ShapeAttr", "BarcodeAttr", "FieldAttr", "RegionAttr",
     "TableAttr", "TheadAttr", "TrAttr", "TdAttr", "BookmarkAttr",
