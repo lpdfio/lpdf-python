@@ -47,7 +47,9 @@ from .layout.img_attr import ImgAttr
 from .layout.img_node import ImgNode
 from .layout.shape_attr import ShapeAttr
 from .layout.shape_node import ShapeNode
+from .layout.li_attr import LiAttr
 from .layout.link_attr import LinkAttr
+from .layout.list_attr import ListAttr
 from .layout.region_attr import RegionAttr
 from .layout.region_node import RegionNode
 from .layout.row_attr import RowAttr
@@ -149,6 +151,18 @@ class L:
     @staticmethod
     def grid(attrs: GridAttr | None = None, nodes: list | None = None) -> ContainerNode:
         return ContainerNode("grid", options_to_attrs(attrs), nodes or [])
+
+    @staticmethod
+    def list(attrs: ListAttr | None = None, nodes: list | None = None) -> ContainerNode:
+        """Build a list node: a list of items, which are li nodes. A bullet list marks each item with a shape;
+        with type "number" the engine numbers them, in the format given, and the numbers follow the items that
+        data-source makes."""
+        return ContainerNode("list", options_to_attrs(attrs), nodes or [])
+
+    @staticmethod
+    def li(attrs: LiAttr | None = None, nodes: list | None = None) -> ContainerNode:
+        """Build an li, an item of a list. Its words go in a text; a list inside it is a list under the item."""
+        return ContainerNode("li", options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def frame(attrs: FrameAttr | None = None, nodes: list | None = None) -> ContainerNode:
