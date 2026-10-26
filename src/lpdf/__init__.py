@@ -37,6 +37,8 @@ from .layout.frame_attr import FrameAttr
 from .layout.link_attr import LinkAttr
 from .layout.text_attr import TextAttr
 from .layout.span_attr import SpanAttr
+from .layout.code_attr import CodeAttr
+from .layout.code_span_attr import CodeSpanAttr
 from .layout.divider_attr import DividerAttr
 from .layout.img_attr import ImgAttr
 from .layout.shape_attr import ShapeAttr
