@@ -13,8 +13,8 @@ class MarkdownAttr:
     which holds the text. The page, a header, a footer or a cover are not Markdown, so they
     stay in the XML: layers paint a header and a footer in the margin, and a cover or a
     table of contents is a section of its own. CommonMark with tables, strikethrough and
-    footnotes; raw HTML and math are an error that names the line. A heading is a bookmark,
-    so the table of contents and the outline of the viewer fill themselves.
+    footnotes; raw HTML is an error that names the line, and a $ is text. A heading is a
+    bookmark, so the table of contents and the outline of the viewer fill themselves.
     """
 
     # The space between the page edges and the Markdown: one value for all four sides, or two to
