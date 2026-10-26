@@ -7,7 +7,11 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class MarkdownTableAttr:
-    """A table. The columns share the width equally."""
+    """
+    A table. Its columns are sized by their content: a column takes the width its cells need
+    on one line, the room that is left is shared in proportion, and a name that does not fit
+    breaks at the edge of its cell.
+    """
 
     border: str | None = None
     stripe: str | None = None
