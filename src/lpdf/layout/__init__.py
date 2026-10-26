@@ -2,6 +2,8 @@ from .node import Node
 from .container_node import ContainerNode
 from .text_node import TextNode
 from .span_node import SpanNode
+from .code_node import CodeNode
+from .code_span_node import CodeSpanNode
 from .fn_node import FnNode
 from .divider_node import DividerNode
 from .img_node import ImgNode
@@ -19,6 +21,8 @@ from .frame_attr import FrameAttr
 from .link_attr import LinkAttr
 from .text_attr import TextAttr
 from .span_attr import SpanAttr
+from .code_attr import CodeAttr
+from .code_span_attr import CodeSpanAttr
 from .divider_attr import DividerAttr
 from .img_attr import ImgAttr
 from .shape_attr import ShapeAttr
@@ -33,12 +37,12 @@ from .bookmark_attr import BookmarkAttr
 
 __all__ = [
     "Node",
-    "ContainerNode", "TextNode", "SpanNode", "FnNode", "DividerNode",
+    "ContainerNode", "TextNode", "CodeNode", "SpanNode", "CodeSpanNode", "FnNode", "DividerNode",
     "ImgNode", "ShapeNode", "BarcodeNode", "FieldNode", "RegionNode", "BookmarkNode",
     "Pin", "FieldType",
     "ColumnAttr", "RowAttr",
     "GridAttr", "FrameAttr", "LinkAttr",
-    "TextAttr", "SpanAttr", "DividerAttr",
+    "TextAttr", "CodeAttr", "SpanAttr", "CodeSpanAttr", "DividerAttr",
     "ImgAttr", "ShapeAttr", "BarcodeAttr", "FieldAttr", "RegionAttr",
     "TableAttr", "TheadAttr", "TrAttr", "TdAttr", "BookmarkAttr",
 ]

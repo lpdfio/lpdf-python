@@ -5,7 +5,7 @@ import pytest
 
 from lpdf import (
     L, NoAttr, PdfEngine, EngineException,
-    BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
+    BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, TextAttr, Transform,
 )
@@ -246,6 +246,34 @@ def test_a_footnote_is_an_fn_child_of_a_text_and_the_counter_is_an_attribute_of_
     assert re.search(r'<section [^>]*footnote-counter="page"', xml), xml
     assert '<text>Total<fn>See <span bold="true">this</span>.</fn> here</text>' in xml
     assert L.fn(NoAttr, ["a"]).to_dict() == {"type": "fn", "attrs": {}, "nodes": ["a"]}
+
+
+def test_a_code_and_a_code_span_are_written_as_their_elements_and_render_the_same_from_the_builder_and_its_xml():
+    document = L.document(None, [L.section(None, [L.layout(None, [
+        L.code(CodeAttr(tab_size="2"), ["\nfn a() {\n\tb(", L.span(SpanAttr(color="#c0392b"), ["x"]), ");\n}\n"]),
+        L.text(None, ["Run ", L.code_span(CodeSpanAttr(background="#ffff00"), ["cargo test"]), " now"]),
+    ])])])
+
+    xml = L.to_xml(document)
+    assert '<code tab-size="2">\nfn a() {\n\tb(<span color="#c0392b">x</span>);\n}\n</code>' in xml, xml
+    assert 'Run <code-span background="#ffff00">cargo test</code-span> now' in xml, xml
+    assert L.code().to_dict()["type"] == "code"
+    assert L.code_span().to_dict()["type"] == "code-span"
+    assert _render(document) == _render(xml)
+
+
+def test_a_code_keeps_its_spaces_and_one_longer_than_a_page_goes_on_in_the_next_and_a_bad_tab_size_is_rejected():
+    def build(*nodes):
+        return L.document(None, [L.section(None, [L.layout(None, [L.code(None, list(nodes))])])])
+
+    assert _render(build("a    b")) != _render(build("a b"))
+
+    lines = "\n".join(f"line {i}" for i in range(1, 151))
+    assert len(re.findall(rb"/Type\s*/Page[^s]", _render(build(lines)))) >= 2, "the code splits across pages"
+
+    bad = L.document(None, [L.section(None, [L.layout(None, [L.code(CodeAttr(tab_size="0"), ["x"])])])])
+    with pytest.raises(EngineException, match=r"invalid tab-size"):
+        PdfEngine().set_license_key("test-key").render(bad)
 
 
 def test_a_footnote_is_drawn_and_renders_the_same_from_the_builder_and_its_xml_and_one_in_a_table_is_rejected():

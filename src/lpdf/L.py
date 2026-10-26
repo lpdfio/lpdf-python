@@ -51,6 +51,10 @@ from .layout.link_attr import LinkAttr
 from .layout.region_attr import RegionAttr
 from .layout.region_node import RegionNode
 from .layout.row_attr import RowAttr
+from .layout.code_attr import CodeAttr
+from .layout.code_node import CodeNode
+from .layout.code_span_attr import CodeSpanAttr
+from .layout.code_span_node import CodeSpanNode
 from .layout.span_attr import SpanAttr
 from .layout.span_node import SpanNode
 from .layout.fn_node import FnNode
@@ -176,13 +180,26 @@ class L:
 
     @staticmethod
     def text(attrs: TextAttr | None = None, nodes: list | None = None) -> TextNode:
-        """Build a text paragraph node. Children must be strings, SpanNode or FnNode instances."""
+        """Build a text paragraph node. Children must be strings, SpanNode, CodeSpanNode or FnNode instances."""
         return TextNode(options_to_attrs(attrs), nodes or [])
+
+    @staticmethod
+    def code(attrs: CodeAttr | None = None, nodes: list | None = None) -> CodeNode:
+        """Build a code node: code in a box that fills the width and grows with its lines. The strings are kept
+        as they are written: every space, and a new line wherever there is a "\\n". A line longer than the box
+        wraps. Children must be strings or SpanNode instances, which color parts of the code."""
+        return CodeNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def span(attrs: SpanAttr | None = None, nodes: list[str] | None = None) -> SpanNode:
         """Build a span inline node. Children must be plain strings."""
         return SpanNode(options_to_attrs(attrs), nodes or [])
+
+    @staticmethod
+    def code_span(attrs: CodeSpanAttr | None = None, nodes: list[str] | None = None) -> CodeSpanNode:
+        """Build a code-span inline node: a run of code in a text, in the code font on a tint. Children must be
+        plain strings."""
+        return CodeSpanNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def fn(attrs: None = None, nodes: list | None = None) -> FnNode:
@@ -252,7 +269,7 @@ class L:
 
     @staticmethod
     def text_at(attrs: TextAtAttr, nodes: list | None = None) -> TextAtNode:
-        """Build a `text-at`, the text of the layout put at a fixed place. Children must be strings or SpanNode instances."""
+        """Build a `text-at`, the text of the layout put at a fixed place. Children must be strings, SpanNode or CodeSpanNode instances."""
         return TextAtNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
