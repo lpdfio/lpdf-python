@@ -66,6 +66,8 @@ from .layout.text_attr import TextAttr
 from .layout.text_node import TextNode
 from .layout.thead_attr import TheadAttr
 from .layout.tr_attr import TrAttr
+from .markdown.markdown_attr import MarkdownAttr
+from .markdown.markdown_node import MarkdownNode
 from .pdf_engine import PdfEngine, default_wasm_binary
 from .shared.attrs_helper import options_to_attrs
 
@@ -127,6 +129,14 @@ class L:
     def layout(attrs: LayoutAttr | None, nodes: list | None = None) -> SectionLayout:
         """Wrap layout nodes into a layout block, which keeps them inside its margin."""
         return SectionLayout(options_to_attrs(attrs), nodes or [])
+
+    @staticmethod
+    def markdown(attrs: MarkdownAttr | None = None, nodes: list | None = None) -> MarkdownNode:
+        """Build a markdown block, which takes the place of a layout in a section and holds only Markdown: the
+        ``LMarkdown.styles`` that say how each part looks, which are optional, and one ``LMarkdown.content`` with the
+        text. What Markdown can't say, such as the page, a header, a footer or a cover, stays in the section
+        around it: layers paint a header and a footer in the margin it leaves."""
+        return MarkdownNode(options_to_attrs(attrs), nodes or [])
 
     @staticmethod
     def assets(attrs: DocumentAssets) -> DocumentAssets:

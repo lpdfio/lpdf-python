@@ -4,7 +4,8 @@ import re
 import pytest
 
 from lpdf import (
-    L, NoAttr, PdfEngine, EngineException,
+    L, LMarkdown, NoAttr, PdfEngine, EngineException,
+    MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, TextAttr, Transform,
@@ -528,3 +529,77 @@ def test_the_constants_are_the_schema_values():
     assert Pin.TOP == "top"
     assert Orientation.LANDSCAPE == "landscape"
     assert BuiltinFont.TIMES_BOLD == "Times-Bold"
+
+
+# ── Markdown ───────────────────────────────────────────────────────────────────
+
+MARKDOWN_BODY = "# Release notes\n\nSome *emphasis*, **strong** text and `code`.\n\n- one\n- two\n\n> a quote\n"
+
+
+def _markdown_document(attrs=None, styles=None, text=MARKDOWN_BODY):
+    parts = ([styles] if styles is not None else []) + [LMarkdown.content(NoAttr, [text])]
+    return L.document(None, [L.section(None, [L.markdown(attrs, parts)])])
+
+
+def test_a_markdown_its_styles_its_content_and_their_rules_are_built_with_the_schema_names():
+    markdown = L.markdown(MarkdownAttr(margin="54pt", gap="m", bookmarks="2")).to_dict()
+    assert markdown["type"] == "markdown"
+    assert markdown["attrs"] == {"margin": "54pt", "gap": "m", "bookmarks": "2"}
+
+    styles = LMarkdown.styles(MarkdownStylesAttr(src="styles.xml"), [LMarkdown.h1(MarkdownH1Attr(font_size="xl", color="muted"))]).to_dict()
+    assert styles["type"] == "markdown-styles"
+    assert styles["attrs"] == {"src": "styles.xml"}
+    assert styles["nodes"] == [{"type": "h1", "attrs": {"font-size": "xl", "color": "muted"}}]
+    assert LMarkdown.quote(MarkdownQuoteAttr(bar_color="primary")).to_dict()["attrs"] == {"bar-color": "primary"}
+    assert LMarkdown.em().to_dict() == {"type": "em", "attrs": {}}
+    assert LMarkdown.del_().to_dict()["type"] == "del"
+    assert LMarkdown.content(NoAttr, ["# a"]).to_dict()["nodes"] == ["# a"]
+
+
+def test_a_markdown_is_written_as_xml_with_its_markdown_as_it_is_and_renders_the_same_from_the_builder_and_its_xml():
+    document = _markdown_document(
+        MarkdownAttr(gap="8pt"),
+        LMarkdown.styles(NoAttr, [LMarkdown.h1(MarkdownH1Attr(color="#ff0000"))]),
+        "a < b & c ]]> d\n\n    code\n",
+    )
+    xml = L.to_xml(document)
+    assert '<markdown gap="8pt">' in xml
+    assert re.search(r'<markdown-styles>\s*<h1 color="#ff0000"\s*/>\s*</markdown-styles>', xml)
+    assert "<markdown-content><![CDATA[a < b & c ]]]]><![CDATA[> d" in xml
+    assert _render(document) == _render(xml)
+
+
+def test_a_markdown_renders_the_text_it_is_given_and_a_rule_that_sets_a_color_changes_the_page():
+    plain = _render(_markdown_document())
+    assert plain.startswith(b"%PDF-")
+    assert plain != _render(_markdown_document(styles=LMarkdown.styles(NoAttr, [LMarkdown.h1(MarkdownH1Attr(color="#ff0000"))])))
+    assert plain != _render(_markdown_document(text="# Another title"))
+
+
+def test_a_file_of_rules_is_read_from_the_src_of_its_styles_or_loaded_by_name(tmp_path):
+    file = tmp_path / "styles.xml"
+    file.write_text('<markdown-styles><h1 color="#ff0000"/></markdown-styles>', encoding="utf-8")
+    inline = _render(_markdown_document(styles=LMarkdown.styles(NoAttr, [LMarkdown.h1(MarkdownH1Attr(color="#ff0000"))])))
+    from_src = _markdown_document(styles=LMarkdown.styles(MarkdownStylesAttr(src=str(file))))
+    assert _render(from_src) == inline
+    assert _render(L.to_xml(from_src)) == inline
+
+    engine = PdfEngine().set_license_key("test-key").load_markdown_styles("theme.xml", '<markdown-styles><h1 color="#ff0000"/></markdown-styles>')
+    loaded = engine.render(_markdown_document(styles=LMarkdown.styles(MarkdownStylesAttr(src="theme.xml"))))
+    assert _normalised(loaded) == inline
+
+
+def test_a_file_of_rules_that_is_not_there_and_raw_html_are_errors_that_name_the_src_and_the_line():
+    with pytest.raises(EngineException, match="missing-styles.xml"):
+        _render(_markdown_document(styles=LMarkdown.styles(MarkdownStylesAttr(src="missing-styles.xml"))))
+    with pytest.raises(EngineException, match=r"markdown line 3.*raw HTML"):
+        _render(_markdown_document(text="fine\n\n<div>no</div>\n"))
+
+
+def test_the_markdown_comes_from_the_data_of_an_xml_document_or_the_text_written_in_it():
+    xml = '<lpdf version="1"><document><section><markdown><markdown-content data-value="body"><![CDATA[# From the text]]></markdown-content></markdown></section></document></lpdf>'
+    engine = PdfEngine().set_license_key("test-key")
+    from lpdf import RenderOptions
+    from_data = _normalised(engine.render(xml, RenderOptions(data={"body": "# From the data"})))
+    from_text = _normalised(engine.render(xml))
+    assert from_data != from_text
