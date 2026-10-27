@@ -13,8 +13,7 @@ class MarkdownTableAttr:
     breaks at the edge of its cell. stripe is the color of every other row, or none;
     head-border is the line under the header row and row-border the line under each of the
     other rows, as thickness and color like border, or none. The default styles draw a line
-    under the header in the line color and lines between the rows in line-muted, with no
-    stripe.
+    in line-muted under the header and under each row, with no stripe.
     """
 
     border: str | None = None
