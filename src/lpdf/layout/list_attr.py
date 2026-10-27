@@ -24,7 +24,8 @@ class ListAttr:
     gap: str | None = None
     # Space between the edge of the box and its content, written like CSS: one value for all
     # sides, two for top-bottom and left-right, three for top, left-right and bottom, four for
-    # top, right, bottom and left.
+    # top, right, bottom and left. Each value is a length or a name from the space row of the
+    # tokens, and they can be mixed: 0pt 0pt 0pt m.
     padding: str | None = None
     # Height of the box. Leave it out to size to the content. A length, or a name from the
     # height row of the tokens, fixes it; fill takes what is left after its siblings (shared
