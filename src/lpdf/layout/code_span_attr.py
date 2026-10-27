@@ -9,9 +9,10 @@ from dataclasses import dataclass
 class CodeSpanAttr:
     """
     A run of code inside a text: its words in Courier on a light tint, the tint drawn behind
-    them. It is the inline twin of code, and like a span it is not broken inside: a run
-    longer than a line runs on past it. White space in it collapses as in the text around
-    it.
+    them. It is the inline twin of code, and like a span it is not broken inside, so it goes
+    to the next line whole, and a run longer than a whole line breaks at the last character
+    that fits, so nothing runs past the box. White space in it collapses as in the text
+    around it.
     """
 
     font: str | None = None
