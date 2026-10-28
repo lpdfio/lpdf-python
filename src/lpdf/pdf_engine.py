@@ -65,6 +65,30 @@ def _extract_xml_image_srcs(xml: str) -> dict[str, str]:
     return srcs
 
 
+def _extract_xml_markdown_styles_srcs(xml: str) -> list[str]:
+    """The ``src`` of each ``<markdown-styles>`` in XML."""
+    srcs = []
+    for tag in re.findall(r'<markdown-styles\s[^>]*>', xml):
+        src = re.search(r'\bsrc="([^"]*)"', tag)
+        if src and src.group(1):
+            srcs.append(src.group(1))
+    return srcs
+
+
+def _tree_markdown_styles_srcs(document: dict) -> list[str]:
+    """The ``src`` of each ``markdown-styles`` in the markdown of any section of a document tree."""
+    srcs = []
+    for section in document.get("nodes") or []:
+        for child in section.get("nodes") or []:
+            if child.get("type") != "markdown":
+                continue
+            for part in child.get("nodes") or []:
+                src = (part.get("attrs") or {}).get("src")
+                if part.get("type") == "markdown-styles" and src:
+                    srcs.append(src)
+    return srcs
+
+
 def default_wasm_binary() -> str:
     """The path of the WASI binary the SDK ships."""
     return str(Path(__file__).resolve().parent.parent / "resources" / "lpdf-wasi.wasm")
@@ -76,6 +100,7 @@ class PdfEngine:
         self._options = options or EngineOptions()
         self._fonts: dict[str, bytes] = {}
         self._images: dict[str, bytes] = {}
+        self._markdown_styles: dict[str, str] = {}
         self._encrypt: dict | None = None
 
     def set_license_key(self, key: str) -> PdfEngine:
@@ -114,6 +139,12 @@ class PdfEngine:
 
     def load_image(self, name: str, data: bytes) -> PdfEngine:
         self._images[name] = data
+        return self
+
+    def load_markdown_styles(self, src: str, text: str) -> PdfEngine:
+        """Register the text of a file of Markdown rules, the root of which is a ``<markdown-styles>``, for the
+        ``src`` that names it in ``<markdown-styles src="…">``."""
+        self._markdown_styles[src] = text
         return self
 
     def set_encryption(
@@ -197,6 +228,19 @@ class PdfEngine:
             payload["images"] = {
                 name: base64.b64encode(data).decode() for name, data in merged_images.items()
             }
+
+        # The files of Markdown rules a document names with a src: the ones loaded here, and the ones read from
+        # the path. A file that cannot be read is left for the engine to report, naming the src.
+        merged_styles: dict[str, str] = dict(self._markdown_styles)
+        style_srcs = (
+            _tree_markdown_styles_srcs(input_dict) if input_dict is not None else _extract_xml_markdown_styles_srcs(input_str)
+        )
+        for src in style_srcs:
+            if src not in merged_styles:
+                with contextlib.suppress(OSError):
+                    merged_styles[src] = Path(src).read_text(encoding="utf-8")
+        if merged_styles:
+            payload["markdown_styles"] = merged_styles
 
         if options is not None and options.created_on is not None:
             payload["created_on"] = options.created_on

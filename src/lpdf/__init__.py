@@ -1,5 +1,6 @@
 # Top-level facades
 from .L import L, NoAttr
+from .l_markdown import LMarkdown
 from .pdf_engine import PdfEngine
 
 # engine subpackage - commonly used types
@@ -52,6 +53,27 @@ from .layout.thead_attr import TheadAttr
 from .layout.tr_attr import TrAttr
 from .layout.td_attr import TdAttr
 from .layout.bookmark_attr import BookmarkAttr
+
+# markdown subpackage - the attribute classes of a markdown, its styles and their rules
+from .markdown.markdown_attr import MarkdownAttr
+from .markdown.markdown_styles_attr import MarkdownStylesAttr
+from .markdown.markdown_h1_attr import MarkdownH1Attr
+from .markdown.markdown_h2_attr import MarkdownH2Attr
+from .markdown.markdown_h3_attr import MarkdownH3Attr
+from .markdown.markdown_h4_attr import MarkdownH4Attr
+from .markdown.markdown_h5_attr import MarkdownH5Attr
+from .markdown.markdown_h6_attr import MarkdownH6Attr
+from .markdown.markdown_pattr import MarkdownPAttr
+from .markdown.markdown_code_attr import MarkdownCodeAttr
+from .markdown.markdown_quote_attr import MarkdownQuoteAttr
+from .markdown.markdown_li_attr import MarkdownLiAttr
+from .markdown.markdown_aattr import MarkdownAAttr
+from .markdown.markdown_strong_attr import MarkdownStrongAttr
+from .markdown.markdown_em_attr import MarkdownEmAttr
+from .markdown.markdown_del_attr import MarkdownDelAttr
+from .markdown.markdown_table_attr import MarkdownTableAttr
+from .markdown.markdown_th_attr import MarkdownThAttr
+from .markdown.markdown_td_attr import MarkdownTdAttr
 
 # canvas subpackage - attribute classes and the transform helper
 from .canvas.layer_attr import LayerAttr
