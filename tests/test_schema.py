@@ -589,11 +589,14 @@ def test_a_file_of_rules_is_read_from_the_src_of_its_styles_or_loaded_by_name(tm
     assert _normalised(loaded) == inline
 
 
-def test_a_file_of_rules_that_is_not_there_and_raw_html_are_errors_that_name_the_src_and_the_line():
+def test_a_file_of_rules_that_is_not_there_is_an_error_that_names_the_src():
     with pytest.raises(EngineException, match="missing-styles.xml"):
         _render(_markdown_document(styles=LMarkdown.styles(MarkdownStylesAttr(src="missing-styles.xml"))))
-    with pytest.raises(EngineException, match=r"markdown line 3.*raw HTML"):
-        _render(_markdown_document(text="fine\n\n<div>no</div>\n"))
+
+
+def test_raw_html_is_left_out_of_the_markdown_and_the_words_in_it_are_kept():
+    with_html = _render(_markdown_document(text="fine\n\n<div>kept</div>\n"))
+    assert with_html == _render(_markdown_document(text="fine\n\nkept\n"))
 
 
 def test_the_markdown_comes_from_the_data_of_an_xml_document_or_the_text_written_in_it():
