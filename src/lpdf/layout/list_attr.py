@@ -39,7 +39,7 @@ class ListAttr:
     # children that overlap do not show through each other, and a box inside a faded box is
     # faded further: 0.5 inside 0.5 is drawn at 0.25. A form field in the box is not faded.
     # Default 1.
-    opacity: str | None = None
+    opacity: float | None = None
     # A hard-edged shadow: a copy of the box, moved right and down by the first two lengths
     # (negative is left and up) and filled with the color, drawn under the box with the same
     # radius. An opacity from 0 to 1 after the color fades the shadow alone: "2pt 3pt #000000
@@ -57,7 +57,7 @@ class ListAttr:
     # the children of layout; on a box inside another box they are not applied. no applies at
     # any depth.
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
     # bullet marks each item with a shape, number with a number. Default bullet.
     type: str | None = None
     # How a number list writes its numbers: decimal (1, 2, 3), lower-alpha (a, b, c, then aa,
@@ -67,7 +67,7 @@ class ListAttr:
     format: str | None = None
     # The number of a number list's first item, to continue a list that something cut in two.
     # Default 1.
-    start: str | None = None
+    start: int | None = None
     # Text before each number of a number list: prefix="(" and suffix=")" write (a). Default
     # none.
     prefix: str | None = None

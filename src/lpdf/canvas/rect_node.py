@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from .canvas_node import CanvasNode
 
 
@@ -8,7 +10,7 @@ class RectNode(CanvasNode):
 
     __slots__ = ("_attrs",)
 
-    def __init__(self, attrs: dict[str, str]):
+    def __init__(self, attrs: dict[str, Any]):
         self._attrs = attrs
 
     def to_dict(self) -> dict:

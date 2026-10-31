@@ -18,4 +18,4 @@ class LinkAttr:
     # to the next line; in a column it takes the full width.
     width: str | None = None
     height: str | None = None
-    debug: str | None = None
+    debug: bool | None = None

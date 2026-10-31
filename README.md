@@ -25,10 +25,10 @@ doc = L.document(DocumentAttr(size='letter'), [
             L.column(ColumnAttr(gap='24pt'), [
                 L.row(RowAttr(justify='between'), [
                     L.text(TextAttr(font_size='8pt', color='#888888'), ['ACME CORP']),
-                    L.text(TextAttr(font_size='22pt', bold='true'), ['Project Proposal']),
+                    L.text(TextAttr(font_size='22pt', bold=True), ['Project Proposal']),
                 ]),
                 L.divider(DividerAttr(thickness='xs')),
-                L.text(TextAttr(font_size='13pt', bold='true'), ['Scope of Work']),
+                L.text(TextAttr(font_size='13pt', bold=True), ['Scope of Work']),
                 L.row(RowAttr(gap='12pt', align='start'), [
                     L.text(TextAttr(color='#888888', width='24pt'), ['01']),
                     L.text(TextAttr(width='fill'), ['Discovery & Research']),

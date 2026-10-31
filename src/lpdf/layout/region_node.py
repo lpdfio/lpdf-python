@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from ..shared.attrs_helper import node_to_dict
 from .node import Node
 
@@ -9,7 +11,7 @@ class RegionNode(Node):
 
     __slots__ = ("_attrs", "_nodes")
 
-    def __init__(self, attrs: dict[str, str], nodes: list):
+    def __init__(self, attrs: dict[str, Any], nodes: list):
         self._attrs = attrs
         self._nodes = nodes
 

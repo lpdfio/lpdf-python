@@ -107,7 +107,7 @@ class L:
         sections: list[SectionNode] | None = None,
     ) -> PdfDocument:
         """Build the root document node."""
-        doc_attrs: dict = options_to_attrs(attrs)
+        doc_attrs: dict = options_to_attrs(attrs, skip=("assets", "tokens", "meta", "output", "attachments"))
         if attrs is not None and attrs.assets is not None:
             doc_attrs["assets"] = attrs.assets.to_dict()
         if attrs is not None and attrs.tokens is not None:

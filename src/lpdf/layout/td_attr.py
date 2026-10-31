@@ -33,7 +33,7 @@ class TdAttr:
     # children that overlap do not show through each other, and a box inside a faded box is
     # faded further: 0.5 inside 0.5 is drawn at 0.25. A form field in the box is not faded.
     # Default 1.
-    opacity: str | None = None
+    opacity: float | None = None
     # A hard-edged shadow: a copy of the box, moved right and down by the first two lengths
     # (negative is left and up) and filled with the color, drawn under the box with the same
     # radius. An opacity from 0 to 1 after the color fades the shadow alone: "2pt 3pt #000000
@@ -51,13 +51,13 @@ class TdAttr:
     # the children of layout; on a box inside another box they are not applied. no applies at
     # any depth.
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
     # How many of the table's columns the cell spans. It is as wide as those columns and the
     # gaps between them, and the cells after it in the row start at the column after its last. A
     # row whose cells span more columns than the table's cols names is an error; a row with
     # fewer leaves its last columns empty. It changes widths only: row heights and page breaks
     # work as before. Default 1.
-    colspan: str | None = None
+    colspan: int | None = None
     # How many rows the cell spans, its own included. It is as tall as those rows and the gaps
     # between them, and the rows under it leave its columns out: their cells start at the first
     # free columns. If the cell's content is taller than the rows are together, the last of them
@@ -65,6 +65,6 @@ class TdAttr:
     # runs past the last row of the table, are errors; a thead is one row and takes no rowspan.
     # The rows a cell spans stay on one page: the group moves to the next page whole when it
     # does not fit, and one taller than a page is clipped at the page's end. Default 1.
-    rowspan: str | None = None
+    rowspan: int | None = None
     align: str | None = None
     valign: str | None = None

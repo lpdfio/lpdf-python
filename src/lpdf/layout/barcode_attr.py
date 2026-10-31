@@ -27,7 +27,7 @@ class BarcodeAttr:
     # The digits of hrt add 12pt to either.
     height: str | None = None
     ec: str | None = None
-    hrt: str | None = None
+    hrt: bool | None = None
     color: str | None = None
     background: str | None = None
     # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
@@ -35,4 +35,4 @@ class BarcodeAttr:
     # to the next line; in a column it takes the full width.
     width: str | None = None
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None

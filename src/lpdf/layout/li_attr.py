@@ -40,7 +40,7 @@ class LiAttr:
     # children that overlap do not show through each other, and a box inside a faded box is
     # faded further: 0.5 inside 0.5 is drawn at 0.25. A form field in the box is not faded.
     # Default 1.
-    opacity: str | None = None
+    opacity: float | None = None
     # A hard-edged shadow: a copy of the box, moved right and down by the first two lengths
     # (negative is left and up) and filled with the color, drawn under the box with the same
     # radius. An opacity from 0 to 1 after the color fades the shadow alone: "2pt 3pt #000000
@@ -58,10 +58,10 @@ class LiAttr:
     # the children of layout; on a box inside another box they are not applied. no applies at
     # any depth.
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
     # Makes the item's marker a checkbox in place of the bullet or the number: an outline in the
     # line color, with a tick in the color of the item's words when this is true, and empty when
     # it is false. The words start where those of a bullet do, and an item of a number list
     # still takes its number. An item without it keeps its bullet or number. A task item of a
     # Markdown, - [ ] or - [x], is one.
-    checked: str | None = None
+    checked: bool | None = None

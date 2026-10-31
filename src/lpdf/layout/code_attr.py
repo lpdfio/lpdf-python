@@ -43,7 +43,7 @@ class CodeAttr:
     # children that overlap do not show through each other, and a box inside a faded box is
     # faded further: 0.5 inside 0.5 is drawn at 0.25. A form field in the box is not faded.
     # Default 1.
-    opacity: str | None = None
+    opacity: float | None = None
     # A hard-edged shadow: a copy of the box, moved right and down by the first two lengths
     # (negative is left and up) and filled with the color, drawn under the box with the same
     # radius. An opacity from 0 to 1 after the color fades the shadow alone: "2pt 3pt #000000
@@ -61,22 +61,22 @@ class CodeAttr:
     # the children of layout; on a box inside another box they are not applied. no applies at
     # any depth.
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
     # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
     # after the other children, shared equally if several on the line use fill, and never moves
     # to the next line; in a column it takes the full width.
     width: str | None = None
     # How many columns a tab fills to: it moves the next character to the next multiple of this
     # many characters from the start of the line. Default 4.
-    tab_size: str | None = None
+    tab_size: int | None = None
     # The distance between lines, as a factor of the font size: a number above 0, such as 1.5,
     # or a name from the line-height row of the tokens. Default 1.2, which is the token m.
-    line_height: str | None = None
+    line_height: str | float | None = None
     # The fewest lines of the code that may stand alone at the top of the next page when it
     # splits. Default 2. If fewer would be left, lines move from the first page to the next; 1
     # turns the protection off.
-    widows: str | None = None
+    widows: int | None = None
     # The fewest lines of the code that may stand alone at the bottom of a page when it splits.
     # Default 2. If fewer would fit, the whole code moves to the next page; 1 turns the
     # protection off.
-    orphans: str | None = None
+    orphans: int | None = None

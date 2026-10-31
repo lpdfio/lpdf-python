@@ -39,4 +39,4 @@ class TableAttr:
     width: str | None = None
     height: str | None = None
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None

@@ -38,7 +38,7 @@ class RowAttr:
     # children that overlap do not show through each other, and a box inside a faded box is
     # faded further: 0.5 inside 0.5 is drawn at 0.25. A form field in the box is not faded.
     # Default 1.
-    opacity: str | None = None
+    opacity: float | None = None
     # A hard-edged shadow: a copy of the box, moved right and down by the first two lengths
     # (negative is left and up) and filled with the color, drawn under the box with the same
     # radius. An opacity from 0 to 1 after the color fades the shadow alone: "2pt 3pt #000000
@@ -56,7 +56,7 @@ class RowAttr:
     # the children of layout; on a box inside another box they are not applied. no applies at
     # any depth.
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
     align: str | None = None
     justify: str | None = None
     # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves

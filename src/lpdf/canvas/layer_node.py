@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from .canvas_node import CanvasNode
 
 
@@ -8,7 +10,7 @@ class LayerNode(CanvasNode):
 
     __slots__ = ("_attrs", "_nodes")
 
-    def __init__(self, attrs: dict[str, str], nodes: list):
+    def __init__(self, attrs: dict[str, Any], nodes: list):
         self._attrs = attrs
         self._nodes = nodes
 

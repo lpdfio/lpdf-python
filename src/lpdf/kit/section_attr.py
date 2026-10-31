@@ -9,7 +9,7 @@ class SectionAttr:
     orientation: str | None = None
     background: str | None = None
     title: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
     type: str | None = None
     toc_indent_step: str | None = None
     footnote_counter: str | None = None

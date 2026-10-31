@@ -29,9 +29,9 @@ def test_snake_to_kebab_conversion():
 
 
 def test_grid_col_width():
-    node = L.grid(GridAttr(cols="3", col_width="100pt"))
+    node = L.grid(GridAttr(cols=3, col_width="100pt"))
     d = node.to_dict()
-    assert d["attrs"] == {"cols": "3", "col-width": "100pt"}
+    assert d["attrs"] == {"cols": 3, "col-width": "100pt"}
 
 
 def test_container_types():
@@ -50,11 +50,11 @@ def test_text_with_string_children():
 
 
 def test_text_with_span_children():
-    s = L.span(SpanAttr(bold="true"), ["bold text"])
+    s = L.span(SpanAttr(bold=True), ["bold text"])
     node = L.text(NoAttr, ["Normal ", s])
     d = node.to_dict()
     assert d["nodes"][0] == "Normal "
-    assert d["nodes"][1] == {"type": "span", "attrs": {"bold": "true"}, "nodes": ["bold text"]}
+    assert d["nodes"][1] == {"type": "span", "attrs": {"bold": True}, "nodes": ["bold text"]}
 
 
 def test_divider():
@@ -125,7 +125,7 @@ def test_document_with_meta_and_tokens():
 
 
 def test_a_line_height_row_is_a_token_row_under_its_schema_name():
-    row = {"xs": "1", "m": "1.2", "xxl": "2"}
+    row = {"xs": 1, "m": 1.2, "xxl": 2}
     d = L.document(DocumentAttr(tokens=DocumentTokens(line_height=row))).to_dict()
     assert d["attrs"]["tokens"] == {"line-height": row}
 
@@ -144,7 +144,7 @@ def test_a_height_row_is_a_token_row_under_its_schema_name():
 
 def test_gradients_are_a_token_row_of_named_gradients():
     gradients = {
-        "fade": {"type": "linear", "from": "primary", "to": "#0f3e8a", "angle": "90"},
+        "fade": {"type": "linear", "from": "primary", "to": "#0f3e8a", "angle": 90},
         "sunset": {"type": "radial", "stops": [{"offset": "0%", "color": "#f97316"}, {"offset": "100%", "color": "#8b5cf6"}]},
     }
     d = L.document(DocumentAttr(tokens=DocumentTokens(gradients=gradients))).to_dict()
@@ -153,14 +153,14 @@ def test_gradients_are_a_token_row_of_named_gradients():
 
 def test_a_text_line_height_is_a_token_or_a_factor_under_its_schema_name():
     assert L.text(TextAttr(line_height="l"), ["A token"]).to_dict()["attrs"] == {"line-height": "l"}
-    assert L.text(TextAttr(line_height="1.5"), ["A factor"]).to_dict()["attrs"] == {"line-height": "1.5"}
+    assert L.text(TextAttr(line_height=1.5), ["A factor"]).to_dict()["attrs"] == {"line-height": 1.5}
 
 
 def test_a_layer_gives_its_text_a_font_a_size_and_a_color_and_a_box_has_a_color_and_an_opacity():
     layer = L.layer(LayerAttr(font="Courier", font_size="s", color="danger")).to_dict()
     assert layer["attrs"] == {"font": "Courier", "font-size": "s", "color": "danger"}
-    column = L.column(ColumnAttr(color="text-muted", opacity="0.5")).to_dict()
-    assert column["attrs"] == {"color": "text-muted", "opacity": "0.5"}
+    column = L.column(ColumnAttr(color="text-muted", opacity=0.5)).to_dict()
+    assert column["attrs"] == {"color": "text-muted", "opacity": 0.5}
 
 
 def test_a_box_and_a_layer_shape_have_a_shadow():
