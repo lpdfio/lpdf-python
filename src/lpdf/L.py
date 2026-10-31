@@ -114,6 +114,8 @@ class L:
             doc_attrs["tokens"] = attrs.tokens.to_dict()
         if attrs is not None and attrs.meta is not None:
             doc_attrs["meta"] = attrs.meta.to_dict()
+        if attrs is not None and attrs.output is not None:
+            doc_attrs["output"] = attrs.output.to_dict()
         return PdfDocument(doc_attrs, sections or [])
 
     @staticmethod

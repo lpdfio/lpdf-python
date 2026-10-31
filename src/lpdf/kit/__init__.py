@@ -1,5 +1,6 @@
 from .document import PdfDocument
 from .document_meta import DocumentMeta
+from .document_output import DocumentOutput
 from .document_assets import DocumentAssets
 from .document_attr import DocumentAttr
 from .document_tokens import DocumentTokens
@@ -15,10 +16,13 @@ from .section_layout import SectionLayout
 from .orientation import Orientation
 from .section_type import SectionType
 from .footnote_counter import FootnoteCounter
+from .cipher import Cipher
+from .permission import Permission
 
 __all__ = [
     "PdfDocument",
     "DocumentMeta",
+    "DocumentOutput",
     "DocumentAssets",
     "DocumentAttr",
     "DocumentTokens",
@@ -34,4 +38,6 @@ __all__ = [
     "Orientation",
     "SectionType",
     "FootnoteCounter",
+    "Cipher",
+    "Permission",
 ]

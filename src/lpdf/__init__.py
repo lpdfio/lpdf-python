@@ -7,13 +7,13 @@ from .pdf_engine import PdfEngine
 from .engine.engine_exception import EngineException
 from .engine.engine_options import EngineOptions
 from .engine.render_options import RenderOptions
-from .engine.encrypt_options import EncryptOptions, EncryptPermissions
 
 # kit subpackage
 from .kit.document import PdfDocument
 from .kit.document_assets import DocumentAssets
 from .kit.document_attr import DocumentAttr
 from .kit.document_meta import DocumentMeta
+from .kit.document_output import DocumentOutput
 from .kit.document_tokens import DocumentTokens
 from .kit.gradient import Gradient
 from .kit.gradient_stop import GradientStop
@@ -27,6 +27,8 @@ from .kit.section_layout import SectionLayout
 from .kit.orientation import Orientation
 from .kit.section_type import SectionType
 from .kit.footnote_counter import FootnoteCounter
+from .kit.cipher import Cipher
+from .kit.permission import Permission
 
 # layout subpackage - attrs and enums
 from .layout.pin import Pin
