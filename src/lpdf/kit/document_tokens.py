@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, fields as dc_fields
 
+from ..shared.attrs_helper import assert_finite_in
 from .gradient import Gradient
 
 
@@ -24,6 +25,9 @@ class DocumentTokens:
 
     def to_dict(self) -> dict:
         _rename = {"text_size": "text-size", "line_height": "line-height"}
+        for f in dc_fields(self):
+            # A factor of the line-height row and a gradient's angle are numbers, which JSON can't hold as NaN.
+            assert_finite_in(f"tokens.{f.name}", getattr(self, f.name))
         return {
             _rename.get(f.name, f.name): getattr(self, f.name)
             for f in dc_fields(self)

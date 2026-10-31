@@ -37,13 +37,25 @@ def _in_layout(*nodes) -> object:
     (lambda: L.column(ColumnAttr(opacity="0.5")), r'column: opacity must be a number from 0 to 1, not "0.5"'),
     (lambda: L.text(TextAttr(line_height="1.5"), ["a"]), r'text: line-height must be a name or a number above 0, not "1.5"'),
     (lambda: L.grid(GridAttr(cols=3.5), [L.text(NoAttr, ["a"])]), r"grid: cols must be a whole number from 1 to 12, not 3.5"),
-    (lambda: L.column(ColumnAttr(opacity=float("nan"))), r'column: opacity must be a number from 0 to 1, not "nan"'),
-    # "inf" is no number, so it is read as a name, which the tokens don't have.
-    (lambda: L.text(TextAttr(line_height=float("inf")), ["a"]), r"invalid line-height 'inf'"),
 ])
 def test_the_engine_refuses_a_value_of_the_wrong_type_when_it_renders(node, says):
     with pytest.raises(EngineException, match=says):
         PdfEngine().set_license_key("test-key").render(_in_layout(node()))
+
+
+@pytest.mark.parametrize(("build", "says"), [
+    (lambda: L.column(ColumnAttr(opacity=float("nan"))), r"^opacity must be a finite number, not nan$"),
+    (lambda: L.text(TextAttr(line_height=float("inf")), ["a"]), r"^line-height must be a finite number, not inf$"),
+    # A string attribute too: as text, a missing title from pandas would be a bookmark named nan.
+    (lambda: L.bookmark(BookmarkAttr(label=float("nan"))), r"^label must be a finite number, not nan$"),
+    (lambda: L.document(DocumentAttr(tokens=DocumentTokens(line_height={"m": float("nan")}))),
+     r"^tokens\.line_height\.m must be a finite number, not nan$"),
+    (lambda: L.document(DocumentAttr(tokens=DocumentTokens(gradients={"fade": {"type": "linear", "angle": float("-inf")}}))),
+     r"^tokens\.gradients\.fade\.angle must be a finite number, not -inf$"),
+])
+def test_a_number_a_document_cannot_hold_is_refused_when_it_is_built(build, says):
+    with pytest.raises(ValueError, match=says):
+        build()
 
 
 def test_an_attribute_the_element_does_not_have_is_refused_by_the_class_and_by_the_engine():
