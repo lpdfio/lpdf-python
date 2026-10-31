@@ -43,7 +43,7 @@ pdf = engine.render(doc)
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.11+
 - [`wasmtime`](https://wasmtime.dev) CLI must be available in `PATH` (used to run the bundled WASI binary).
 
 ## Docs

@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
       # ── Download WASI binary from core release ───────────────────────────────
       # The newest core release, pre-releases included. `main` is built against the engine it will
