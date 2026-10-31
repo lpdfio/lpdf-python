@@ -6,6 +6,7 @@ import json
 import re
 import secrets
 import time
+import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 
 from .engine.engine_exception import EngineException
@@ -75,15 +76,19 @@ def _extract_xml_image_srcs(xml: str) -> dict[str, str]:
 
 
 def _extract_xml_file_srcs(xml: str) -> dict[str, str]:
-    """The ``ref or name -> src`` pairs of the ``<file>`` elements of XML."""
+    """The ``ref or name -> src`` pairs of the ``<file>`` elements of a document's ``<attachments>``, read with an
+    XML parser as the engine reads them: entities decoded, and what is in a comment or CDATA left out. XML that
+    doesn't parse carries no file here; the engine says what is wrong with it."""
+    try:
+        root = ElementTree.fromstring(xml)
+    except ElementTree.ParseError:
+        return {}
     srcs = {}
-    for tag in re.findall(r'<file\s[^>]*>', xml):
-        name = re.search(r'\bname="([^"]*)"', tag)
-        ref  = re.search(r'\bref="([^"]*)"',  tag)
-        src  = re.search(r'\bsrc="([^"]*)"',  tag)
-        if name and src:
-            key = ref.group(1) if ref else name.group(1)
-            srcs[key] = src.group(1)
+    for file in root.iterfind(".//attachments/file"):
+        key = file.get("ref") or file.get("name")
+        src = file.get("src")
+        if key and src:
+            srcs[key] = src
     return srcs
 
 

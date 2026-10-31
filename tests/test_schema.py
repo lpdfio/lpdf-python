@@ -541,7 +541,25 @@ def test_a_file_the_document_carries_is_embedded_from_load_file_or_its_src(tmp_p
     pdf = engine.render(built)
     assert pdf.count(b"/Type /EmbeddedFile") == 2
     assert b"/AFRelationship /Data" in pdf
+    assert b"/Subtype /text#2Fxml" in pdf
     assert _normalised(pdf) == _normalised(engine.render(L.to_xml(built)))
+
+
+def test_the_src_of_a_file_is_read_as_the_engine_reads_its_xml(tmp_path):
+    terms = tmp_path / "R&D terms.txt"
+    terms.write_text("Terms")
+    built = _document_with_attachments(FileAttr(name="Terms & Conditions.txt", src=str(terms), description="Rows > 100"))
+    xml = L.to_xml(built).replace(
+        "<attachments>", '<attachments><!-- <file name="old.csv" src="/no/such/old.csv"/> -->')
+    engine = PdfEngine().set_license_key("test-key")
+    assert engine.render(xml).count(b"/Type /EmbeddedFile") == 1
+    assert _normalised(engine.render(built)) == _normalised(engine.render(xml))
+
+    plain = tmp_path / "terms.txt"
+    plain.write_text("Terms")
+    quoted = (f"<lpdf version='1'><document><attachments><file name='t.txt' src='{plain}'/></attachments>"
+              "<section><layout><text>x</text></layout></section></document></lpdf>")
+    assert b"/Type /EmbeddedFile" in engine.render(quoted)
 
 
 def test_a_file_whose_src_cannot_be_read_is_an_error_that_names_it():
