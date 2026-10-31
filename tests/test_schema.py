@@ -7,7 +7,7 @@ from lpdf import (
     L, LMarkdown, NoAttr, PdfEngine, EngineException,
     MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
-    FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
+    FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
 )
 from lpdf.layout.text_node import TextNode
@@ -643,6 +643,7 @@ def test_the_constants_are_the_schema_values():
     assert Pin.TOP == "top"
     assert Orientation.LANDSCAPE == "landscape"
     assert BuiltinFont.TIMES_BOLD == "Times-Bold"
+    assert Permission.ALL == "all"
 
 
 # ── Markdown ───────────────────────────────────────────────────────────────────

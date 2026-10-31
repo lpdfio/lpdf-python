@@ -10,9 +10,10 @@ class DocumentOutput:
     ``RenderOptions``.
 
     ``encrypt`` is the cipher, ``"aes-256"`` or ``"rc4-128"`` (``Cipher``); without it the PDF is not encrypted.
-    ``allow`` is what a reader may do without the owner password, separated by spaces (``Permission``): ``print``,
-    ``modify``, ``copy``, ``annotate``, ``fill-forms``, ``accessibility``, ``assemble``. Without it everything is
-    allowed; ``""`` allows nothing. It needs ``encrypt``.
+    ``allow`` is what a reader may do without the owner password, separated by spaces (``Permission``): ``all``, or
+    any of ``print``, ``modify``, ``copy``, ``annotate``, ``fill-forms``, ``accessibility``, ``assemble``. A
+    permission comes only from naming it: without ``allow``, or with ``""``, nothing is allowed, and ``all`` allows
+    everything. It needs ``encrypt``.
     ``pdfa`` writes the PDF as PDF/A, the standard for files kept for the long term: ``"2b"``, or ``"2u"`` when its
     text must also be searchable. The render needs ``created_on``, and every text a font of the assets. What PDF/A
     cannot hold is an error that says what to change: a built-in font, a CMYK color, a form field, a barcode's
