@@ -6,6 +6,7 @@ from enum import StrEnum
 class Permission(StrEnum):
     """The words of the `allow` attribute of the output, separated by spaces: what a reader of an encrypted PDF may do."""
 
+    ALL = "all"
     PRINT = "print"
     MODIFY = "modify"
     COPY = "copy"
