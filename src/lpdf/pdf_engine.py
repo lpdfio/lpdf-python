@@ -6,6 +6,7 @@ import json
 import re
 import secrets
 import time
+import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 
 from .engine.engine_exception import EngineException
@@ -74,6 +75,40 @@ def _extract_xml_image_srcs(xml: str) -> dict[str, str]:
     return srcs
 
 
+def _extract_xml_file_srcs(xml: str) -> dict[str, str]:
+    """The ``ref or name -> src`` pairs of the ``<file>`` elements of a document's ``<attachments>``, read with an
+    XML parser as the engine reads them: entities decoded, and what is in a comment or CDATA left out. XML that
+    doesn't parse carries no file here; the engine says what is wrong with it."""
+    try:
+        root = ElementTree.fromstring(xml)
+    except ElementTree.ParseError:
+        return {}
+    srcs = {}
+    for file in root.iterfind(".//attachments/file"):
+        key = file.get("ref") or file.get("name")
+        src = file.get("src")
+        if key and src:
+            srcs[key] = src
+    return srcs
+
+
+def _tree_file_srcs(attrs: dict) -> dict[str, str]:
+    """The ``ref or name -> src`` pairs of the files a document tree carries in ``attachments``."""
+    return {item.get("ref") or item["name"]: item["src"] for item in attrs.get("attachments") or [] if item.get("src")}
+
+
+def _load_files(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
+    """Read each file the document carries that is not already loaded on the engine. A ``src`` that cannot be read
+    is an error that names the file, rather than the engine's "no bytes"."""
+    for key, src in srcs.items():
+        if key in loaded:
+            continue
+        try:
+            loaded[key] = Path(src).read_bytes()
+        except OSError as e:
+            raise EngineException(f"file '{key}' of <attachments>: cannot read its src '{src}': {e.strerror or e}") from e
+
+
 def _extract_xml_markdown_styles_srcs(xml: str) -> list[str]:
     """The ``src`` of each ``<markdown-styles>`` in XML."""
     srcs = []
@@ -109,6 +144,7 @@ class PdfEngine:
         self._options = options or EngineOptions()
         self._fonts: dict[str, bytes] = {}
         self._images: dict[str, bytes] = {}
+        self._files: dict[str, bytes] = {}
         self._markdown_styles: dict[str, str] = {}
 
     def set_license_key(self, key: str) -> PdfEngine:
@@ -147,6 +183,12 @@ class PdfEngine:
 
     def load_image(self, name: str, data: bytes) -> PdfEngine:
         self._images[name] = data
+        return self
+
+    def load_file(self, name: str, data: bytes) -> PdfEngine:
+        """Register the bytes of a file the document carries, for the ``<file>`` of its ``<attachments>`` whose
+        ``ref``, or with no ref whose name, is ``name``. The PDF carries them as they are."""
+        self._files[name] = data
         return self
 
     def load_markdown_styles(self, src: str, text: str) -> PdfEngine:
@@ -211,6 +253,15 @@ class PdfEngine:
             payload["images"] = {
                 name: base64.b64encode(data).decode() for name, data in merged_images.items()
             }
+
+        # The files the document carries: load_file() + the ones read from src=
+        merged_files: dict[str, bytes] = dict(self._files)
+        file_srcs = (
+            _tree_file_srcs(input_dict.get("attrs") or {}) if input_dict is not None else _extract_xml_file_srcs(input_str)
+        )
+        _load_files(file_srcs, merged_files)
+        if merged_files:
+            payload["files"] = {name: base64.b64encode(data).decode() for name, data in merged_files.items()}
 
         # The files of Markdown rules a document names with a src: the ones loaded here, and the ones read from
         # the path. A file that cannot be read is left for the engine to report, naming the src.

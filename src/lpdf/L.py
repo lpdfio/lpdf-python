@@ -116,6 +116,8 @@ class L:
             doc_attrs["meta"] = attrs.meta.to_dict()
         if attrs is not None and attrs.output is not None:
             doc_attrs["output"] = attrs.output.to_dict()
+        if attrs is not None and attrs.attachments is not None:
+            doc_attrs["attachments"] = [options_to_attrs(file) for file in attrs.attachments]
         return PdfDocument(doc_attrs, sections or [])
 
     @staticmethod
