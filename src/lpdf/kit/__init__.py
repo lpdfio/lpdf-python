@@ -8,6 +8,7 @@ from .gradient import Gradient
 from .gradient_stop import GradientStop
 from .font_attr import FontAttr
 from .image_attr import ImageAttr
+from .file_attr import FileAttr
 from .layout_attr import LayoutAttr
 from .builtin_font import BuiltinFont
 from .section_node import SectionNode
@@ -18,6 +19,7 @@ from .section_type import SectionType
 from .footnote_counter import FootnoteCounter
 from .cipher import Cipher
 from .permission import Permission
+from .file_relationship import FileRelationship
 
 __all__ = [
     "PdfDocument",
@@ -30,6 +32,7 @@ __all__ = [
     "GradientStop",
     "FontAttr",
     "ImageAttr",
+    "FileAttr",
     "LayoutAttr",
     "BuiltinFont",
     "SectionNode",
@@ -40,4 +43,5 @@ __all__ = [
     "FootnoteCounter",
     "Cipher",
     "Permission",
+    "FileRelationship",
 ]

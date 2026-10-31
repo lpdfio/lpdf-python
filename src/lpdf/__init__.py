@@ -19,6 +19,7 @@ from .kit.gradient import Gradient
 from .kit.gradient_stop import GradientStop
 from .kit.font_attr import FontAttr
 from .kit.image_attr import ImageAttr
+from .kit.file_attr import FileAttr
 from .kit.layout_attr import LayoutAttr
 from .kit.builtin_font import BuiltinFont
 from .kit.section_node import SectionNode
@@ -29,6 +30,7 @@ from .kit.section_type import SectionType
 from .kit.footnote_counter import FootnoteCounter
 from .kit.cipher import Cipher
 from .kit.permission import Permission
+from .kit.file_relationship import FileRelationship
 
 # layout subpackage - attrs and enums
 from .layout.pin import Pin

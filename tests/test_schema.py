@@ -7,7 +7,7 @@ from lpdf import (
     L, LMarkdown, NoAttr, PdfEngine, EngineException,
     MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
-    FieldAttr, FieldType, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
+    FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, TextAttr, Transform,
 )
 
@@ -524,7 +524,41 @@ def test_an_image_declared_with_a_src_is_read_from_there(tmp_path):
     assert PdfEngine().set_license_key("test-key").render(built).startswith(b"%PDF-")
 
 
+def _document_with_attachments(*files: FileAttr):
+    return L.document(DocumentAttr(attachments=list(files)), [
+        L.section(NoAttr, [L.layout(NoAttr, [L.text(NoAttr, ["Invoice"])])]),
+    ])
+
+
+def test_a_file_the_document_carries_is_embedded_from_load_file_or_its_src(tmp_path):
+    terms = tmp_path / "terms.txt"
+    terms.write_text("Terms of sale")
+    built = _document_with_attachments(
+        FileAttr(name="invoice.xml", ref="invoice", mime="text/xml", relationship=FileRelationship.DATA),
+        FileAttr(name="terms.txt", src=str(terms), description="The terms"),
+    )
+    engine = PdfEngine().set_license_key("test-key").load_file("invoice", b"<invoice/>")
+    pdf = engine.render(built)
+    assert pdf.count(b"/Type /EmbeddedFile") == 2
+    assert b"/AFRelationship /Data" in pdf
+    assert _normalised(pdf) == _normalised(engine.render(L.to_xml(built)))
+
+
+def test_a_file_whose_src_cannot_be_read_is_an_error_that_names_it():
+    built = _document_with_attachments(FileAttr(name="data.csv", src="/no/such/data.csv"))
+    with pytest.raises(EngineException, match=r"file 'data\.csv'.*/no/such/data\.csv"):
+        PdfEngine().set_license_key("test-key").render(built)
+
+
+def test_a_file_with_no_bytes_is_an_error_that_says_how_to_load_it():
+    xml = ('<lpdf version="1"><document><attachments><file name="a.xml"/></attachments>'
+           '<section><layout><text>x</text></layout></section></document></lpdf>')
+    with pytest.raises(EngineException, match=r"loadFile\('a\.xml', bytes\)"):
+        PdfEngine().set_license_key("test-key").render(xml)
+
+
 def test_the_constants_are_the_schema_values():
+    assert FileRelationship.DATA == "data"
     assert FieldType.TEXT == "text"
     assert Pin.TOP == "top"
     assert Orientation.LANDSCAPE == "landscape"
