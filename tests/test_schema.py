@@ -3,7 +3,6 @@ import re
 
 import pytest
 
-from lpdf.layout.text_node import TextNode
 from lpdf import (
     L, LMarkdown, NoAttr, PdfEngine, EngineException,
     MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
@@ -11,6 +10,7 @@ from lpdf import (
     FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
 )
+from lpdf.layout.text_node import TextNode
 
 
 def _normalised(pdf: bytes) -> bytes:
@@ -54,8 +54,11 @@ def test_an_attribute_the_element_does_not_have_is_refused_by_the_class_and_by_t
 def test_a_whole_number_given_as_a_float_renders_as_the_whole_number():
     # json.dumps writes a float such as 6 / 2 as 3.0.
     as_float = _in_layout(L.grid(GridAttr(cols=6 / 2), [L.text(NoAttr, ["a"]), L.text(NoAttr, ["b"])]))
-    as_int = _in_layout(L.grid(GridAttr(cols=3), [L.text(NoAttr, ["a"]), L.text(NoAttr, ["b"])]))
-    assert _render(as_float) == _render(as_int)
+    xml = ('<lpdf version="1"><document><section><layout><grid cols="3">'
+           "<text>a</text><text>b</text></grid></layout></section></document></lpdf>")
+    no_cols = _in_layout(L.grid(NoAttr, [L.text(NoAttr, ["a"]), L.text(NoAttr, ["b"])]))
+    assert _render(as_float) == _render(xml)
+    assert _render(as_float) != _render(no_cols)
 
 
 def test_a_typed_value_renders_as_its_text_does_in_xml():
