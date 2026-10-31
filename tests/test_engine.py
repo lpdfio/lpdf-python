@@ -170,6 +170,21 @@ class TestEncryption:
         assert tree["attrs"]["output"] == {"encrypt": "aes-256", "allow": "print fill-forms"}
 
 
+    @patch("lpdf.engine.wasm_runner.subprocess.run")
+    def test_pdfa_of_a_kit_document_goes_in_its_output_with_the_date(self, mock_run):
+        mock_run.return_value = _mock_subprocess_run()
+
+        document = L.document(
+            DocumentAttr(output=DocumentOutput(pdfa="2u")),
+            [L.section(NoAttr, [L.layout(NoAttr, [L.text(NoAttr, ["Hello"])])])],
+        )
+        PdfEngine().set_license_key("key").render(document, RenderOptions(created_on="2026-10-31T09:30:00Z"))
+
+        payload = _extract_payload(mock_run)
+        assert json.loads(payload["input"])["attrs"]["output"] == {"pdfa": "2u"}
+        assert payload["created_on"] == "2026-10-31T09:30:00Z"
+
+
 class TestLoadImage:
     @patch("lpdf.engine.wasm_runner.subprocess.run")
     def test_image_sent_in_payload(self, mock_run):
