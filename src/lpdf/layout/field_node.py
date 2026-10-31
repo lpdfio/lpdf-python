@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from .node import Node
 
 
@@ -8,7 +10,7 @@ class FieldNode(Node):
 
     __slots__ = ("_attrs",)
 
-    def __init__(self, attrs: dict[str, str]):
+    def __init__(self, attrs: dict[str, Any]):
         if "type" not in attrs or not attrs["type"]:
             raise ValueError("FieldNode requires a 'type' attr")
         if "name" not in attrs or not attrs["name"]:

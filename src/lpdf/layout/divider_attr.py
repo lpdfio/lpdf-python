@@ -16,4 +16,4 @@ class DividerAttr:
     # after the other children, shared equally if several on the line use fill, and never moves
     # to the next line; in a column it takes the full width.
     width: str | None = None
-    debug: str | None = None
+    debug: bool | None = None

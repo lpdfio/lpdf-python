@@ -14,7 +14,8 @@ class DocumentTokens:
     radius: dict[str, str] | None = None
     width: dict[str, str] | None = None
     text_size: dict[str, str] | None = None
-    line_height: dict[str, str] | None = None
+    # The factors line_height names, each a number above 0: {"xs": 1, "m": 1.2} and so on.
+    line_height: dict[str, float] | None = None
     gradients: dict[str, Gradient] | None = None
     # Names for the slots of the scale: {"caption": "xs"} lets font_size="caption" mean the text size xs.
     aliases: dict[str, str] | None = None

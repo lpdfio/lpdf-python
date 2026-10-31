@@ -21,4 +21,4 @@ class RegionAttr:
     # Defaults to each.
     page: str | None = None
     w: str | None = None
-    debug: str | None = None
+    debug: bool | None = None

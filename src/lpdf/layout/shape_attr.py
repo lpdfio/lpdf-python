@@ -33,5 +33,5 @@ class ShapeAttr:
     stroke_width: str | None = None
     stroke_dash: str | None = None
     # How opaque the shape is, from 0 to 1. Default 1.
-    opacity: str | None = None
-    debug: str | None = None
+    opacity: float | None = None
+    debug: bool | None = None

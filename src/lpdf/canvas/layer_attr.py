@@ -19,7 +19,7 @@ class LayerAttr:
     page: str | None = None
     # How opaque everything in the layer is, from 0 to 1. To fade one element, put it in a layer
     # of its own.
-    opacity: str | None = None
+    opacity: float | None = None
     transform: str | None = None
     # A rectangle that cuts off what the layer draws outside it: x y w h, in points from the top
     # left corner of the page.

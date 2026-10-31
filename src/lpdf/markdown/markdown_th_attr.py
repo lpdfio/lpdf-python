@@ -11,7 +11,7 @@ class MarkdownThAttr:
 
     font: str | None = None
     font_size: str | None = None
-    bold: str | None = None
+    bold: bool | None = None
     color: str | None = None
     align: str | None = None
     padding: str | None = None

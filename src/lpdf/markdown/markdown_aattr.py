@@ -11,5 +11,5 @@ class MarkdownAAttr:
 
     font: str | None = None
     color: str | None = None
-    bold: str | None = None
-    underline: str | None = None
+    bold: bool | None = None
+    underline: bool | None = None

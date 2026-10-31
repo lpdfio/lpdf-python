@@ -11,4 +11,4 @@ class MarkdownDelAttr:
 
     font: str | None = None
     color: str | None = None
-    strike: str | None = None
+    strike: bool | None = None

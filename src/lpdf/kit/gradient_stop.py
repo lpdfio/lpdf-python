@@ -1,14 +1,16 @@
+# Generated from lpdf.xsd by scripts/gen-sdk-api.mjs.
+# Do not edit: change the schema and run `make gen-sdk-api`.
 from __future__ import annotations
 
 from typing import TypedDict
 
 
 class GradientStop(TypedDict):
-    """One color of a gradient: ``color`` is hex, ``cmyk()``, ``rgb()``, ``hsl()`` or a color token.
+    """One color of a gradient, at an offset along it."""
 
-    It sits at an ``offset`` from ``0%`` to ``100%``.
-    The stops of a gradient are all CMYK or all RGB.
-    """
-
+    # Where the color is reached along the gradient, from 0% (the start) to 100% (the end).
+    # Stops go in increasing order.
     offset: str
+    # The color at the stop: hex, cmyk(), rgb(), hsl() or a color token. The stops of a gradient
+    # are all CMYK or all RGB.
     color: str

@@ -38,5 +38,5 @@ class MarkdownAttr:
     gap: str | None = None
     # How many levels of headings become bookmarks, for the outline of the viewer and the table
     # of contents: n keeps the levels 1 to n, 0 none. Default 6.
-    bookmarks: str | None = None
-    debug: str | None = None
+    bookmarks: int | None = None
+    debug: bool | None = None

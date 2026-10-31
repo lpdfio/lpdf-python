@@ -29,4 +29,4 @@ class ImgAttr:
     border: str | None = None
     radius: str | None = None
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None

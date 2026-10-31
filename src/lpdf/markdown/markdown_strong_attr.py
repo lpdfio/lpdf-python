@@ -14,4 +14,4 @@ class MarkdownStrongAttr:
 
     font: str | None = None
     color: str | None = None
-    bold: str | None = None
+    bold: bool | None = None

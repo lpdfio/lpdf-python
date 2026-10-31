@@ -18,7 +18,7 @@ class BookmarkAttr:
     label: str
     # Depth in the outline, 1 to 6. Defaults to 1. An entry nests under the closest entry before
     # it with a lower level.
-    level: str | None = None
+    level: int | None = None
     # The name links use to jump here, as href="#id". Leave it out to make it from the label:
     # lowercase, with other characters than letters and digits turned into hyphens, and -2, -3
     # added when an earlier bookmark has it. Two bookmarks may not have the same id.

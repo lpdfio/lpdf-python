@@ -18,22 +18,22 @@ class TextAttr:
     # Helvetica-Bold, Times-Roman becomes Times-Bold, Courier becomes Courier-Bold, and the
     # oblique and italic faces their bold forms. A custom font has no bold face to pick, so name
     # one in font.
-    bold: str | None = None
+    bold: bool | None = None
     color: str | None = None
     align: str | None = None
     # The distance between lines, as a factor of the font size: a number above 0, such as 1.5,
     # or a name from the line-height row of the tokens. Default 1.2, which is the token m.
-    line_height: str | None = None
+    line_height: str | float | None = None
     # The most lines drawn. Only whole lines are drawn, and the rest of the text is dropped. A
     # text in the layout has no cap by default and wraps at the width it has; the lines it drops
     # take no room, and a text that splits across pages keeps the cap across them. A text-at is
     # one line by default, and above 1 needs a width to wrap within.
-    max_lines: str | None = None
+    max_lines: int | None = None
     # End the last line drawn in an ellipsis when max-lines drops text, shortened to fit the
     # width. Off by default: the text stops at the end of a line. A text-at also ends a line in
     # one when it is cut off at its width. A text in the layout without max-lines is never cut,
     # so there it has no effect.
-    ellipsis: str | None = None
+    ellipsis: bool | None = None
     # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
     # after the other children, shared equally if several on the line use fill, and never moves
     # to the next line; in a column it takes the full width.
@@ -41,12 +41,12 @@ class TextAttr:
     # The fewest lines of the text that may stand alone at the top of the next page when it
     # splits. Default 2. If fewer would be left, lines move from the first page to the next; 1
     # turns the protection off.
-    widows: str | None = None
+    widows: int | None = None
     # The fewest lines of the text that may stand alone at the bottom of a page when it splits.
     # Default 2. If fewer would fit, the whole text moves to the next page; 1 turns the
     # protection off. When no split can keep both widows and orphans, even on an empty page, the
     # text splits where the lines fit.
-    orphans: str | None = None
+    orphans: int | None = None
     # Records the words of this text under a name as the pages are filled, so a text with
     # capture-ref in a header or a footer can show them. Put it on a heading in the flow. The
     # page that holds the text counts it, the words above it on that page included, and a text
@@ -67,4 +67,4 @@ class TextAttr:
     # Only for a text with capture-ref.
     capture_fallback: str | None = None
     paginate: str | None = None
-    debug: str | None = None
+    debug: bool | None = None

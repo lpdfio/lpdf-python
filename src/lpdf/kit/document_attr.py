@@ -19,7 +19,7 @@ class DocumentAttr:
     orientation: str | None = None
     background: str | None = None
     font: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
     assets: DocumentAssets | None = None
     tokens: DocumentTokens | None = None
     meta: DocumentMeta | None = None

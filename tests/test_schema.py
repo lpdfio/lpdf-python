@@ -3,12 +3,13 @@ import re
 
 import pytest
 
+from lpdf.layout.text_node import TextNode
 from lpdf import (
     L, LMarkdown, NoAttr, PdfEngine, EngineException,
     MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Pin,
-    RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, TextAttr, Transform,
+    RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
 )
 
 
@@ -23,11 +24,54 @@ def _render(input) -> bytes:
     return _normalised(PdfEngine().set_license_key("test-key").render(input))
 
 
+def _in_layout(*nodes) -> object:
+    return L.document(NoAttr, [L.section(NoAttr, [L.layout(NoAttr, list(nodes))])])
+
+
+# ── Attribute types ────────────────────────────────────────────────────────────
+
+@pytest.mark.parametrize(("node", "says"), [
+    (lambda: L.grid(GridAttr(cols="3"), [L.text(NoAttr, ["a"])]), r'grid: cols must be a whole number from 1 to 12, not "3"'),
+    (lambda: L.text(TextAttr(bold="true"), ["a"]), r'text: bold must be true or false, not "true"'),
+    (lambda: L.text(TextAttr(bold=1), ["a"]), r"text: bold must be true or false, not 1"),
+    (lambda: L.column(ColumnAttr(opacity="0.5")), r'column: opacity must be a number from 0 to 1, not "0.5"'),
+    (lambda: L.text(TextAttr(line_height="1.5"), ["a"]), r'text: line-height must be a name or a number above 0, not "1.5"'),
+    (lambda: L.grid(GridAttr(cols=3.5), [L.text(NoAttr, ["a"])]), r"grid: cols must be a whole number from 1 to 12, not 3.5"),
+])
+def test_the_engine_refuses_a_value_of_the_wrong_type_when_it_renders(node, says):
+    with pytest.raises(EngineException, match=says):
+        PdfEngine().set_license_key("test-key").render(_in_layout(node()))
+
+
+def test_an_attribute_the_element_does_not_have_is_refused_by_the_class_and_by_the_engine():
+    with pytest.raises(TypeError, match="colr"):
+        TextAttr(colr="red")  # type: ignore[call-arg]
+    # A node built around the class, as a tree from elsewhere would be.
+    with pytest.raises(EngineException, match=r"text: unknown attribute 'colr' — expected font-size, font, bold, color,"):
+        PdfEngine().set_license_key("test-key").render(_in_layout(TextNode({"colr": "red"}, ["a"])))
+
+
+def test_a_whole_number_given_as_a_float_renders_as_the_whole_number():
+    # json.dumps writes a float such as 6 / 2 as 3.0.
+    as_float = _in_layout(L.grid(GridAttr(cols=6 / 2), [L.text(NoAttr, ["a"]), L.text(NoAttr, ["b"])]))
+    as_int = _in_layout(L.grid(GridAttr(cols=3), [L.text(NoAttr, ["a"]), L.text(NoAttr, ["b"])]))
+    assert _render(as_float) == _render(as_int)
+
+
+def test_a_typed_value_renders_as_its_text_does_in_xml():
+    built = _in_layout(L.grid(GridAttr(cols=2, opacity=0.5), [
+        L.text(TextAttr(bold=True, line_height=1.5), ["a"]), L.text(TextAttr(line_height="l"), ["b"]),
+    ]))
+    xml = ('<lpdf version="1"><document><section><layout><grid cols="2" opacity="0.5">'
+           '<text bold="true" line-height="1.5">a</text><text line-height="l">b</text></grid></layout></section></document></lpdf>')
+    assert _render(built) == _render(xml)
+
+
 # ── Attribute names ────────────────────────────────────────────────────────────
 
 def test_text_align_and_bold_use_the_schema_names():
-    node = L.text(TextAttr(align="right", bold="true"), ["x"])
-    assert node.to_dict()["attrs"] == {"align": "right", "bold": "true"}
+    node = L.text(TextAttr(align="right", bold=True), ["x"])
+    assert node.to_dict()["attrs"] == {"align": "right", "bold": True}
 
 
 def test_link_and_span_carry_href():
@@ -36,9 +80,9 @@ def test_link_and_span_carry_href():
 
 
 def test_field_carries_its_type_and_name_as_attributes():
-    node = L.field(FieldAttr(type="text", name="email", max_len="40", action_url="https://lpdf.io"))
+    node = L.field(FieldAttr(type="text", name="email", max_len=40, action_url="https://lpdf.io"))
     assert node.to_dict()["attrs"] == {
-        "type": "text", "name": "email", "max-len": "40", "action-url": "https://lpdf.io",
+        "type": "text", "name": "email", "max-len": 40, "action-url": "https://lpdf.io",
     }
 
 
@@ -56,8 +100,8 @@ def test_region_is_written_as_region():
 
 
 def test_document_font_and_debug_are_written():
-    doc = L.document(DocumentAttr(font="Times-Roman", debug="true"))
-    assert doc.to_dict()["attrs"] == {"font": "Times-Roman", "debug": "true"}
+    doc = L.document(DocumentAttr(font="Times-Roman", debug=True))
+    assert doc.to_dict()["attrs"] == {"font": "Times-Roman", "debug": True}
 
 
 # ── Canvas ─────────────────────────────────────────────────────────────────────
@@ -96,10 +140,10 @@ def test_a_barcode_at_is_written_under_its_element_name():
 
 
 def test_a_text_at_writes_its_line_limits_under_the_schema_names():
-    d = L.text_at(TextAtAttr(x="0pt", y="0pt", width="80pt", max_lines="2", ellipsis="true", line_height="1.5"), ["Hi"]).to_dict()
-    assert d["attrs"]["max-lines"] == "2"
-    assert d["attrs"]["ellipsis"] == "true"
-    assert d["attrs"]["line-height"] == "1.5"
+    d = L.text_at(TextAtAttr(x="0pt", y="0pt", width="80pt", max_lines=2, ellipsis=True, line_height=1.5), ["Hi"]).to_dict()
+    assert d["attrs"]["max-lines"] == 2
+    assert d["attrs"]["ellipsis"] is True
+    assert d["attrs"]["line-height"] == 1.5
 
 
 def test_a_text_that_captures_and_one_that_shows_a_capture_use_the_schema_names():
@@ -127,10 +171,10 @@ def test_canvas_text_takes_attributes_first_and_content_second():
 
 
 def test_layer_attributes_are_written_as_given():
-    node = L.layer(LayerAttr(page="first", opacity="0.5", transform="rotate(45 100 100)"))
+    node = L.layer(LayerAttr(page="first", opacity=0.5, transform="rotate(45 100 100)"))
     assert node.to_dict() == {
         "type": "layer",
-        "attrs": {"page": "first", "opacity": "0.5", "transform": "rotate(45 100 100)"},
+        "attrs": {"page": "first", "opacity": 0.5, "transform": "rotate(45 100 100)"},
         "nodes": [],
     }
 
@@ -146,8 +190,8 @@ def _built_document():
         L.section(NoAttr, [
             L.layout(NoAttr, [
                 L.column(ColumnAttr(gap="12pt"), [
-                    L.text(TextAttr(align="right", bold="true"), ["Title"]),
-                    L.text(NoAttr, ["Body ", L.span(SpanAttr(bold="true"), ["bold"]), " text"]),
+                    L.text(TextAttr(align="right", bold=True), ["Title"]),
+                    L.text(NoAttr, ["Body ", L.span(SpanAttr(bold=True), ["bold"]), " text"]),
                     L.link(LinkAttr(href="https://lpdf.io"), [L.text(NoAttr, ["link"])]),
                 ]),
             ]),
@@ -209,11 +253,11 @@ def test_a_height_that_is_not_a_slot_a_length_fill_or_full_is_rejected():
 def test_a_shape_has_the_attributes_of_its_type_under_the_schema_names():
     node = L.shape(ShapeAttr(
         type="rect", width="14pt", height="m", radius="2pt", fill="primary",
-        stroke="#000000", stroke_width="1pt", stroke_dash="3 2", opacity="0.5",
+        stroke="#000000", stroke_width="1pt", stroke_dash="3 2", opacity=0.5,
     ))
     assert node.to_dict() == {"type": "shape", "attrs": {
         "type": "rect", "width": "14pt", "height": "m", "radius": "2pt", "fill": "primary",
-        "stroke": "#000000", "stroke-width": "1pt", "stroke-dash": "3 2", "opacity": "0.5",
+        "stroke": "#000000", "stroke-width": "1pt", "stroke-dash": "3 2", "opacity": 0.5,
     }}
     assert L.shape(ShapeAttr(type="circle", r="5pt")).to_dict()["attrs"] == {"type": "circle", "r": "5pt"}
 
@@ -237,7 +281,7 @@ def test_a_shape_of_each_type_is_drawn_and_renders_the_same_from_the_builder_and
 
 
 def test_a_footnote_is_an_fn_child_of_a_text_and_the_counter_is_an_attribute_of_the_document_and_a_section():
-    text = L.text(None, ["Total", L.fn(NoAttr, ["See ", L.span(SpanAttr(bold="true"), ["this"]), "."]), " here"])
+    text = L.text(None, ["Total", L.fn(NoAttr, ["See ", L.span(SpanAttr(bold=True), ["this"]), "."]), " here"])
     document = L.document(
         DocumentAttr(footnote_counter=FootnoteCounter.DOCUMENT),
         [L.section(SectionAttr(footnote_counter=FootnoteCounter.PAGE), [L.layout(None, [text])])],
@@ -251,7 +295,7 @@ def test_a_footnote_is_an_fn_child_of_a_text_and_the_counter_is_an_attribute_of_
 
 def test_a_code_and_a_code_span_are_written_as_their_elements_and_render_the_same_from_the_builder_and_its_xml():
     document = L.document(None, [L.section(None, [L.layout(None, [
-        L.code(CodeAttr(tab_size="2"), ["\nfn a() {\n\tb(", L.span(SpanAttr(color="#c0392b"), ["x"]), ");\n}\n"]),
+        L.code(CodeAttr(tab_size=2), ["\nfn a() {\n\tb(", L.span(SpanAttr(color="#c0392b"), ["x"]), ");\n}\n"]),
         L.text(None, ["Run ", L.code_span(CodeSpanAttr(background="#ffff00"), ["cargo test"]), " now"]),
     ])])])
 
@@ -272,8 +316,8 @@ def test_a_code_keeps_its_spaces_and_one_longer_than_a_page_goes_on_in_the_next_
     lines = "\n".join(f"line {i}" for i in range(1, 151))
     assert len(re.findall(rb"/Type\s*/Page[^s]", _render(build(lines)))) >= 2, "the code splits across pages"
 
-    bad = L.document(None, [L.section(None, [L.layout(None, [L.code(CodeAttr(tab_size="0"), ["x"])])])])
-    with pytest.raises(EngineException, match=r"invalid tab-size"):
+    bad = L.document(None, [L.section(None, [L.layout(None, [L.code(CodeAttr(tab_size=0), ["x"])])])])
+    with pytest.raises(EngineException, match=r"tab-size must be a whole number from 1 to 16, not 0"):
         PdfEngine().set_license_key("test-key").render(bad)
 
 
@@ -300,7 +344,7 @@ def test_a_number_list_writes_its_numbers_and_a_bullet_list_refuses_what_numbers
 
     bullets = _render(build(None))
     numbers = _render(build(ListAttr(type="number")))
-    roman = _render(build(ListAttr(type="number", format="lower-roman", start="3")))
+    roman = _render(build(ListAttr(type="number", format="lower-roman", start=3)))
     assert bullets != numbers
     assert numbers != roman
 
@@ -357,12 +401,12 @@ def test_a_table_cell_that_spans_columns_moves_the_cells_after_it_and_renders_th
             ]),
         ])])])
 
-    spanning = build(TdAttr(colspan="2"))
-    assert L.td(TdAttr(colspan="2")).to_dict()["attrs"] == {"colspan": "2"}
+    spanning = build(TdAttr(colspan=2))
+    assert L.td(TdAttr(colspan=2)).to_dict()["attrs"] == {"colspan": 2}
     assert _render(spanning) != _render(build(None))
     assert _render(spanning) == _render(L.to_xml(spanning))
     with pytest.raises(EngineException, match=r"span 4 columns, but the table has 3"):
-        _render(build(TdAttr(colspan="3")))
+        _render(build(TdAttr(colspan=3)))
 
 
 def test_a_table_cell_that_spans_rows_moves_the_cells_under_it_and_renders_the_same_from_the_builder_and_its_xml():
@@ -374,12 +418,12 @@ def test_a_table_cell_that_spans_rows_moves_the_cells_under_it_and_renders_the_s
             ]),
         ])])])
 
-    spanning = build(TdAttr(rowspan="2"))
-    assert L.td(TdAttr(rowspan="2")).to_dict()["attrs"] == {"rowspan": "2"}
+    spanning = build(TdAttr(rowspan=2))
+    assert L.td(TdAttr(rowspan=2)).to_dict()["attrs"] == {"rowspan": 2}
     assert _render(spanning) != _render(build(None))
     assert _render(spanning) == _render(L.to_xml(spanning))
     with pytest.raises(EngineException, match=r"a rowspan that runs 1 row past the last row of the table"):
-        _render(build(TdAttr(rowspan="3")))
+        _render(build(TdAttr(rowspan=3)))
 
 
 def test_a_circle_without_r_is_rejected_and_says_so():
@@ -421,8 +465,8 @@ def test_bold_text_is_the_bold_face_of_the_font():
 # ── Bookmarks and the table of contents ────────────────────────────────────────
 
 def test_a_bookmark_goes_in_a_layout_and_directly_in_a_section():
-    bookmark = L.bookmark(BookmarkAttr(label="Methods", level="2", id="methods"))
-    assert bookmark.to_dict() == {"type": "bookmark", "attrs": {"label": "Methods", "level": "2", "id": "methods"}}
+    bookmark = L.bookmark(BookmarkAttr(label="Methods", level=2, id="methods"))
+    assert bookmark.to_dict() == {"type": "bookmark", "attrs": {"label": "Methods", "level": 2, "id": "methods"}}
 
     section = L.section(SectionAttr(type=SectionType.TOC, toc_indent_step="14pt"), [
         L.bookmark(BookmarkAttr(label="Contents")),
@@ -594,9 +638,9 @@ def _markdown_document(attrs=None, styles=None, text=MARKDOWN_BODY):
 
 
 def test_a_markdown_its_styles_its_content_and_their_rules_are_built_with_the_schema_names():
-    markdown = L.markdown(MarkdownAttr(margin="54pt", gap="m", bookmarks="2")).to_dict()
+    markdown = L.markdown(MarkdownAttr(margin="54pt", gap="m", bookmarks=2)).to_dict()
     assert markdown["type"] == "markdown"
-    assert markdown["attrs"] == {"margin": "54pt", "gap": "m", "bookmarks": "2"}
+    assert markdown["attrs"] == {"margin": "54pt", "gap": "m", "bookmarks": 2}
 
     styles = LMarkdown.styles(MarkdownStylesAttr(src="styles.xml"), [LMarkdown.h1(MarkdownH1Attr(font_size="xl", color="muted"))]).to_dict()
     assert styles["type"] == "markdown-styles"

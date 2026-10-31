@@ -26,7 +26,7 @@ class BarcodeAtAttr:
     # 0.33mm per module and bars 22.85mm high. The digits of hrt add 12pt to either.
     height: str | None = None
     ec: str | None = None
-    hrt: str | None = None
+    hrt: bool | None = None
     color: str | None = None
     background: str | None = None
     x: str | None = None

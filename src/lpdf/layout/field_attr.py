@@ -15,10 +15,10 @@ class FieldAttr:
     label: str | None = None
     options: str | None = None
     group: str | None = None
-    checked: str | None = None
-    required: str | None = None
-    readonly: str | None = None
-    max_len: str | None = None
+    checked: bool | None = None
+    required: bool | None = None
+    readonly: bool | None = None
+    max_len: int | None = None
     action_url: str | None = None
     # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
     # after the other children, shared equally if several on the line use fill, and never moves
@@ -27,4 +27,4 @@ class FieldAttr:
     height: str | None = None
     background: str | None = None
     border: str | None = None
-    debug: str | None = None
+    debug: bool | None = None
