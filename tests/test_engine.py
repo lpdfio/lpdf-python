@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from lpdf import PdfEngine, L, NoAttr
+from lpdf import PdfEngine, L, NoAttr, DocumentAttr, DocumentOutput, Cipher, Permission
 from lpdf.engine import EngineOptions, RenderOptions, EngineException
 
 
@@ -91,91 +91,83 @@ class TestCreatedOn:
 
 class TestEncryption:
     @patch("lpdf.engine.wasm_runner.subprocess.run")
-    def test_encrypt_payload_sent(self, mock_run):
+    def test_the_passwords_go_with_the_render(self, mock_run):
         mock_run.return_value = _mock_subprocess_run()
 
         engine = PdfEngine().set_license_key("key")
-        engine.set_encryption("", "s3cr3t", {"print": False})
-        engine.render("<doc/>")
+        engine.render("<doc/>", RenderOptions(user_password="", owner_password="s3cr3t"))
 
         payload = _extract_payload(mock_run)
-        assert "encrypt" in payload
-        assert payload["encrypt"]["user_password"] == ""
-        assert payload["encrypt"]["owner_password"] == "s3cr3t"
-        assert payload["encrypt"]["permissions"] == {"print": False}
-
-    @patch("lpdf.engine.wasm_runner.subprocess.run")
-    def test_clear_encryption_removes_payload(self, mock_run):
-        mock_run.return_value = _mock_subprocess_run()
-
-        engine = PdfEngine().set_license_key("key")
-        engine.set_encryption("user", "owner")
-        engine.clear_encryption()
-        engine.render("<doc/>")
-
-        payload = _extract_payload(mock_run)
+        assert payload["user_password"] == ""
+        assert payload["owner_password"] == "s3cr3t"
         assert "encrypt" not in payload
+        assert "skip_encryption" not in payload
 
     @patch("lpdf.engine.wasm_runner.subprocess.run")
-    def test_encrypt_defaults_to_empty_permissions(self, mock_run):
+    def test_a_render_without_passwords_sends_none(self, mock_run):
         mock_run.return_value = _mock_subprocess_run()
 
         engine = PdfEngine().set_license_key("key")
-        engine.set_encryption("", "owner")
         engine.render("<doc/>")
 
         payload = _extract_payload(mock_run)
-        assert payload["encrypt"]["permissions"] == {}
-
+        assert not {"user_password", "owner_password", "entropy", "skip_encryption"} & payload.keys()
 
     @patch("lpdf.engine.wasm_runner.subprocess.run")
-    def test_encrypt_defaults_to_aes_256_with_entropy(self, mock_run):
+    def test_a_password_sends_32_bytes_of_entropy(self, mock_run):
         mock_run.return_value = _mock_subprocess_run()
 
         engine = PdfEngine().set_license_key("key")
-        engine.set_encryption("", "owner")
-        engine.render("<doc/>")
+        engine.render("<doc/>", RenderOptions(owner_password="owner"))
 
-        encrypt = _extract_payload(mock_run)["encrypt"]
-        assert encrypt["algorithm"] == "aes-256"
-        assert len(base64.b64decode(encrypt["entropy"])) == 32
+        assert len(base64.b64decode(_extract_payload(mock_run)["entropy"])) == 32
 
     @patch("lpdf.engine.wasm_runner.subprocess.run")
-    def test_every_aes_256_render_gets_fresh_entropy(self, mock_run):
+    def test_every_render_gets_fresh_entropy(self, mock_run):
         mock_run.return_value = _mock_subprocess_run()
 
         engine = PdfEngine().set_license_key("key")
-        engine.set_encryption("", "owner")
-        engine.render("<doc/>")
-        first = _extract_payload(mock_run)["encrypt"]["entropy"]
-        engine.render("<doc/>")
-        second = _extract_payload(mock_run)["encrypt"]["entropy"]
+        engine.render("<doc/>", RenderOptions(owner_password="owner"))
+        first = _extract_payload(mock_run)["entropy"]
+        engine.render("<doc/>", RenderOptions(owner_password="owner"))
+        second = _extract_payload(mock_run)["entropy"]
 
         assert first != second
 
     @patch("lpdf.engine.wasm_runner.subprocess.run")
-    def test_rc4_128_sends_no_entropy(self, mock_run):
+    def test_skip_encryption_is_sent_by_name(self, mock_run):
         mock_run.return_value = _mock_subprocess_run()
 
         engine = PdfEngine().set_license_key("key")
-        engine.set_encryption("", "owner", algorithm="rc4-128")
-        engine.render("<doc/>")
+        engine.render("<doc/>", RenderOptions(skip_encryption=True))
 
-        encrypt = _extract_payload(mock_run)["encrypt"]
-        assert encrypt["algorithm"] == "rc4-128"
-        assert "entropy" not in encrypt
+        payload = _extract_payload(mock_run)
+        assert payload["skip_encryption"] is True
+        assert "entropy" not in payload
 
     @patch("lpdf.engine.wasm_runner.subprocess.run")
-    def test_unknown_algorithm_is_left_for_the_engine_to_refuse(self, mock_run):
+    def test_passwords_with_skip_encryption_are_left_for_the_engine_to_refuse(self, mock_run):
         mock_run.return_value = _mock_subprocess_run()
 
         engine = PdfEngine().set_license_key("key")
-        engine.set_encryption("", "owner", algorithm="aes-128")
-        engine.render("<doc/>")
+        engine.render("<doc/>", RenderOptions(owner_password="owner", skip_encryption=True))
 
-        encrypt = _extract_payload(mock_run)["encrypt"]
-        assert encrypt["algorithm"] == "aes-128"
-        assert "entropy" not in encrypt
+        payload = _extract_payload(mock_run)
+        assert payload["owner_password"] == "owner"
+        assert payload["skip_encryption"] is True
+
+    @patch("lpdf.engine.wasm_runner.subprocess.run")
+    def test_the_output_of_a_kit_document_goes_in_its_attrs(self, mock_run):
+        mock_run.return_value = _mock_subprocess_run()
+
+        document = L.document(
+            DocumentAttr(output=DocumentOutput(encrypt=Cipher.AES_256, allow=f"{Permission.PRINT} {Permission.FILL_FORMS}")),
+            [L.section(NoAttr, [L.layout(NoAttr, [L.text(NoAttr, ["Hello"])])])],
+        )
+        PdfEngine().set_license_key("key").render(document, RenderOptions(owner_password="owner"))
+
+        tree = json.loads(_extract_payload(mock_run)["input"])
+        assert tree["attrs"]["output"] == {"encrypt": "aes-256", "allow": "print fill-forms"}
 
 
 class TestLoadImage:

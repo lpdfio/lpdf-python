@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from .document_assets import DocumentAssets
 from .document_meta import DocumentMeta
+from .document_output import DocumentOutput
 from .document_tokens import DocumentTokens
 
 
@@ -18,3 +19,4 @@ class DocumentAttr:
     tokens: DocumentTokens | None = None
     meta: DocumentMeta | None = None
     footnote_counter: str | None = None
+    output: DocumentOutput | None = None

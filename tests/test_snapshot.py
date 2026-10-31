@@ -1,6 +1,6 @@
 import pytest
 
-from lpdf import PdfEngine
+from lpdf import PdfEngine, RenderOptions
 
 from .snapshot_helper import EXAMPLES, FIXTURES, HAS_FIXTURES, compare_or_update
 
@@ -14,7 +14,8 @@ pytestmark = pytest.mark.skipif(
 def test_fixture_matches_stored_hash(name: str) -> None:
     xml = (FIXTURES / f"{name}.xml").read_text(encoding="utf-8")
     engine = PdfEngine().set_license_key("test-key")
-    pdf_bytes = engine.render(xml)
+    # showcase-encryption asks for encryption in its output: its snapshot is the file unencrypted.
+    pdf_bytes = engine.render(xml, RenderOptions(skip_encryption=True))
     compare_or_update(name, pdf_bytes)
 
 

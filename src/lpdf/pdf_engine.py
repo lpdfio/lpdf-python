@@ -24,13 +24,22 @@ def _tree_asset_srcs(attrs: dict, kind: str) -> dict[str, str]:
 _ENTROPY_BYTES = 32
 
 
-def _encrypt_payload(encrypt: dict) -> dict:
-    """The ``encrypt`` object of a request. AES-256 needs random bytes, which the engine does not make:
-    they come from the operating system's secure generator, fresh for each render."""
-    if encrypt["algorithm"] != "aes-256":
-        return encrypt
-    entropy = base64.b64encode(secrets.token_bytes(_ENTROPY_BYTES)).decode()
-    return {**encrypt, "entropy": entropy}
+def _encryption_payload(options: RenderOptions | None) -> dict:
+    """The passwords and ``skip_encryption`` of a render request, as given. With a password, AES-256 needs random
+    bytes, which the engine does not make: they come from the operating system's secure generator, fresh for each
+    render."""
+    if options is None:
+        return {}
+    payload: dict = {}
+    if options.user_password is not None:
+        payload["user_password"] = options.user_password
+    if options.owner_password is not None:
+        payload["owner_password"] = options.owner_password
+    if payload:
+        payload["entropy"] = base64.b64encode(secrets.token_bytes(_ENTROPY_BYTES)).decode()
+    if options.skip_encryption:
+        payload["skip_encryption"] = True
+    return payload
 
 
 def _load_declared(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
@@ -101,7 +110,6 @@ class PdfEngine:
         self._fonts: dict[str, bytes] = {}
         self._images: dict[str, bytes] = {}
         self._markdown_styles: dict[str, str] = {}
-        self._encrypt: dict | None = None
 
     def set_license_key(self, key: str) -> PdfEngine:
         self._license_key = key
@@ -145,31 +153,6 @@ class PdfEngine:
         """Register the text of a file of Markdown rules, the root of which is a ``<markdown-styles>``, for the
         ``src`` that names it in ``<markdown-styles src="…">``."""
         self._markdown_styles[src] = text
-        return self
-
-    def set_encryption(
-        self,
-        user_password: str,
-        owner_password: str,
-        permissions: dict[str, bool] | None = None,
-        algorithm: str = "aes-256",
-    ) -> PdfEngine:
-        """Encrypt every PDF this engine renders.
-
-        ``algorithm`` is ``"aes-256"`` (the default) or ``"rc4-128"``, which PDF 2.0 deprecates:
-        use it only for readers that cannot open AES-256. Each AES-256 render gets a fresh random
-        key, so two renders of one document differ in their bytes.
-        """
-        self._encrypt = {
-            "user_password":  user_password,
-            "owner_password": owner_password,
-            "permissions":    permissions or {},
-            "algorithm":      algorithm,
-        }
-        return self
-
-    def clear_encryption(self) -> PdfEngine:
-        self._encrypt = None
         return self
 
     def render(
@@ -245,8 +228,7 @@ class PdfEngine:
         if options is not None and options.created_on is not None:
             payload["created_on"] = options.created_on
 
-        if self._encrypt is not None:
-            payload["encrypt"] = _encrypt_payload(self._encrypt)
+        payload.update(_encryption_payload(options))
 
         if options is not None and options.data is not None and method == "render_pdf":
             payload["data"] = options.data

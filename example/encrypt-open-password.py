@@ -1,6 +1,6 @@
 """
-encrypt-open-password.py — render showcase-encryption.xml with AES-256 encryption,
-open password required, copy disabled.
+encrypt-open-password.py — render showcase-encryption.xml, whose <output> asks for AES-256
+and allows neither copying nor modifying, with an open password.
 
 Run from lpdf's root (after 'make build-sdk-python'):
   make example-python
@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from lpdf import L
+from lpdf import L, RenderOptions
 
 # lpdf's root: /app in make's container, which mounts test/fixtures/ and tmp/sdk-examples/ there;
 # three folders up when run from repos/lpdf-python/example
@@ -28,9 +28,8 @@ xml = xml_file.read_text(encoding="utf-8")
 engine = L.engine()  # no key → renders with the attribution line
 
 # With open password — viewers prompt for "password" before displaying content.
-engine.set_encryption("password", "owner", {"copy": False})
-
-pdf = engine.render(xml)
+# The cipher and the permissions come from the document's <output>, the passwords from here.
+pdf = engine.render(xml, RenderOptions(user_password="password", owner_password="owner"))
 
 output.mkdir(parents=True, exist_ok=True)
 (output / output_file).write_bytes(pdf)
