@@ -7,6 +7,9 @@ from dataclasses import dataclass
 class RenderOptions:
     """Per-call options for PdfEngine.render().
 
+    ``created_on`` is an ISO 8601 date, or date and time, written as the PDF's creation date. A document whose
+    ``output`` asks for ``pdfa`` needs it, and writes it as both dates of the file.
+
     ``user_password``, ``owner_password`` and ``skip_encryption`` are for a document that asks for encryption in its
     ``output``. ``user_password`` is the password a reader asks for before showing the PDF; leave it out, or pass
     ``""``, for a PDF anyone can open, which only the ``allow`` of the ``output`` restricts. ``owner_password`` opens
