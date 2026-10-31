@@ -37,6 +37,9 @@ def _in_layout(*nodes) -> object:
     (lambda: L.column(ColumnAttr(opacity="0.5")), r'column: opacity must be a number from 0 to 1, not "0.5"'),
     (lambda: L.text(TextAttr(line_height="1.5"), ["a"]), r'text: line-height must be a name or a number above 0, not "1.5"'),
     (lambda: L.grid(GridAttr(cols=3.5), [L.text(NoAttr, ["a"])]), r"grid: cols must be a whole number from 1 to 12, not 3.5"),
+    (lambda: L.column(ColumnAttr(opacity=float("nan"))), r'column: opacity must be a number from 0 to 1, not "nan"'),
+    # "inf" is no number, so it is read as a name, which the tokens don't have.
+    (lambda: L.text(TextAttr(line_height=float("inf")), ["a"]), r"invalid line-height 'inf'"),
 ])
 def test_the_engine_refuses_a_value_of_the_wrong_type_when_it_renders(node, says):
     with pytest.raises(EngineException, match=says):
