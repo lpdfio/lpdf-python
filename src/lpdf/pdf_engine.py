@@ -3,7 +3,6 @@ from __future__ import annotations
 import base64
 import contextlib
 import json
-import re
 import secrets
 import time
 import xml.etree.ElementTree as ElementTree
@@ -51,42 +50,23 @@ def _load_declared(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
                 loaded[key] = Path(src).read_bytes()
 
 
-def _extract_xml_font_srcs(xml: str) -> dict[str, str]:
-    srcs = {}
-    for tag in re.findall(r'<font\s[^>]*>', xml):
-        name = re.search(r'\bname="([^"]*)"', tag)
-        ref  = re.search(r'\bref="([^"]*)"',  tag)
-        src  = re.search(r'\bsrc="([^"]*)"',  tag)
-        if name and src:
-            key = ref.group(1) if ref else name.group(1)
-            srcs[key] = src.group(1)
-    return srcs
-
-
-def _extract_xml_image_srcs(xml: str) -> dict[str, str]:
-    srcs = {}
-    for tag in re.findall(r'<image\s[^>]*>', xml):
-        name = re.search(r'\bname="([^"]*)"', tag)
-        ref  = re.search(r'\bref="([^"]*)"',  tag)
-        src  = re.search(r'\bsrc="([^"]*)"',  tag)
-        if name and src:
-            key = ref.group(1) if ref else name.group(1)
-            srcs[key] = src.group(1)
-    return srcs
-
-
-def _extract_xml_file_srcs(xml: str) -> dict[str, str]:
-    """The ``ref or name -> src`` pairs of the ``<file>`` elements of a document's ``<attachments>``, read with an
-    XML parser as the engine reads them: entities decoded, and what is in a comment or CDATA left out. XML that
-    doesn't parse carries no file here; the engine says what is wrong with it."""
+def _parse_xml(xml: str) -> ElementTree.Element | None:
+    """An XML document read with an XML parser, as the engine reads it, for the ``src`` of the files it names:
+    entities decoded, and what is in a comment or CDATA left out. XML that doesn't parse is ``None`` and names no file
+    here; the engine says what is wrong with it."""
     try:
-        root = ElementTree.fromstring(xml)
+        return ElementTree.fromstring(xml)
     except ElementTree.ParseError:
-        return {}
+        return None
+
+
+def _xml_srcs(root: ElementTree.Element | None, path: str) -> dict[str, str]:
+    """The ``ref or name -> src`` pairs of the elements ``path`` finds in a document: ``.//assets/font``,
+    ``.//assets/image`` or ``.//attachments/file``."""
     srcs = {}
-    for file in root.iterfind(".//attachments/file"):
-        key = file.get("ref") or file.get("name")
-        src = file.get("src")
+    for element in root.iterfind(path) if root is not None else []:
+        key = element.get("ref") or element.get("name")
+        src = element.get("src")
         if key and src:
             srcs[key] = src
     return srcs
@@ -109,14 +89,11 @@ def _load_files(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
             raise EngineException(f"file '{key}' of <attachments>: cannot read its src '{src}': {e.strerror or e}") from e
 
 
-def _extract_xml_markdown_styles_srcs(xml: str) -> list[str]:
-    """The ``src`` of each ``<markdown-styles>`` in XML."""
-    srcs = []
-    for tag in re.findall(r'<markdown-styles\s[^>]*>', xml):
-        src = re.search(r'\bsrc="([^"]*)"', tag)
-        if src and src.group(1):
-            srcs.append(src.group(1))
-    return srcs
+def _xml_markdown_styles_srcs(root: ElementTree.Element | None) -> list[str]:
+    """The ``src`` of the ``<markdown-styles>`` of each ``<markdown>`` of a document."""
+    if root is None:
+        return []
+    return [src for styles in root.iterfind(".//markdown/markdown-styles") if (src := styles.get("src"))]
 
 
 def _tree_markdown_styles_srcs(document: dict) -> list[str]:
@@ -217,13 +194,16 @@ class PdfEngine:
             timeout=self._options.timeout or 30,
         )
 
+        # An XML document is parsed once, for the src of every file it names.
+        root = _parse_xml(input_str) if input_dict is None else None
+
         # Use load_font() fonts as base; auto-load from src= paths if not already provided.
         merged_fonts: dict[str, bytes] = dict(self._fonts)
 
         if input_dict is not None:
             font_srcs = _tree_asset_srcs(input_dict.get("attrs") or {}, "fonts")
         else:
-            font_srcs = _extract_xml_font_srcs(input_str)
+            font_srcs = _xml_srcs(root, ".//assets/font")
         _load_declared(font_srcs, merged_fonts)
 
         payload: dict = {
@@ -246,7 +226,7 @@ class PdfEngine:
         if input_dict is not None:
             image_srcs = _tree_asset_srcs(input_dict.get("attrs") or {}, "images")
         else:
-            image_srcs = _extract_xml_image_srcs(input_str)
+            image_srcs = _xml_srcs(root, ".//assets/image")
         _load_declared(image_srcs, merged_images)
 
         if merged_images:
@@ -256,9 +236,10 @@ class PdfEngine:
 
         # The files the document carries: load_file() + the ones read from src=
         merged_files: dict[str, bytes] = dict(self._files)
-        file_srcs = (
-            _tree_file_srcs(input_dict.get("attrs") or {}) if input_dict is not None else _extract_xml_file_srcs(input_str)
-        )
+        if input_dict is not None:
+            file_srcs = _tree_file_srcs(input_dict.get("attrs") or {})
+        else:
+            file_srcs = _xml_srcs(root, ".//attachments/file")
         _load_files(file_srcs, merged_files)
         if merged_files:
             payload["files"] = {name: base64.b64encode(data).decode() for name, data in merged_files.items()}
@@ -267,7 +248,7 @@ class PdfEngine:
         # the path. A file that cannot be read is left for the engine to report, naming the src.
         merged_styles: dict[str, str] = dict(self._markdown_styles)
         style_srcs = (
-            _tree_markdown_styles_srcs(input_dict) if input_dict is not None else _extract_xml_markdown_styles_srcs(input_str)
+            _tree_markdown_styles_srcs(input_dict) if input_dict is not None else _xml_markdown_styles_srcs(root)
         )
         for src in style_srcs:
             if src not in merged_styles:

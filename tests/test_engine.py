@@ -201,32 +201,32 @@ class TestLoadImage:
 
 class TestAssetSrcExtraction:
     def test_xml_font_src_uses_ref_as_key(self):
-        from lpdf.pdf_engine import _extract_xml_font_srcs
+        from lpdf.pdf_engine import _parse_xml, _xml_srcs
         xml = '<lpdf><assets><font name="body" ref="my-body" src="/fonts/MyFont.ttf"/></assets></lpdf>'
-        srcs = _extract_xml_font_srcs(xml)
+        srcs = _xml_srcs(_parse_xml(xml), ".//assets/font")
         assert "my-body" in srcs
         assert srcs["my-body"] == "/fonts/MyFont.ttf"
         assert "body" not in srcs
 
     def test_xml_font_src_falls_back_to_name(self):
-        from lpdf.pdf_engine import _extract_xml_font_srcs
+        from lpdf.pdf_engine import _parse_xml, _xml_srcs
         xml = '<lpdf><assets><font name="body" src="/fonts/MyFont.ttf"/></assets></lpdf>'
-        srcs = _extract_xml_font_srcs(xml)
+        srcs = _xml_srcs(_parse_xml(xml), ".//assets/font")
         assert "body" in srcs
         assert srcs["body"] == "/fonts/MyFont.ttf"
 
     def test_xml_image_src_uses_ref_as_key(self):
-        from lpdf.pdf_engine import _extract_xml_image_srcs
+        from lpdf.pdf_engine import _parse_xml, _xml_srcs
         xml = '<lpdf><assets><image name="logo" ref="my-logo" src="/img/logo.png"/></assets></lpdf>'
-        srcs = _extract_xml_image_srcs(xml)
+        srcs = _xml_srcs(_parse_xml(xml), ".//assets/image")
         assert "my-logo" in srcs
         assert srcs["my-logo"] == "/img/logo.png"
         assert "logo" not in srcs
 
     def test_xml_image_src_falls_back_to_name(self):
-        from lpdf.pdf_engine import _extract_xml_image_srcs
+        from lpdf.pdf_engine import _parse_xml, _xml_srcs
         xml = '<lpdf><assets><image name="logo" src="/img/logo.png"/></assets></lpdf>'
-        srcs = _extract_xml_image_srcs(xml)
+        srcs = _xml_srcs(_parse_xml(xml), ".//assets/image")
         assert "logo" in srcs
         assert srcs["logo"] == "/img/logo.png"
 
