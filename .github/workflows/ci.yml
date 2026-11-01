@@ -1,11 +1,15 @@
 name: CI
-run-name: "${{ format('CI (build + test): {0}', github.event_name == 'pull_request' && github.event.pull_request.title || github.event.head_commit.message) }}"
+run-name: "${{ format('CI (build + test): {0}', github.event_name == 'pull_request' && github.event.pull_request.title || github.event_name == 'schedule' && 'weekly, on the newest wasmtime' || github.event.head_commit.message) }}"
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  # pyproject.toml puts no upper bound on wasmtime, so a new release of it reaches users at once. Every run installs
+  # the newest, and this one runs the tests on it every Monday, when nothing in the repo has changed.
+  schedule:
+    - cron: '0 6 * * 1'
 
 jobs:
   test:
@@ -56,36 +60,14 @@ jobs:
           fi
           echo "EFFECTIVE_CORE_TAG=$CORE_TAG" >> "$GITHUB_ENV"
 
-      # ── Install wasmtime runtime ─────────────────────────────────────────────
-      # Pinned, straight from the release archive. wasmtime.dev/install.sh resolves "latest" through the
-      # unauthenticated GitHub API, which is rate-limited from Actions runners, and its last statement
-      # swallows the failure, so it exits 0 having installed nothing. The runtime then goes missing with
-      # no message, and Python reports it as a FileNotFoundError on every engine test.
-      - name: Install wasmtime
-        env:
-          WASMTIME_VERSION: v48.0.2
-        run: |
-          ARCHIVE="wasmtime-${WASMTIME_VERSION}-$(uname -m)-linux"
-          curl -sSfL --retry 3 \
-            "https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${ARCHIVE}.tar.xz" \
-            -o wasmtime.tar.xz
-          mkdir -p "$HOME/.wasmtime/bin"
-          tar -xJf wasmtime.tar.xz -C "$HOME/.wasmtime/bin" --strip-components=1 "${ARCHIVE}/wasmtime"
-          rm wasmtime.tar.xz
-          echo "$HOME/.wasmtime/bin" >> "$GITHUB_PATH"
-
-      # $GITHUB_PATH only reaches later steps, so this is where a runtime the tests cannot find shows
-      # up: here, and not as an error on every test.
-      - name: Verify wasmtime on PATH
-        run: |
-          which wasmtime
-          wasmtime --version
-
       - name: Install build tools and test dependencies
         run: pip install hatchling build pytest
 
+      # The engine runs on the wasmtime package, the newest that pip finds.
       - name: Install package
-        run: pip install -e .
+        run: |
+          pip install -e .
+          pip show wasmtime | grep '^Version'
 
       # The check below is a Node script.
       - uses: actions/setup-node@v5

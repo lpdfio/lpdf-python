@@ -12,6 +12,8 @@ You describe a document as code or XML. Lpdf renders a compact, pixel-perfect PD
 pip install lpdfio-lpdf
 ```
 
+`pip install` is the whole setup. The engine runs inside Python on the [`wasmtime`](https://pypi.org/project/wasmtime/) package, which pip installs with the SDK: there is no program to install or put on `PATH`.
+
 ## Usage
 
 ```python
@@ -41,10 +43,12 @@ doc = L.document(DocumentAttr(size='letter'), [
 pdf = engine.render(doc)
 ```
 
+A render releases the GIL, so renders on threads run in parallel: use a thread pool, or `asyncio.to_thread` in async code. A render stops with an `EngineException` after 30 seconds; `L.engine(EngineOptions(timeout=60))` sets another limit in seconds, and `timeout=0` sets none.
+
 ## Requirements
 
 - Python 3.11+
-- [`wasmtime`](https://wasmtime.dev) CLI must be available in `PATH` (used to run the bundled WASI binary).
+- A platform the `wasmtime` package has wheels for: Linux (x86_64, aarch64; glibc and musl), macOS (x86_64, arm64) or Windows (x64, arm64)
 
 ## Docs
 

@@ -1,11 +1,10 @@
 """The ``src`` of a font, an image, a file and a file of Markdown rules is found in an XML document as the engine
 reads the document: entities decoded, a ``>`` in a quoted value, either quote, and what is in a comment or a CDATA
-section is text. Each render goes to a stand-in for the engine process, which keeps the request it is sent."""
+section is text. Each render goes to a stand-in for the engine, which keeps the request it is sent."""
 
 import base64
-import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -21,10 +20,9 @@ def _xml(assets: str = "", attachments: str = "", section: str = "<layout><text>
 
 def _request(xml: str) -> dict:
     """The request a render of ``xml`` sends the engine."""
-    with patch("lpdf.engine.wasm_runner.subprocess.run") as run:
-        run.return_value = MagicMock(returncode=0, stdout=json.dumps({"pdf": "JVBERi0="}).encode(), stderr=b"")
+    with patch("lpdf.engine.wasm_runner.WasmRunner.invoke", return_value={"pdf": "JVBERi0="}) as invoke:
         PdfEngine().set_license_key("test-key").render(xml)
-    return json.loads(run.call_args.kwargs["input"])
+    return invoke.call_args.args[0]
 
 
 @pytest.mark.parametrize(("kind", "declaration", "file", "key"), [
