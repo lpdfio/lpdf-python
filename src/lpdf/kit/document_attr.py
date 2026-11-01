@@ -13,7 +13,9 @@ from .file_attr import FileAttr
 class DocumentAttr:
     """Document-level attributes applied as defaults to every section. ``attachments`` are the files the PDF carries
     inside it, as the ``attachments`` element of the XML is: a reader lists them in its attachments panel. Each file's
-    bytes are read from its ``src``, or loaded with ``load_file`` under its ``ref`` or name."""
+    bytes are read from its ``src``, or loaded with ``load_file`` under its ``ref`` or name. ``bleed`` is how far each
+    page reaches past its trim edge, such as ``"3mm"``, for a background or an image that runs off the page when it is
+    cut: the page grows by it and its background fills it, and the layout keeps to the trimmed page."""
 
     size: str | None = None
     orientation: str | None = None
@@ -26,3 +28,4 @@ class DocumentAttr:
     footnote_counter: str | None = None
     output: DocumentOutput | None = None
     attachments: list[FileAttr] | None = None
+    bleed: str | None = None

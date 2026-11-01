@@ -16,7 +16,7 @@ from .kit.document import PdfDocument
 
 
 def _tree_asset_srcs(attrs: dict, kind: str) -> dict[str, str]:
-    """The ``ref or name -> src`` pairs of the fonts or images a document tree declares in ``assets``."""
+    """The ``ref or name -> src`` pairs of the fonts, images or color profiles a document tree declares in ``assets``."""
     declared = (attrs.get("assets") or {}).get(kind) or []
     return {item.get("ref") or item["name"]: item["src"] for item in declared if item.get("src")}
 
@@ -62,7 +62,7 @@ def _parse_xml(xml: str) -> ElementTree.Element | None:
 
 def _xml_srcs(root: ElementTree.Element | None, path: str) -> dict[str, str]:
     """The ``ref or name -> src`` pairs of the elements ``path`` finds in a document: ``.//assets/font``,
-    ``.//assets/image`` or ``.//attachments/file``."""
+    ``.//assets/image``, ``.//assets/profile`` or ``.//attachments/file``."""
     srcs = {}
     for element in root.iterfind(path) if root is not None else []:
         key = element.get("ref") or element.get("name")
@@ -87,6 +87,18 @@ def _load_files(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
             loaded[key] = Path(src).read_bytes()
         except OSError as e:
             raise EngineException(f"file '{key}' of <attachments>: cannot read its src '{src}': {e.strerror or e}") from e
+
+
+def _load_profiles(srcs: dict[str, str], loaded: dict[str, bytes]) -> None:
+    """Read each color profile the document declares that is not already loaded on the engine. A ``src`` that cannot
+    be read is an error that names the profile, as for a file the document carries."""
+    for key, src in srcs.items():
+        if key in loaded:
+            continue
+        try:
+            loaded[key] = Path(src).read_bytes()
+        except OSError as e:
+            raise EngineException(f"profile '{key}' of <assets>: cannot read its src '{src}': {e.strerror or e}") from e
 
 
 def _xml_markdown_styles_srcs(root: ElementTree.Element | None) -> list[str]:
@@ -122,6 +134,7 @@ class PdfEngine:
         self._fonts: dict[str, bytes] = {}
         self._images: dict[str, bytes] = {}
         self._files: dict[str, bytes] = {}
+        self._profiles: dict[str, bytes] = {}
         self._markdown_styles: dict[str, str] = {}
 
     def set_license_key(self, key: str) -> PdfEngine:
@@ -161,6 +174,12 @@ class PdfEngine:
         """Register the bytes of a file the document carries, for the ``<file>`` of its ``<attachments>`` whose
         ``ref``, or with no ref whose name, is ``name``. The PDF carries them as they are."""
         self._files[name] = data
+        return self
+
+    def load_profile(self, name: str, data: bytes) -> PdfEngine:
+        """Register the bytes of an ICC color profile, for the ``<profile>`` of the document's ``<assets>`` whose
+        ``ref``, or with no ref whose name, is ``name``: the press profile a PDF/X document names in its output."""
+        self._profiles[name] = data
         return self
 
     def load_markdown_styles(self, src: str, text: str) -> PdfEngine:
@@ -232,6 +251,16 @@ class PdfEngine:
         _load_files(file_srcs, merged_files)
         if merged_files:
             payload["files"] = {name: base64.b64encode(data).decode() for name, data in merged_files.items()}
+
+        # The color profiles the document declares: load_profile() + the ones read from src=
+        merged_profiles: dict[str, bytes] = dict(self._profiles)
+        if input_dict is not None:
+            profile_srcs = _tree_asset_srcs(input_dict.get("attrs") or {}, "profiles")
+        else:
+            profile_srcs = _xml_srcs(root, ".//assets/profile")
+        _load_profiles(profile_srcs, merged_profiles)
+        if merged_profiles:
+            payload["profiles"] = {name: base64.b64encode(data).decode() for name, data in merged_profiles.items()}
 
         # The files of Markdown rules a document names with a src: the ones loaded here, and the ones read from
         # the path. A file that cannot be read is left for the engine to report, naming the src.

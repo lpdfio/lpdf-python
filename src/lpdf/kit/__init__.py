@@ -9,6 +9,7 @@ from .gradient_stop import GradientStop
 from .font_attr import FontAttr
 from .image_attr import ImageAttr
 from .file_attr import FileAttr
+from .profile_attr import ProfileAttr
 from .layout_attr import LayoutAttr
 from .builtin_font import BuiltinFont
 from .section_node import SectionNode
@@ -33,6 +34,7 @@ __all__ = [
     "FontAttr",
     "ImageAttr",
     "FileAttr",
+    "ProfileAttr",
     "LayoutAttr",
     "BuiltinFont",
     "SectionNode",
