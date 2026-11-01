@@ -143,12 +143,7 @@ class PdfEngine:
 
         :param key: The key to check. Defaults to the one set on this engine.
         """
-        runner = WasmRunner(
-            wasm_binary=self._options.wasm_binary or self._default_binary(),
-            wasm_runner=self._options.wasm_runner or "wasmtime",
-            timeout=self._options.timeout or 30,
-        )
-        return runner.invoke({
+        return self._runner().invoke({
             "method": "check_license",
             "key": key if key is not None else self._license_key,
             "now": int(time.time()),
@@ -187,12 +182,6 @@ class PdfEngine:
             method = "render_pdf"
             input_str = input
             input_dict = None
-
-        runner = WasmRunner(
-            wasm_binary=self._options.wasm_binary or self._default_binary(),
-            wasm_runner=self._options.wasm_runner or "wasmtime",
-            timeout=self._options.timeout or 30,
-        )
 
         # An XML document is parsed once, for the src of every file it names.
         root = _parse_xml(input_str) if input_dict is None else None
@@ -265,12 +254,15 @@ class PdfEngine:
         if options is not None and options.data is not None and method == "render_pdf":
             payload["data"] = options.data
 
-        response = runner.invoke(payload)
+        response = self._runner().invoke(payload)
 
         if "pdf" not in response:
-            raise EngineException("Unexpected response from WASI process.")
+            raise EngineException("Unexpected response from the engine.")
 
         return base64.b64decode(response["pdf"])
+
+    def _runner(self) -> WasmRunner:
+        return WasmRunner(wasm_binary=self._options.wasm_binary or self._default_binary(), timeout=self._options.timeout)
 
     @staticmethod
     def _default_binary() -> str:
