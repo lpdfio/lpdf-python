@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.31.1 — 2026-11-01
+### SDKs
+- **Breaking:** the Python SDK runs the engine inside Python, on the [`wasmtime`](https://pypi.org/project/wasmtime/) package that `pip install lpdfio-lpdf` now installs with it, so the `wasmtime` program is no longer needed on `PATH`. `EngineOptions.wasm_runner`, which named the program, is gone: remove it from your options. The SDK runs where the `wasmtime` package has wheels: Linux x86_64 and aarch64 (glibc and musl), macOS x86_64 and arm64, and Windows x64 and arm64
+- **Breaking:** `timeout=0` in `EngineOptions` means no time limit, where it meant 30 seconds. Left out, a render still stops after 30 seconds, with an `EngineException` that names the limit
+- A render no longer starts a process: a short document renders in about a millisecond, where starting the `wasmtime` program took about 20 ms for each render. The first render of a process compiles the engine, which takes a few hundred milliseconds once
+- A render releases the GIL, so renders on threads run in parallel: use a thread pool, or `asyncio.to_thread` in async code
+- The engine is the same as in v0.31.0, and gives the same PDFs
+
 ## v0.31.0 (core) — 2026-11-01
 ### Attributes
 - **Breaking:** every attribute is checked against the schema before the document is read, in XML and in a document built in code. A value that isn't of its type is an error that names the element, the attribute and the type: `<grid> at line 3, col 5: cols must be a whole number from 1 to 12, not "x"`. A boolean is `true` or `false`: `bold="1"` and `bold="yes"`, which read as false, are errors, and the VS Code extension flags them as you type. An attribute the element doesn't have, such as `agle` on a gradient, was ignored and is now an error that lists the attributes the element has
