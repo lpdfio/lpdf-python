@@ -163,6 +163,19 @@ class TestEncryption:
         tree = json.loads(_extract_payload(invoke)["input"])
         assert tree["attrs"]["output"] == {"encrypt": "aes-256", "allow": "print fill-forms"}
 
+    @patch("lpdf.engine.wasm_runner.WasmRunner.invoke")
+    def test_linearize_of_a_kit_document_goes_in_its_output_as_a_boolean(self, invoke):
+        invoke.return_value = _engine_response()
+
+        document = L.document(
+            DocumentAttr(output=DocumentOutput(encrypt=Cipher.AES_256, linearize=True)),
+            [L.section(NoAttr, [L.layout(NoAttr, [L.text(NoAttr, ["Hello"])])])],
+        )
+        PdfEngine().set_license_key("key").render(document, RenderOptions(owner_password="owner"))
+
+        tree = json.loads(_extract_payload(invoke)["input"])
+        assert tree["attrs"]["output"] == {"encrypt": "aes-256", "linearize": True}
+
 
     @patch("lpdf.engine.wasm_runner.WasmRunner.invoke")
     def test_pdfa_of_a_kit_document_goes_in_its_output_with_the_date(self, invoke):
