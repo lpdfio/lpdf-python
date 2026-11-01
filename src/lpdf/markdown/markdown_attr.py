@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MarkdownAttr:
     """
     Markdown as the content of a section, where a layout would go. It holds only Markdown:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ImageAttr:
     """
     Declares an image that an img refers to by name. The SDK reads the file from src, or the

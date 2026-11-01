@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MarkdownEmAttr:
     """
     Emphasis, written *text* in Markdown. Italic in a built-in font; an embedded font names

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class FrameAttr:
     """
     A box around a single child, which it centres. Never splits across pages: if it does not

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class TableAttr:
     """
     Rows and cells in columns whose widths are set by cols. The thead row repeats at the top

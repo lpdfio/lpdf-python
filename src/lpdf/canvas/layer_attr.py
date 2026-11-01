@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class LayerAttr:
     """
     Draws shapes, text, images and barcodes at exact positions on the page, independent of

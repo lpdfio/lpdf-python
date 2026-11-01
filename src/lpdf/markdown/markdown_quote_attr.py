@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MarkdownQuoteAttr:
     """
     A block quote, written > in Markdown: a bar beside its content. font, font-size, color,

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BookmarkAttr:
     """
     An entry of the PDF's outline, the bookmark panel of a viewer, and a target for links

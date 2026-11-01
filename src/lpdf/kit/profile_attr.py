@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ProfileAttr:
     """
     Declares an ICC color profile that the profile attribute of output names: the profile of

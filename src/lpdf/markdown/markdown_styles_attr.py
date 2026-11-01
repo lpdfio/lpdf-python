@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MarkdownStylesAttr:
     """
     How the parts of the Markdown look. A rule is named after the Markdown it styles and

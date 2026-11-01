@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CodeAttr:
     """
     Code, or any text whose spaces and lines matter, in a box. The text is kept as it is

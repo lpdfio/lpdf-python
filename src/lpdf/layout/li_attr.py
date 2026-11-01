@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class LiAttr:
     """
     One item of a list: a box that holds what a layout holds, such as a text, an image, a

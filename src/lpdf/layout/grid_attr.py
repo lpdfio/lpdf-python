@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class GridAttr:
     """
     Fills a fixed number of equal columns from left to right, then starts a new row. A row

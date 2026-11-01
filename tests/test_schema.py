@@ -4,7 +4,7 @@ import re
 import pytest
 
 from lpdf import (
-    L, LMarkdown, NoAttr, PdfEngine, EngineException, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
+    L, LMarkdown, NoAttr, PdfEngine, EngineException, EngineOptions, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
     MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
@@ -109,6 +109,25 @@ def test_a_required_attribute_cannot_be_left_out():
         LinkAttr()  # type: ignore[call-arg]
     with pytest.raises(TypeError):
         FieldAttr(type="text")  # type: ignore[call-arg]
+
+
+# A new attribute goes where the schema puts it, which would move the positional arguments after it: ImgAttr's
+# second field became alt, and ImgAttr("logo", "40pt") would have set it in place of the height.
+@pytest.mark.parametrize("build", [
+    pytest.param(lambda: ImgAttr("logo", "40pt"), id="ImgAttr"),  # type: ignore[call-arg]
+    pytest.param(lambda: TextAttr("12pt"), id="TextAttr"),  # type: ignore[call-arg]
+    pytest.param(lambda: SectionAttr("a4"), id="SectionAttr"),  # type: ignore[call-arg]
+    pytest.param(lambda: DocumentAttr("letter"), id="DocumentAttr"),  # type: ignore[call-arg]
+    pytest.param(lambda: DocumentMeta("Report"), id="DocumentMeta"),  # type: ignore[call-arg]
+    pytest.param(lambda: DocumentOutput("aes-256"), id="DocumentOutput"),  # type: ignore[call-arg]
+    pytest.param(lambda: DocumentTokens({"primary": "#336699"}), id="DocumentTokens"),  # type: ignore[call-arg]
+    pytest.param(lambda: DocumentAssets([FontAttr(name="body")]), id="DocumentAssets"),  # type: ignore[call-arg]
+    pytest.param(lambda: RenderOptions("2026-01-01"), id="RenderOptions"),  # type: ignore[call-arg]
+    pytest.param(lambda: EngineOptions("lpdf.wasm"), id="EngineOptions"),  # type: ignore[call-arg]
+])
+def test_an_attribute_class_takes_its_attributes_by_name_only(build):
+    with pytest.raises(TypeError, match="positional argument"):
+        build()
 
 
 def test_region_is_written_as_region():

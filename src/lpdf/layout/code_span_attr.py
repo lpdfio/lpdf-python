@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CodeSpanAttr:
     """
     A run of code inside a text: its words in Courier on a light tint, the tint drawn behind

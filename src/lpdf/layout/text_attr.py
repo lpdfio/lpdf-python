@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class TextAttr:
     """
     A block of wrapping text. Use span children to style parts of it, and fn children for
