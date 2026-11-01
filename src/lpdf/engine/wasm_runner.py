@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import contextlib
 import json
 import os
 import tempfile
 import threading
 import time
+from pathlib import Path
 from typing import ClassVar
 
 import wasmtime
@@ -39,8 +39,9 @@ def _seconds(count: int) -> str:
     return f"{count} second" if count == 1 else f"{count} seconds"
 
 
-def _details(stderr: list[bytes]) -> str:
-    text = b"".join(stderr).decode(errors="replace").strip()
+def _details(files: Path) -> str:
+    """What the engine wrote to stderr, for an error message."""
+    text = (files / "stderr.txt").read_text(errors="replace").strip()
     return f" Stderr: {text}" if text else ""
 
 
@@ -78,24 +79,20 @@ class WasmRunner:
 
     def _run(self, request: bytes) -> bytes:
         engine, instance_pre = self._compiled()
-        # WASI reads stdin only from a file or from this process's own stdin, so the request goes through a file.
-        fd, request_path = tempfile.mkstemp(prefix="lpdf-", suffix=".json")
-        try:
-            with os.fdopen(fd, "wb") as request_file:
-                request_file.write(request)
-            return self._call(engine, instance_pre, request_path)
-        finally:
-            # A temp file left behind must not fail a render that worked.
-            with contextlib.suppress(OSError):
-                os.remove(request_path)
+        # WASI reads stdin only from a file or from this process's own stdin, so the request goes through a file. The
+        # response and the engine's messages come back through files too: Wasmtime calls a Python callback for them
+        # on threads of its own, and one that runs while Python exits aborts the process. A temp file left behind
+        # must not fail a render that worked.
+        with tempfile.TemporaryDirectory(prefix="lpdf-", ignore_cleanup_errors=True) as folder:
+            files = Path(folder)
+            (files / "request.json").write_bytes(request)
+            return self._call(engine, instance_pre, files)
 
-    def _call(self, engine: wasmtime.Engine, instance_pre: wasmtime.InstancePre, request_path: str) -> bytes:
-        stdout: list[bytes] = []
-        stderr: list[bytes] = []
+    def _call(self, engine: wasmtime.Engine, instance_pre: wasmtime.InstancePre, files: Path) -> bytes:
         wasi = wasmtime.WasiConfig()
-        wasi.stdin_file = request_path
-        wasi.stdout_custom = stdout.append
-        wasi.stderr_custom = stderr.append
+        wasi.stdin_file = files / "request.json"
+        wasi.stdout_file = str(files / "response.json")
+        wasi.stderr_file = str(files / "stderr.txt")
 
         store = wasmtime.Store(engine)
         try:
@@ -106,18 +103,19 @@ class WasmRunner:
             start(store)
         except wasmtime.ExitTrap as exited:
             if exited.code != 0:
-                raise EngineException(f"The engine exited with code {exited.code}.{_details(stderr)}") from exited
+                raise EngineException(f"The engine exited with code {exited.code}.{_details(files)}") from exited
         except wasmtime.Trap as trap:
             if trap.trap_code == wasmtime.TrapCode.INTERRUPT:
                 raise EngineException(f"The render timed out after {_seconds(self._timeout)}.") from trap
-            raise EngineException(f"The engine failed: {trap.message}{_details(stderr)}") from trap
+            raise EngineException(f"The engine failed: {trap.message}{_details(files)}") from trap
         finally:
             # The store holds the render's memory: it goes when the render ends, not when the collector gets to it.
             store.close()
 
-        if not stdout:
-            raise EngineException(f"The engine returned no response.{_details(stderr)}")
-        return b"".join(stdout)
+        response = (files / "response.json").read_bytes()
+        if not response:
+            raise EngineException(f"The engine returned no response.{_details(files)}")
+        return response
 
     def _compiled(self) -> tuple[wasmtime.Engine, wasmtime.InstancePre]:
         """The process's engine and this runner's binary compiled on it, made on first use."""
