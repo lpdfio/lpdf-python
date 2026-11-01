@@ -2,8 +2,9 @@
 example.py — render every example in lpdf's examples/ folder.
 
 An example is a folder examples/<n>-<id>/ with its document.xml, its document.json if it has data, and the
-fonts and images its <assets> name, by paths relative to the folder. Each is rendered the way the docs on
-lpdf.io render it: a fresh engine, those fonts and images loaded, and the data passed to render.
+fonts, images and color profiles its <assets> name, by paths relative to the folder. Each is rendered the way the
+docs on lpdf.io render it: a fresh engine, those files loaded, the data passed to render, and one fixed date, which a
+PDF/X example such as the brochure carries.
 
 Run from lpdf's root (after 'make build-sdk-python'):
   make example-python
@@ -19,6 +20,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from lpdf import L, RenderOptions
+
+# The date of every render, so the same example gives the same PDF; a PDF/A, PDF/UA or PDF/X example needs one.
+CREATED_ON = "2026-01-01T00:00:00Z"
 
 # lpdf's root: /app in make's container, which mounts examples/ and tmp/sdk-examples/ there;
 # three folders up when run from repos/lpdf-python/example
@@ -45,9 +49,11 @@ for folder in folders:
         engine.load_font(font, (folder / src).read_bytes())
     for image, src in re.findall(r'<image\s+name="([^"]+)"\s+src="([^"]+)"', body):
         engine.load_image(image, (folder / src).read_bytes())
+    for profile, src in re.findall(r'<profile\s+name="([^"]+)"\s+src="([^"]+)"', body):
+        engine.load_profile(profile, (folder / src).read_bytes())
 
-    # render pdf from xml, with the example's data if it has any
-    pdf = engine.render(xml) if data is None else engine.render(xml, options=RenderOptions(data=data))
+    # render pdf from xml, with the example's data if it has any, dated
+    pdf = engine.render(xml, options=RenderOptions(created_on=CREATED_ON, data=data))
 
     # write pdf to file
     output_file = f"{folder.name}-python.pdf"
