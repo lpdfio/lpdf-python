@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class FileAttr:
     """
     A file the PDF carries, under the name a reader shows. The SDK reads it from src, or it

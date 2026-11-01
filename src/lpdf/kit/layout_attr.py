@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class LayoutAttr:
     """
     The flowing content of a section. Elements stack down the page, and a new page starts

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MarkdownLiAttr:
     """
     An item of a bullet or a numbered list. indent is the width of the marker's column and

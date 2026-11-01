@@ -6,7 +6,7 @@ from ..shared.attrs_helper import assert_finite_in
 from .gradient import Gradient
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DocumentTokens:
     colors: dict[str, str] | None = None
     space: dict[str, str] | None = None

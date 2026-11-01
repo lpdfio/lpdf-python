@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class TextAtAttr:
     """
     Text at a fixed place on the page. It is the text of the layout, with the same defaults:

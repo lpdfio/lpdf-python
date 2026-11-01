@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class FontAttr:
     """
     Declares a font that text can be set in by name, with the font attribute. A built-in PDF

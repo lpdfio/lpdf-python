@@ -8,7 +8,7 @@ from .image_attr import ImageAttr
 from .profile_attr import ProfileAttr
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DocumentAssets:
     """The fonts, images and color profiles the document declares, as the ``assets`` element of the XML does.
 

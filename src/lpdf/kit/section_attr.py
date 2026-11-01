@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class SectionAttr:
     """Attributes for the ``section`` (page) element. ``bleed`` is how far this section's pages reach past their trim
     edge, such as ``"5mm"``: it overrides the document's, and ``"0mm"`` takes it away."""

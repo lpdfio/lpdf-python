@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ShapeAttr:
     """
     A rectangle, a circle or an ellipse in the layout, for a status dot, a color swatch or a

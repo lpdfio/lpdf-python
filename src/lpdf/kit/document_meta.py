@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, fields as dc_fields
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DocumentMeta:
     """The metadata written into the PDF. ``lang`` is the language the document is written in, as a language tag
     such as ``"en-US"``; a PDF/UA document needs it."""

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ListAttr:
     """
     A list of items, each with a marker: a bullet drawn as a shape, or a number the engine

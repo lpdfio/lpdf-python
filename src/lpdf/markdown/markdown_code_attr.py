@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MarkdownCodeAttr:
     """
     Code: the box of a fenced or indented block, and the run of inline code, which takes the

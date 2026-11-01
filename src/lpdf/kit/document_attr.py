@@ -9,7 +9,7 @@ from .document_tokens import DocumentTokens
 from .file_attr import FileAttr
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DocumentAttr:
     """Document-level attributes applied as defaults to every section. ``attachments`` are the files the PDF carries
     inside it, as the ``attachments`` element of the XML is: a reader lists them in its attachments panel. Each file's

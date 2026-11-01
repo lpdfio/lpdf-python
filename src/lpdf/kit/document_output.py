@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, fields as dc_fields
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DocumentOutput:
     """How the PDF file is written, as the ``output`` element of the XML is: whether it is encrypted, and what a
     reader may do with it, and the standard it meets. The passwords are not here: they come with the render call, on

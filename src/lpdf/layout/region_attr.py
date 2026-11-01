@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class RegionAttr:
     """
     Pins content to the top or bottom edge of pages, outside the normal flow, for headers
