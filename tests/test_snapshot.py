@@ -1,6 +1,6 @@
 import pytest
 
-from lpdf import PdfEngine, RenderOptions
+from lpdf import ColumnAttr, L, NoAttr, PdfEngine, RenderOptions, TextAttr
 from lpdf.engine import EngineException
 
 from .snapshot_helper import EXAMPLES, FIXTURES, HAS_FIXTURES, compare_or_update
@@ -46,6 +46,17 @@ def test_refuses_pdfa_without_created_on_and_text_in_a_built_in_font() -> None:
         engine.render(_pdfa_xml())
     with pytest.raises(EngineException, match='"Hello" is in Helvetica'):
         engine.render(_pdfa_xml("2b", "<text>Hello</text>"), RenderOptions(created_on="2026-10-31"))
+
+
+def test_puts_kit_elements_in_print_and_screen_content() -> None:
+    document = L.document(NoAttr, [L.section(NoAttr, [L.layout(NoAttr, [
+        L.text(TextAttr(ocg="print"), ["Printed"]),
+        L.column(ColumnAttr(ocg="screen"), [L.text(NoAttr, ["On screen"])]),
+    ])])])
+    pdf_bytes = PdfEngine().set_license_key("test-key").render(document)
+    assert b"/OCProperties" in pdf_bytes
+    assert b"(Print only)" in pdf_bytes
+    assert b"(Screen only)" in pdf_bytes
 
 
 def _pdfua_xml(meta: str = 'title="Report" lang="en-US"') -> str:
