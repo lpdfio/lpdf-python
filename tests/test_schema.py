@@ -4,7 +4,7 @@ import re
 import pytest
 
 from lpdf import (
-    L, LMarkdown, NoAttr, PdfEngine, EngineException,
+    L, LMarkdown, NoAttr, PdfEngine, EngineException, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
     MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
@@ -635,6 +635,61 @@ def test_a_file_with_no_bytes_is_an_error_that_says_how_to_load_it():
            '<section><layout><text>x</text></layout></section></document></lpdf>')
     with pytest.raises(EngineException, match=r"loadFile\('a\.xml', bytes\)"):
         PdfEngine().set_license_key("test-key").render(xml)
+
+
+def _press_profile(description: str = "Test press") -> bytes:
+    """The header of an ICC printer profile in CMYK, with a description and nothing else: enough for the engine to
+    take it as the press profile of a PDF/X document."""
+    desc = b"desc" + bytes(4) + (len(description) + 1).to_bytes(4, "big") + description.encode() + bytes(13)
+    header = bytes(12) + b"prtrCMYKLab " + bytes(12) + b"acsp" + bytes(88)
+    body = header + (1).to_bytes(4, "big") + b"desc" + (144).to_bytes(4, "big") + len(desc).to_bytes(4, "big") + desc
+    return len(body).to_bytes(4, "big") + body[4:]
+
+
+_PDFX_XML = ('<lpdf version="1"><assets>{profile}</assets>'
+             '<document bleed="3mm"><meta title="Flyer"/><output pdfx="4" profile="press"/>'
+             '<section><layout><column background="#e8f0fc" height="40pt"/></layout></section></document></lpdf>')
+
+
+def test_pdfx_is_written_when_the_output_asks_for_it_with_the_profile_from_load_profile():
+    engine = PdfEngine().set_license_key("test-key").load_profile("press", _press_profile("Coated press"))
+    pdf = engine.render(_PDFX_XML.format(profile='<profile name="press"/>'), RenderOptions(created_on="2026-10-31T09:30:00Z"))
+    assert pdf.startswith(b"%PDF-1.6")
+    for expected in (b"/S /GTS_PDFX", b"/Info (Coated press)", b"/TrimBox", b"/DefaultRGB",
+                     b"<pdfxid:GTS_PDFXVersion>PDF/X-4</pdfxid:GTS_PDFXVersion>"):
+        assert expected in pdf
+
+
+def test_pdfx_profile_bleed_and_the_profiles_of_the_assets_are_read_from_a_kit_document(tmp_path):
+    src = tmp_path / "press.icc"
+    src.write_bytes(_press_profile())
+    built = L.document(
+        DocumentAttr(
+            assets=DocumentAssets(profiles=[ProfileAttr(name="press", src=str(src))]),
+            meta=DocumentMeta(title="Flyer"),
+            output=DocumentOutput(pdfx="4", profile="press"),
+            bleed="3mm",
+        ),
+        [L.section(SectionAttr(bleed="5mm"), [L.layout(NoAttr, [L.column(ColumnAttr(background="#e8f0fc", height="40pt"), [])])])],
+    )
+    attrs = built.to_dict()["attrs"]
+    assert attrs["output"] == {"pdfx": "4", "profile": "press"}
+    assert attrs["bleed"] == "3mm"
+    engine = PdfEngine().set_license_key("test-key")
+    options = RenderOptions(created_on="2026-10-31")
+    pdf = engine.render(built, options)
+    assert b"/S /GTS_PDFX" in pdf
+    assert b"/BleedBox [-14.173" in pdf
+    assert pdf == engine.render(L.to_xml(built), options)
+
+
+def test_a_profile_with_no_bytes_or_a_src_that_cannot_be_read_is_an_error_that_names_it():
+    options = RenderOptions(created_on="2026-10-31")
+    with pytest.raises(EngineException, match=r"loadProfile\('press', bytes\)"):
+        PdfEngine().set_license_key("test-key").render(_PDFX_XML.format(profile='<profile name="press"/>'), options)
+    unreadable = _PDFX_XML.format(profile='<profile name="press" src="/no/such/press.icc"/>')
+    with pytest.raises(EngineException, match=r"profile 'press' of <assets>: cannot read its src '/no/such/press\.icc'"):
+        PdfEngine().set_license_key("test-key").render(unreadable, options)
 
 
 def test_the_constants_are_the_schema_values():
