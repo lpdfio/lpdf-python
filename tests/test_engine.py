@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from lpdf import PdfEngine, L, NoAttr, DocumentAttr, DocumentOutput, Cipher, Permission
+from lpdf import PdfEngine, L, NoAttr, DocumentAttr, DocumentMeta, DocumentOutput, Cipher, Permission
 from lpdf.engine import EngineOptions, RenderOptions, EngineException
 
 
@@ -177,6 +177,20 @@ class TestEncryption:
         payload = _extract_payload(invoke)
         assert json.loads(payload["input"])["attrs"]["output"] == {"pdfa": "2u"}
         assert payload["created_on"] == "2026-10-31T09:30:00Z"
+
+    @patch("lpdf.engine.wasm_runner.WasmRunner.invoke")
+    def test_pdfua_and_lang_of_a_kit_document_go_in_its_output_and_meta(self, invoke):
+        invoke.return_value = _engine_response()
+
+        document = L.document(
+            DocumentAttr(meta=DocumentMeta(title="Report", lang="en-US"), output=DocumentOutput(pdfua="1")),
+            [L.section(NoAttr, [L.layout(NoAttr, [L.text(NoAttr, ["Hello"])])])],
+        )
+        PdfEngine().set_license_key("key").render(document, RenderOptions(created_on="2026-10-31"))
+
+        attrs = json.loads(_extract_payload(invoke)["input"])["attrs"]
+        assert attrs["output"] == {"pdfua": "1"}
+        assert attrs["meta"] == {"title": "Report", "lang": "en-US"}
 
 
 class TestLoadImage:
