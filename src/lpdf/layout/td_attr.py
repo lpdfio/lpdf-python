@@ -59,8 +59,9 @@ class TdAttr:
     # switch the groups; Preview and Safari show everything, on screen and in print. Hidden
     # content is still in the file, where it can be selected and copied: it is not a way to keep
     # anything secret. A link in print content is drawn and does nothing, and a form field can't
-    # be in print content: use a frame with a border for a box filled in by hand. With pdfa,
-    # pdfua or pdfx on the output, everything shows.
+    # be in print content: use a frame with a border for a box filled in by hand. With pdfa or
+    # pdfua on the output, everything shows. With pdfx, the file is the print version: screen
+    # content stays in it, off, and a reader can turn it on in a layers panel.
     ocg: str | None = None
     # How many of the table's columns the cell spans. It is as wide as those columns and the
     # gaps between them, and the cells after it in the row start at the column after its last. A
