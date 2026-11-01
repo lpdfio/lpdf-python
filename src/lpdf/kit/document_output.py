@@ -28,6 +28,10 @@ class DocumentOutput:
     a form field, a CMYK color with a profile that is not a CMYK one, ``encrypt``, ``pdfa``, attachments.
     ``profile`` is the profile of the assets that a PDF/X file is made for: the ICC profile of the printing press. It
     needs ``pdfx``.
+    ``linearize`` writes the PDF linearized, for fast web view: page 1 comes first in the file, with hints that say
+    where every other page is, so a viewer that fetches the file by byte ranges, as a browser does, shows page 1 while
+    the rest downloads. Each page then names only the fonts and images it draws. With ``encrypt`` the file is
+    encrypted first and linearized last. Any change to the file afterwards, such as a stamp, ends the linearization.
     """
 
     encrypt: str | None = None
@@ -36,6 +40,7 @@ class DocumentOutput:
     pdfua: str | None = None
     pdfx: str | None = None
     profile: str | None = None
+    linearize: bool | None = None
 
     def to_dict(self) -> dict:
         return {f.name: getattr(self, f.name) for f in dc_fields(self) if getattr(self, f.name) is not None}
