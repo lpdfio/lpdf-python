@@ -18,11 +18,15 @@ class DocumentOutput:
     text must also be searchable. The render needs ``created_on``, and every text a font of the assets. What PDF/A
     cannot hold is an error that says what to change: a built-in font, a CMYK color, a form field, a barcode's
     digits, ``encrypt``.
+    ``pdfua`` writes the PDF as PDF/UA-1, a tagged PDF a screen reader can read: ``"1"``. It combines with ``pdfa``.
+    The render needs ``created_on``, the meta a ``title`` and a ``lang``, every image and barcode of the layout an
+    ``alt``, and every text a font of the assets. What PDF/UA cannot hold is an error that says what to change.
     """
 
     encrypt: str | None = None
     allow: str | None = None
     pdfa: str | None = None
+    pdfua: str | None = None
 
     def to_dict(self) -> dict:
         return {f.name: getattr(self, f.name) for f in dc_fields(self) if getattr(self, f.name) is not None}

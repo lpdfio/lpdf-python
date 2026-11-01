@@ -48,6 +48,27 @@ def test_refuses_pdfa_without_created_on_and_text_in_a_built_in_font() -> None:
         engine.render(_pdfa_xml("2b", "<text>Hello</text>"), RenderOptions(created_on="2026-10-31"))
 
 
+def _pdfua_xml(meta: str = 'title="Report" lang="en-US"') -> str:
+    return (
+        f'<lpdf version="1"><document><meta {meta}/><output pdfua="1"/>'
+        '<section><layout><column background="#e8f0fc" height="40pt"/></layout></section></document></lpdf>'
+    )
+
+
+def test_writes_pdfua_tagged_in_the_language_of_the_document() -> None:
+    engine = PdfEngine().set_license_key("test-key")
+    pdf_bytes = engine.render(_pdfua_xml(), RenderOptions(created_on="2026-10-31"))
+    assert b"<pdfuaid:part>1</pdfuaid:part>" in pdf_bytes
+    assert b"/Lang (en-US)" in pdf_bytes
+    assert b"/StructTreeRoot" in pdf_bytes
+
+
+def test_refuses_pdfua_without_the_language_of_the_document() -> None:
+    engine = PdfEngine().set_license_key("test-key")
+    with pytest.raises(EngineException, match="add lang to <meta>"):
+        engine.render(_pdfua_xml('title="Report"'), RenderOptions(created_on="2026-10-31"))
+
+
 def test_custom_font_does_not_throw() -> None:
     xml = (FIXTURES / "example1.xml").read_text(encoding="utf-8")
     engine = PdfEngine().set_license_key("test-key")

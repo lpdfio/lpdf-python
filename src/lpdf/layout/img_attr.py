@@ -16,6 +16,10 @@ class ImgAttr:
     """
 
     name: str
+    # What the image shows, which a screen reader reads in a PDF/UA document; alt="" marks it as
+    # decoration, which a reader skips. A PDF/UA document needs it on every image of the layout.
+    # A document without pdfua ignores it.
+    alt: str | None = None
     height: str | None = None
     # Width of the element. A length fixes it. fill, in a row, takes the width its line leaves
     # after the other children, shared equally if several on the line use fill, and never moves
