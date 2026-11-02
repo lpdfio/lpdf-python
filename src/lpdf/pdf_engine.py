@@ -6,11 +6,13 @@ import json
 import secrets
 import time
 import xml.etree.ElementTree as ElementTree
+from collections.abc import Sequence
 from pathlib import Path
 
 from .engine.engine_exception import EngineException
 from .engine.engine_options import EngineOptions
 from .engine.render_options import RenderOptions
+from .engine.stamp_attr import StampAttr
 from .engine.wasm_runner import WasmRunner
 from .kit.document import PdfDocument
 
@@ -288,6 +290,52 @@ class PdfEngine:
         if "pdf" not in response:
             raise EngineException("Unexpected response from the engine.")
 
+        return base64.b64decode(response["pdf"])
+
+    def stamp(self, pdf: bytes, stamps: Sequence[StampAttr]) -> bytes:
+        """Draw PNG images over the pages of an existing PDF, and return the PDF with them. Nothing is laid out: each
+        image is drawn in its stamp's box, over the pages its ``page`` names, in the order of ``stamps``.
+
+        The output is the input, byte for byte, with an incremental update after it, so an owner password and its
+        permissions stay, and so does a digital signature, for the revision it signed. A PDF/A file stays PDF/A. Without
+        a license key each stamped page gets the attribution line in its top-right corner. A stamp covers what is under
+        it and does not remove it: the text under an image can still be selected and found, so a stamp is not a
+        redaction.
+
+        :raises EngineException: when the input is not a PDF, needs a password to open, or doesn't have a page a stamp
+            names; when an image is not a PNG or a stamp's options are wrong; or when the stamp runs past the timeout
+            or needs more than ``max_memory_mb``, or the engine crashes.
+        :raises TypeError: when a stamp's ``image`` is not the PNG's bytes.
+        """
+        images: dict[str, str] = {}
+        names: dict[int, str] = {}
+        request_stamps = []
+        for i, stamp in enumerate(stamps, start=1):
+            if not isinstance(stamp.image, (bytes, bytearray, memoryview)):
+                raise TypeError(f"stamp {i}: image must be the PNG's bytes")
+            # The same bytes object, given to several stamps, goes to the engine once.
+            name = names.get(id(stamp.image))
+            if name is None:
+                name = names[id(stamp.image)] = f"stamp-{len(names)}"
+                images[name] = base64.b64encode(stamp.image).decode()
+            options = {
+                "page": stamp.page, "x": stamp.x, "y": stamp.y, "anchor": stamp.anchor, "width": stamp.width,
+                "height": stamp.height, "align": stamp.align, "justify": stamp.justify, "scale": stamp.scale,
+                "max-grow": stamp.max_grow,
+            }
+            request_stamps.append({"image": name, **{k: v for k, v in options.items() if v is not None}})
+
+        response = self._runner().invoke({
+            "method": "stamp",
+            "key": self._license_key,
+            # See render: without the clock the engine cannot check the key's expiry.
+            "now": int(time.time()),
+            "pdf": base64.b64encode(pdf).decode(),
+            "images": images,
+            "stamps": request_stamps,
+        })
+        if "pdf" not in response:
+            raise EngineException("Unexpected response from the engine.")
         return base64.b64decode(response["pdf"])
 
     def _runner(self) -> WasmRunner:
