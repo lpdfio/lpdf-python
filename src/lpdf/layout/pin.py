@@ -10,3 +10,4 @@ class Pin(StrEnum):
     BOTTOM = "bottom"
     LEFT = "left"
     RIGHT = "right"
+    INSET = "inset"
