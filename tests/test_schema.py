@@ -549,6 +549,34 @@ def test_bookmarks_fill_the_outline_and_render_like_their_xml():
     assert pdf == _render(L.to_xml(built))
 
 
+def test_a_cross_reference_links_to_its_bookmark_a_ref_only_bookmark_stays_out_of_the_outline_and_both_render_like_their_xml():
+    built = L.document(NoAttr, [
+        L.section(NoAttr, [
+            L.layout(NoAttr, [
+                L.text(NoAttr, ["See ", L.span(SpanAttr(bookmark_ref="prices"), ["{bookmark-label} on page {bookmark-page}"])]),
+                L.bookmark(BookmarkAttr(label="Methods")),
+                L.text(NoAttr, ["Methods"]),
+                L.bookmark(BookmarkAttr(label="Table 3", id="prices", ref_only=True)),
+                L.text(NoAttr, ["Prices"]),
+            ]),
+        ]),
+    ])
+    xml = L.to_xml(built)
+    assert '<span bookmark-ref="prices">' in xml, xml
+    assert re.search(r'<bookmark [^>]*ref-only="true"', xml), xml
+
+    pdf = _render(built)
+    assert b"/D /prices" in pdf
+    assert b"/Title (Methods)" in pdf and b"/Title (Table 3)" not in pdf
+    assert pdf == _render(xml)
+
+    nowhere = L.document(NoAttr, [L.section(NoAttr, [L.layout(NoAttr, [
+        L.text(NoAttr, [L.span(SpanAttr(bookmark_ref="nowhere"), ["{bookmark-page}"])]),
+    ])])])
+    with pytest.raises(EngineException, match=r"bookmark-ref 'nowhere' names no bookmark"):
+        _render(nowhere)
+
+
 # ── Assets ─────────────────────────────────────────────────────────────────────
 
 _PIXEL = bytes.fromhex(
