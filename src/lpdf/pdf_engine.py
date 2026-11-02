@@ -291,7 +291,11 @@ class PdfEngine:
         return base64.b64decode(response["pdf"])
 
     def _runner(self) -> WasmRunner:
-        return WasmRunner(wasm_binary=self._options.wasm_binary or self._default_binary(), timeout=self._options.timeout)
+        return WasmRunner(
+            wasm_binary=self._options.wasm_binary or self._default_binary(),
+            timeout=self._options.timeout,
+            max_memory_mb=self._options.max_memory_mb,
+        )
 
     @staticmethod
     def _default_binary() -> str:
