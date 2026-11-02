@@ -15,9 +15,12 @@ class DocumentOutput:
     permission comes only from naming it: without ``allow``, or with ``""``, nothing is allowed, and ``all`` allows
     everything. It needs ``encrypt``.
     ``pdfa`` writes the PDF as PDF/A, the standard for files kept for the long term: ``"2b"``, or ``"2u"`` when its
-    text must also be searchable. The render needs ``created_on``, and every text a font of the assets. What PDF/A
-    cannot hold is an error that says what to change: a built-in font, a CMYK color, a form field, a barcode's
-    digits, ``encrypt``.
+    text must also be searchable, and ``"3b"`` or ``"3u"`` to carry attachments of any kind. The render needs
+    ``created_on``, and every text a font of the assets. What PDF/A cannot hold is an error that says what to change:
+    a built-in font, a CMYK color, a form field, a barcode's digits, ``encrypt``, attachments in ``"2b"`` or ``"2u"``.
+    With ``"3b"`` or ``"3u"``, an attachment named ``factur-x.xml``, or ``xrechnung.xml`` for the XRECHNUNG profile,
+    makes the file a Factur-X or ZUGFeRD e-invoice: the engine reads the profile from BT-24 of that XML and names the
+    invoice in the file's metadata. The XML is attached as given, and its content is not checked.
     ``pdfua`` writes the PDF as PDF/UA-1, a tagged PDF a screen reader can read: ``"1"``. It combines with ``pdfa``.
     The render needs ``created_on``, the meta a ``title`` and a ``lang``, every image and barcode of the layout an
     ``alt``, and every text a font of the assets. What PDF/UA cannot hold is an error that says what to change.
@@ -32,6 +35,11 @@ class DocumentOutput:
     where every other page is, so a viewer that fetches the file by byte ranges, as a browser does, shows page 1 while
     the rest downloads. Each page then names only the fonts and images it draws. With ``encrypt`` the file is
     encrypted first and linearized last. Any change to the file afterwards, such as a stamp, ends the linearization.
+    ``facturx_strict`` refuses, in a Factur-X e-invoice, the attachments the Factur-X spec does not allow: an invoice
+    file whose mime is not ``text/xml``, an invoice file whose relationship its profile does not allow, and another
+    file with no mime or one that is not of a format the spec lists (PDF, TXT, GIF, TIFF, JPG, CSV, XML, JSON, XLS,
+    XLSX, ODS). Without it, every file is written as the document gives it. It does nothing in a document without
+    ``factur-x.xml`` or ``xrechnung.xml``. It is ``facturx-strict`` in the XML.
     """
 
     encrypt: str | None = None
@@ -41,6 +49,12 @@ class DocumentOutput:
     pdfx: str | None = None
     profile: str | None = None
     linearize: bool | None = None
+    facturx_strict: bool | None = None
 
     def to_dict(self) -> dict:
-        return {f.name: getattr(self, f.name) for f in dc_fields(self) if getattr(self, f.name) is not None}
+        # The engine reads the schema's names: ``facturx_strict`` is ``facturx-strict``.
+        return {
+            f.name.replace("_", "-"): getattr(self, f.name)
+            for f in dc_fields(self)
+            if getattr(self, f.name) is not None
+        }

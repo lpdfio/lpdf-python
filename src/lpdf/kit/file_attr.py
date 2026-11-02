@@ -21,10 +21,13 @@ class FileAttr:
     # The key the file was loaded under on the engine, when that is not its name.
     ref: str | None = None
     # The type of the file, such as text/xml, application/pdf or text/csv. Defaults to
-    # application/octet-stream, which says only that it is a file.
+    # application/octet-stream, which says only that it is a file, and to text/xml for the
+    # invoice of a Factur-X e-invoice.
     mime: str | None = None
     # How the file relates to the document: source, data, alternative, supplement or
-    # unspecified, the default. An e-invoice's XML is data.
+    # unspecified, the default. The invoice of a Factur-X e-invoice defaults to data for the
+    # MINIMUM and BASIC WL profiles, and to alternative for the others, as the Factur-X spec
+    # asks.
     relationship: str | None = None
     # A line about the file, which a reader shows beside its name.
     description: str | None = None
