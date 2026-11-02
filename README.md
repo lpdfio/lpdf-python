@@ -43,7 +43,7 @@ doc = L.document(DocumentAttr(size='letter'), [
 pdf = engine.render(doc)
 ```
 
-A render releases the GIL, so renders on threads run in parallel: use a thread pool, or `asyncio.to_thread` in async code. A render stops with an `EngineException` after 30 seconds; `L.engine(EngineOptions(timeout=60))` sets another limit in seconds, and `timeout=0` sets none.
+A render releases the GIL, so renders on threads run in parallel: use a thread pool, or `asyncio.to_thread` in async code. A render stops with an `EngineException` after 5 seconds; `L.engine(EngineOptions(timeout=60))` sets another limit in seconds, and `timeout=0` sets none.
 
 ## Requirements
 

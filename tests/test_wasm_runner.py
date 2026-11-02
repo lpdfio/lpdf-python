@@ -106,13 +106,13 @@ def test_a_render_with_a_timeout_of_0_runs_with_no_limit(tmp_path: Path) -> None
     assert elapsed >= 2
 
 
-def test_a_render_stops_after_30_seconds_when_the_timeout_is_left_out(tmp_path: Path) -> None:
+def test_a_render_stops_after_5_seconds_when_the_timeout_is_left_out(tmp_path: Path) -> None:
     engine = PdfEngine(EngineOptions(wasm_binary=_binary(tmp_path, SPIN_FOREVER)))
 
     elapsed, error = _timed_render(engine)
 
-    assert str(error) == "The render timed out after 30 seconds."
-    assert 30 <= elapsed < 30.5
+    assert str(error) == "The render timed out after 5 seconds."
+    assert 5 <= elapsed < 5.5
 
 
 @needs_fixtures
