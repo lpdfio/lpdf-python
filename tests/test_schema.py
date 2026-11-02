@@ -330,6 +330,25 @@ def test_a_footnote_is_an_fn_child_of_a_text_and_the_counter_is_an_attribute_of_
     assert L.fn(NoAttr, ["a"]).to_dict() == {"type": "fn", "attrs": {}, "nodes": ["a"]}
 
 
+def test_a_sections_page_numbering_is_written_under_its_schema_names_renders_as_its_xml_does_and_labels_the_pages():
+    footer = L.region(RegionAttr(pin="bottom"), [L.text(None, ["Page {page} of {pages}"])])
+    document = L.document(None, [
+        L.section(SectionAttr(page_format="lower-roman"), [L.layout(None, [L.text(None, ["Front"]), footer])]),
+        L.section(SectionAttr(page_start=1, page_format="decimal", page_prefix="A-"), [L.layout(None, [L.text(None, ["Body"]), footer])]),
+    ])
+
+    xml = L.to_xml(document)
+    assert '<section page-format="lower-roman">' in xml, xml
+    assert '<section page-format="decimal" page-prefix="A-" page-start="1">' in xml, xml
+    pdf = _render(document)
+    assert pdf == _render(xml)
+    assert b"/PageLabels << /Nums [0 << /S /r >> 1 << /S /D /P (A-) >>] >>" in re.sub(rb"\s+", b" ", pdf)
+
+    zero = L.document(None, [L.section(SectionAttr(page_start=0), [L.layout(None, [])])])
+    with pytest.raises(EngineException, match=r"page-start must be a whole number from 1 to 2147483647, not 0"):
+        _render(zero)
+
+
 def test_a_code_and_a_code_span_are_written_as_their_elements_and_render_the_same_from_the_builder_and_its_xml():
     document = L.document(None, [L.section(None, [L.layout(None, [
         L.code(CodeAttr(tab_size=2), ["\nfn a() {\n\tb(", L.span(SpanAttr(color="#c0392b"), ["x"]), ");\n}\n"]),
