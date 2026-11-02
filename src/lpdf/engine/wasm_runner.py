@@ -12,7 +12,7 @@ import wasmtime
 
 from .engine_exception import EngineException
 
-DEFAULT_TIMEOUT = 30
+DEFAULT_TIMEOUT = 5
 """The seconds a render may run when ``timeout`` is left out. A timeout of 0 means no limit."""
 
 # One thread advances the engine's epoch at this pace, and a render's deadline is its timeout in ticks, plus one: the
@@ -62,7 +62,7 @@ class WasmRunner:
 
     def __init__(self, wasm_binary: str, timeout: int | None = None):
         """:param wasm_binary: The path of the engine's WASI binary.
-        :param timeout: The seconds a render may run before it stops with an ``EngineException``: 30 when left out,
+        :param timeout: The seconds a render may run before it stops with an ``EngineException``: 5 when left out,
             no limit at 0."""
         self._binary = wasm_binary
         self._timeout = DEFAULT_TIMEOUT if timeout is None else timeout
