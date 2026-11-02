@@ -7,7 +7,7 @@ from lpdf import (
     L, LMarkdown, NoAttr, PdfEngine, EngineException, EngineOptions, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
     MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
-    FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
+    ColumnFill, FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
 )
 from lpdf.layout.text_node import TextNode
@@ -328,6 +328,24 @@ def test_a_footnote_is_an_fn_child_of_a_text_and_the_counter_is_an_attribute_of_
     assert re.search(r'<section [^>]*footnote-counter="page"', xml), xml
     assert '<text>Total<fn>See <span bold="true">this</span>.</fn> here</text>' in xml
     assert L.fn(NoAttr, ["a"]).to_dict() == {"type": "fn", "attrs": {}, "nodes": ["a"]}
+
+
+def test_a_section_in_columns_and_an_inset_are_written_under_their_schema_names_render_as_their_xml_and_an_inset_past_the_columns_is_rejected():
+    def build(col):
+        return L.document(None, [
+            L.section(SectionAttr(columns=3, column_gap="m", column_rule="0.5pt #cccccc", column_fill=ColumnFill.BALANCE), [L.layout(None, [
+                L.region(RegionAttr(pin=Pin.INSET, col=col, colspan=2, top="50pt", height="100pt"), [L.text(None, ["Inset"])]),
+                L.text(None, ["One"]),
+                L.text(TextAttr(paginate="break-before"), ["Two"]),
+            ])]),
+        ])
+
+    xml = L.to_xml(build(2))
+    assert '<section column-fill="balance" column-gap="m" column-rule="0.5pt #cccccc" columns="3">' in xml, xml
+    assert '<region col="2" colspan="2" height="100pt" pin="inset" top="50pt">' in xml, xml
+    assert _render(build(2)) == _render(xml)
+    with pytest.raises(EngineException, match=r"col 3 and colspan 2 reach column 4, past the section's 3 columns"):
+        _render(build(3))
 
 
 def test_a_sections_page_numbering_is_written_under_its_schema_names_renders_as_its_xml_does_and_labels_the_pages():

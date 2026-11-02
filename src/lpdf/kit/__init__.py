@@ -18,6 +18,7 @@ from .section_layout import SectionLayout
 from .orientation import Orientation
 from .section_type import SectionType
 from .footnote_counter import FootnoteCounter
+from .column_fill import ColumnFill
 from .cipher import Cipher
 from .permission import Permission
 from .file_relationship import FileRelationship
@@ -43,6 +44,7 @@ __all__ = [
     "Orientation",
     "SectionType",
     "FootnoteCounter",
+    "ColumnFill",
     "Cipher",
     "Permission",
     "FileRelationship",
