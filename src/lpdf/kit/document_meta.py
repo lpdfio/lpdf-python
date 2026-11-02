@@ -6,7 +6,8 @@ from dataclasses import dataclass, fields as dc_fields
 @dataclass(frozen=True, kw_only=True)
 class DocumentMeta:
     """The metadata written into the PDF. ``lang`` is the language the document is written in, as a language tag
-    such as ``"en-US"``; a PDF/UA document needs it."""
+    such as ``"en-US"``; a PDF/UA document needs it, and a PDF/A document of level a takes it only as a language
+    tag."""
 
     title: str | None = None
     author: str | None = None
