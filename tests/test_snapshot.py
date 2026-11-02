@@ -40,6 +40,15 @@ def test_writes_pdfa_when_the_output_asks_for_it_dated_by_created_on() -> None:
     assert b"/ModDate (D:20261031093000Z)" in pdf_bytes
 
 
+def test_writes_pdfa_level_a_tagged_without_pdfua_when_the_output_asks_for_2a() -> None:
+    engine = PdfEngine().set_license_key("test-key")
+    pdf_bytes = engine.render(_pdfa_xml("2a"), RenderOptions(created_on="2026-10-31"))
+    assert b"<pdfaid:conformance>A</pdfaid:conformance>" in pdf_bytes
+    assert b"/StructTreeRoot" in pdf_bytes
+    assert b"/Marked true" in pdf_bytes
+    assert b"pdfuaid" not in pdf_bytes
+
+
 def test_refuses_pdfa_without_created_on_and_text_in_a_built_in_font() -> None:
     engine = PdfEngine().set_license_key("test-key")
     with pytest.raises(EngineException, match="created_on"):
