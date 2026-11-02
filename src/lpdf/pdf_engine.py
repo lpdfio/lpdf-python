@@ -297,9 +297,10 @@ class PdfEngine:
         image is drawn in its stamp's box, over the pages its ``page`` names, in the order of ``stamps``.
 
         The output is the input, byte for byte, with an incremental update after it, so an owner password and its
-        permissions stay, and so does a digital signature, for the revision it signed. A PDF/A file stays PDF/A.
-        Without a license key each stamp gets the attribution line beside its box. A stamp covers what is under it and
-        does not remove it: the text under an image can still be selected and found, so a stamp is not a redaction.
+        permissions stay, and so does a digital signature, for the revision it signed. A PDF/A file stays PDF/A. Without
+        a license key each stamped page gets the attribution line in its top-right corner. A stamp covers what is under
+        it and does not remove it: the text under an image can still be selected and found, so a stamp is not a
+        redaction.
 
         :raises EngineException: when the input is not a PDF, needs a password to open, or doesn't have a page a stamp
             names; when an image is not a PNG or a stamp's options are wrong; or when the stamp runs past the timeout

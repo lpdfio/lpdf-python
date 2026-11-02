@@ -53,7 +53,7 @@ def test_an_image_given_to_several_stamps_is_embedded_once() -> None:
     assert len(re.findall(r"/Subtype\s*/Image", _update(pdf, out))) == 2
 
 
-def test_without_a_license_key_each_stamp_gets_the_attribution_line_linked_to_lpdf_io() -> None:
+def test_without_a_license_key_each_stamped_page_gets_the_attribution_line_linked_to_lpdf_io() -> None:
     pdf = _pdf(1)
     out = PdfEngine().stamp(pdf, [StampAttr(image=_png(10, 10), page="1", anchor="center", width="50pt", height="50pt")])
     assert "(https://lpdf.io)" in _update(pdf, out)
