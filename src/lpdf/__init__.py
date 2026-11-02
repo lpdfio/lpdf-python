@@ -7,6 +7,7 @@ from .pdf_engine import PdfEngine
 from .engine.engine_exception import EngineException
 from .engine.engine_options import EngineOptions
 from .engine.render_options import RenderOptions
+from .engine.stamp_attr import StampAttr
 
 # kit subpackage
 from .kit.document import PdfDocument
