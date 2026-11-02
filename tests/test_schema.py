@@ -690,6 +690,37 @@ def test_the_src_of_a_file_is_read_as_the_engine_reads_its_xml(tmp_path):
     assert b"/Type /EmbeddedFile" in engine.render(quoted)
 
 
+# The XML of a Factur-X invoice of the EN 16931 profile, as little of it as the engine reads: its BT-24.
+_CII_INVOICE = (
+    b'<rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"'
+    b' xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100">'
+    b'<rsm:ExchangedDocumentContext><ram:GuidelineSpecifiedDocumentContextParameter><ram:ID>urn:cen.eu:en16931:2017</ram:ID>'
+    b'</ram:GuidelineSpecifiedDocumentContextParameter></rsm:ExchangedDocumentContext></rsm:CrossIndustryInvoice>'
+)
+
+
+def _invoice(output: DocumentOutput, *files: FileAttr):
+    return L.document(DocumentAttr(output=output, attachments=list(files)), [
+        L.section(NoAttr, [L.layout(NoAttr, [L.column(ColumnAttr(background="#e8f0fc", height="40pt"), [])])]),
+    ])
+
+
+def test_a_kit_document_with_pdfa_3b_and_factur_x_xml_is_a_factur_x_invoice():
+    engine = PdfEngine().set_license_key("test-key").load_file("factur-x.xml", _CII_INVOICE)
+    options = RenderOptions(created_on="2026-10-31")
+    pdf = engine.render(_invoice(DocumentOutput(pdfa="3b"), FileAttr(name="factur-x.xml")), options)
+    assert b"<pdfaid:part>3</pdfaid:part>" in pdf
+    assert b"<fx:ConformanceLevel>EN 16931</fx:ConformanceLevel>" in pdf
+    assert b"/AFRelationship /Alternative" in pdf and b"/Subtype /text#2Fxml" in pdf
+
+    typed = FileAttr(name="factur-x.xml", mime="application/xml")
+    engine.render(_invoice(DocumentOutput(pdfa="3u"), typed), options)
+    strict = _invoice(DocumentOutput(pdfa="3u", facturx_strict=True), typed)
+    assert 'facturx-strict="true"' in L.to_xml(strict)
+    with pytest.raises(EngineException, match=r"facturx-strict=\"true\".*mime 'application/xml'"):
+        engine.render(strict, options)
+
+
 def test_a_file_whose_src_cannot_be_read_is_an_error_that_names_it():
     built = _document_with_attachments(FileAttr(name="data.csv", src="/no/such/data.csv"))
     with pytest.raises(EngineException, match=r"file 'data\.csv'.*/no/such/data\.csv"):
