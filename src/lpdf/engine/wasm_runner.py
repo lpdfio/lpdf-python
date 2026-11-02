@@ -10,7 +10,8 @@ from typing import ClassVar
 
 import wasmtime
 
-from .engine_exception import EngineException
+from .engine_exception import ENGINE_CRASHED, EngineException
+from .engine_options import DEFAULT_MAX_MEMORY_MB
 
 DEFAULT_TIMEOUT = 5
 """The seconds a render may run when ``timeout`` is left out. A timeout of 0 means no limit."""
@@ -39,9 +40,14 @@ def _seconds(count: int) -> str:
     return f"{count} second" if count == 1 else f"{count} seconds"
 
 
+def _stderr(files: Path) -> str:
+    """What the engine wrote to stderr."""
+    return (files / "stderr.txt").read_text(errors="replace").strip()
+
+
 def _details(files: Path) -> str:
     """What the engine wrote to stderr, for an error message."""
-    text = (files / "stderr.txt").read_text(errors="replace").strip()
+    text = _stderr(files)
     return f" Stderr: {text}" if text else ""
 
 
@@ -60,19 +66,22 @@ class WasmRunner:
     _linker: ClassVar[wasmtime.Linker | None] = None
     _modules: ClassVar[dict[str, wasmtime.InstancePre]] = {}
 
-    def __init__(self, wasm_binary: str, timeout: int | None = None):
+    def __init__(self, wasm_binary: str, timeout: int | None = None, max_memory_mb: int | None = None):
         """:param wasm_binary: The path of the engine's WASI binary.
         :param timeout: The seconds a render may run before it stops with an ``EngineException``: 5 when left out,
-            no limit at 0."""
+            no limit at 0.
+        :param max_memory_mb: The megabytes a render may allocate: 1024 when left out."""
         self._binary = wasm_binary
         self._timeout = DEFAULT_TIMEOUT if timeout is None else timeout
+        self._max_memory_mb = DEFAULT_MAX_MEMORY_MB if max_memory_mb is None else max_memory_mb
 
     def invoke(self, payload: dict) -> dict:
         """Send a request to the engine and return its response.
 
-        :raises EngineException: when the engine reports an error, fails, or runs past the timeout.
+        :raises EngineException: when the engine reports an error, crashes, or runs past the timeout.
         """
-        response = json.loads(self._run(json.dumps(payload).encode()))
+        request = {**payload, "max_memory_mb": self._max_memory_mb}
+        response = json.loads(self._run(json.dumps(request).encode()))
         if "error" in response:
             raise EngineException(f"lpdf render error: {response['error']}")
         return response
@@ -107,7 +116,12 @@ class WasmRunner:
         except wasmtime.Trap as trap:
             if trap.trap_code == wasmtime.TrapCode.INTERRUPT:
                 raise EngineException(f"The render timed out after {_seconds(self._timeout)}.") from trap
-            raise EngineException(f"The engine failed: {trap.message}{_details(files)}") from trap
+            # Any other trap is a crash: a bug, a stack that ran out, or memory that did before the cap stopped the
+            # render. Each render has a store of its own, so the next one starts on a fresh engine.
+            crashed = EngineException(ENGINE_CRASHED)
+            if stderr := _stderr(files):
+                crashed.add_note(f"Stderr: {stderr}")
+            raise crashed from trap
         finally:
             # The store holds the render's memory: it goes when the render ends, not when the collector gets to it.
             store.close()
