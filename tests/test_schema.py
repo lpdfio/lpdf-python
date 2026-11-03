@@ -348,6 +348,31 @@ def test_a_section_in_columns_and_an_inset_are_written_under_their_schema_names_
         _render(build(3))
 
 
+def test_a_bulk_table_renders_from_data_as_the_table_without_bulk_and_one_built_with_l_which_has_no_data_is_rejected():
+    def xml(bulk):
+        return (
+            '<lpdf version="1"><document size="a4"><section><layout margin="36pt">'
+            f'<table cols="1fr 2fr"{bulk}><thead><td><text bold="true">Date</text></td><td><text bold="true">Amount</text></td></thead>'
+            '<tr data-source="entries"><td><text data-value="date">-</text></td><td><text data-value="amount">-</text></td></tr></table>'
+            '<region pin="bottom"><text align="right">Page {page} of {pages}</text></region></layout></section></document></lpdf>'
+        )
+    entries = [{"date": f"2026-01-{i % 28 + 1:02}", "amount": f"${i}.00"} for i in range(2000)]
+    engine = PdfEngine().set_license_key("test-key")
+
+    def render(input):
+        return _normalised(engine.render(input, RenderOptions(data={"entries": entries})))
+
+    pdf = render(xml(' bulk="true"'))
+    assert pdf == render(xml(""))
+    pages = int(re.search(rb"/Type /Pages[^>]*/Count (\d+)", pdf).group(1))
+    assert pages > 20, f"the rows run over {pages} pages"
+
+    built = _in_layout(L.table(TableAttr(cols="1fr", bulk=True), [L.tr(NoAttr, [L.td(NoAttr, [L.text(NoAttr, ["A"])])])]))
+    assert '<table bulk="true" cols="1fr">' in L.to_xml(built)
+    with pytest.raises(EngineException, match=r"a bulk table repeats one tr with data-source: it has none"):
+        _render(built)
+
+
 def test_a_sections_page_numbering_is_written_under_its_schema_names_renders_as_its_xml_does_and_labels_the_pages():
     footer = L.region(RegionAttr(pin="bottom"), [L.text(None, ["Page {page} of {pages}"])])
     document = L.document(None, [
