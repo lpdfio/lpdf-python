@@ -547,6 +547,18 @@ def test_a_gradient_of_the_tokens_fills_a_box_and_renders_the_same_from_the_buil
     assert b"/ShadingType 2" in pdf
 
 
+def test_a_ruling_of_the_tokens_is_drawn_once_and_renders_the_same_from_the_builder_and_its_xml():
+    document = L.document(
+        DocumentAttr(tokens=DocumentTokens(rulings={
+            "notes": {"edges": False, "lines": [{"step-y": "8mm", "color": "#c9d6e8"}]},
+        })),
+        [L.section(SectionAttr(ruling="notes"), [L.layout(None, [L.text(None, ["On ruled paper"])])])],
+    )
+    pdf = _render(document)
+    assert pdf == _render(L.to_xml(document))
+    assert pdf.count(b"/Subtype /Form") == 1
+
+
 def test_a_built_document_renders_the_same_as_its_xml():
     built = _built_document()
     assert _render(built) == _render(L.to_xml(built))

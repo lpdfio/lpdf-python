@@ -17,7 +17,10 @@ class SectionAttr:
     ``columns`` sets the section's flow in that many columns, 1 to 12, each filled like a small page, left to right;
     ``column_gap`` is the space between two, a space token or a length (``"l"`` by default), ``column_rule`` a line in
     the middle of each gap, as a border, such as ``"0.5pt #ccc"``, and ``column_fill`` how the last page's columns
-    fill: ``ColumnFill.AUTO``, in order, the default, or ``ColumnFill.BALANCE``, levelled."""
+    fill: ``ColumnFill.AUTO``, in order, the default, or ``ColumnFill.BALANCE``, levelled.
+
+    ``ruling`` names a ruling of the tokens, whose lines are drawn on every page of the section, under everything
+    else."""
 
     size: str | None = None
     orientation: str | None = None
@@ -35,3 +38,4 @@ class SectionAttr:
     column_gap: str | None = None
     column_rule: str | None = None
     column_fill: str | None = None
+    ruling: str | None = None

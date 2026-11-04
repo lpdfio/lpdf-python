@@ -18,6 +18,8 @@ from .kit.document_output import DocumentOutput
 from .kit.document_tokens import DocumentTokens
 from .kit.gradient import Gradient
 from .kit.gradient_stop import GradientStop
+from .kit.ruling import Ruling
+from .kit.ruling_lines import RulingLines
 from .kit.font_attr import FontAttr
 from .kit.image_attr import ImageAttr
 from .kit.file_attr import FileAttr
