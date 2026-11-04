@@ -6,6 +6,8 @@ from .document_attr import DocumentAttr
 from .document_tokens import DocumentTokens
 from .gradient import Gradient
 from .gradient_stop import GradientStop
+from .ruling import Ruling
+from .ruling_lines import RulingLines
 from .font_attr import FontAttr
 from .image_attr import ImageAttr
 from .file_attr import FileAttr
@@ -32,6 +34,8 @@ __all__ = [
     "DocumentTokens",
     "Gradient",
     "GradientStop",
+    "Ruling",
+    "RulingLines",
     "FontAttr",
     "ImageAttr",
     "FileAttr",

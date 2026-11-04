@@ -151,6 +151,18 @@ def test_gradients_are_a_token_row_of_named_gradients():
     assert d["attrs"]["tokens"] == {"gradients": gradients}
 
 
+def test_rulings_are_a_token_row_of_named_rulings_with_their_lines_by_the_schema_names():
+    rulings = {
+        "graph": {"origin": "margin", "edges": False, "lines": [{"step": "5mm"}, {"count-x": 12, "step-y": "25mm"}]},
+    }
+    d = L.document(DocumentAttr(tokens=DocumentTokens(rulings=rulings))).to_dict()
+    assert d["attrs"]["tokens"] == {"rulings": rulings}
+
+
+def test_a_section_names_a_ruling():
+    assert L.section(SectionAttr(ruling="graph")).to_dict()["attrs"] == {"ruling": "graph"}
+
+
 def test_a_text_line_height_is_a_token_or_a_factor_under_its_schema_name():
     assert L.text(TextAttr(line_height="l"), ["A token"]).to_dict()["attrs"] == {"line-height": "l"}
     assert L.text(TextAttr(line_height=1.5), ["A factor"]).to_dict()["attrs"] == {"line-height": 1.5}

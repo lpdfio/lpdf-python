@@ -4,6 +4,7 @@ from dataclasses import dataclass, fields as dc_fields
 
 from ..shared.attrs_helper import assert_finite_in
 from .gradient import Gradient
+from .ruling import Ruling
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -22,6 +23,9 @@ class DocumentTokens:
     aliases: dict[str, str] | None = None
     # The heights that height="m" names, from xs to xxl.
     height: dict[str, str] | None = None
+    # Lines a section draws on every page with ruling="name", by name: {"graph": {"origin": "margin", "lines":
+    # [{"step": "5mm"}, {"step": "25mm"}]}}. Each set of lines is cut by a step or a count, in x, in y or both.
+    rulings: dict[str, Ruling] | None = None
 
     def to_dict(self) -> dict:
         _rename = {"text_size": "text-size", "line_height": "line-height"}
