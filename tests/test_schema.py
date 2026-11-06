@@ -283,7 +283,7 @@ def test_a_height_is_the_slot_it_names_and_renders_the_same_from_the_builder_and
 
 def test_a_height_that_is_not_a_slot_a_length_fill_or_full_is_rejected():
     built = L.document(None, [L.section(None, [L.layout(None, [L.column(ColumnAttr(height="medum"))])])])
-    with pytest.raises(EngineException, match=r"invalid height value: 'medum' — expected full, fill, a slot from xs to xxl or a pt value"):
+    with pytest.raises(EngineException, match=r"invalid height value: 'medum' — expected full, fill, a slot from xs to xxl or a length in pt, mm or in"):
         PdfEngine().set_license_key("test-key").render(built)
 
 
