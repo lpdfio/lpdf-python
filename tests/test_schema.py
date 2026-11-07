@@ -5,7 +5,7 @@ import pytest
 
 from lpdf import (
     L, LMarkdown, NoAttr, PdfEngine, EngineException, EngineOptions, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
-    MarkdownAttr, MarkdownH1Attr, MarkdownQuoteAttr, MarkdownStylesAttr,
+    MarkdownAttr, MarkdownH1Attr, MarkdownHrAttr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     ColumnFill, FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
@@ -873,6 +873,9 @@ def test_a_markdown_its_styles_its_content_and_their_rules_are_built_with_the_sc
     assert styles["attrs"] == {"src": "styles.xml"}
     assert styles["nodes"] == [{"type": "h1", "attrs": {"font-size": "xl", "color": "muted"}}]
     assert LMarkdown.quote(MarkdownQuoteAttr(bar_color="primary")).to_dict()["attrs"] == {"bar-color": "primary"}
+    assert LMarkdown.hr(MarkdownHrAttr(color="muted", thickness="xs")).to_dict() == {
+        "type": "hr", "attrs": {"color": "muted", "thickness": "xs"},
+    }
     assert LMarkdown.em().to_dict() == {"type": "em", "attrs": {}}
     assert LMarkdown.del_().to_dict()["type"] == "del"
     assert LMarkdown.content(NoAttr, ["# a"]).to_dict()["nodes"] == ["# a"]

@@ -11,6 +11,7 @@ from .markdown.markdown_h3_attr import MarkdownH3Attr
 from .markdown.markdown_h4_attr import MarkdownH4Attr
 from .markdown.markdown_h5_attr import MarkdownH5Attr
 from .markdown.markdown_h6_attr import MarkdownH6Attr
+from .markdown.markdown_hr_attr import MarkdownHrAttr
 from .markdown.markdown_li_attr import MarkdownLiAttr
 from .markdown.markdown_pattr import MarkdownPAttr
 from .markdown.markdown_quote_attr import MarkdownQuoteAttr
@@ -103,6 +104,11 @@ class LMarkdown:
     def li(attrs: MarkdownLiAttr | None = None) -> MarkdownRuleNode:
         """Build the rule of an item of a bullet or a numbered list."""
         return MarkdownRuleNode("li", options_to_attrs(attrs))
+
+    @staticmethod
+    def hr(attrs: MarkdownHrAttr | None = None) -> MarkdownRuleNode:
+        """Build the rule of a thematic break, written --- in Markdown."""
+        return MarkdownRuleNode("hr", options_to_attrs(attrs))
 
     @staticmethod
     def a(attrs: MarkdownAAttr | None = None) -> MarkdownRuleNode:
