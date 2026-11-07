@@ -14,6 +14,7 @@ from .markdown_pattr import MarkdownPAttr
 from .markdown_code_attr import MarkdownCodeAttr
 from .markdown_quote_attr import MarkdownQuoteAttr
 from .markdown_li_attr import MarkdownLiAttr
+from .markdown_hr_attr import MarkdownHrAttr
 from .markdown_aattr import MarkdownAAttr
 from .markdown_strong_attr import MarkdownStrongAttr
 from .markdown_em_attr import MarkdownEmAttr
@@ -26,6 +27,6 @@ __all__ = [
     "MarkdownNode", "MarkdownStylesNode", "MarkdownContentNode", "MarkdownRuleNode",
     "MarkdownAttr", "MarkdownStylesAttr", "MarkdownH1Attr", "MarkdownH2Attr", "MarkdownH3Attr", "MarkdownH4Attr",
     "MarkdownH5Attr", "MarkdownH6Attr", "MarkdownPAttr", "MarkdownCodeAttr", "MarkdownQuoteAttr", "MarkdownLiAttr",
-    "MarkdownAAttr", "MarkdownStrongAttr", "MarkdownEmAttr", "MarkdownDelAttr", "MarkdownTableAttr", "MarkdownThAttr",
-    "MarkdownTdAttr",
+    "MarkdownHrAttr", "MarkdownAAttr", "MarkdownStrongAttr", "MarkdownEmAttr", "MarkdownDelAttr", "MarkdownTableAttr",
+    "MarkdownThAttr", "MarkdownTdAttr",
 ]

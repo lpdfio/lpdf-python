@@ -76,6 +76,7 @@ from .markdown.markdown_pattr import MarkdownPAttr
 from .markdown.markdown_code_attr import MarkdownCodeAttr
 from .markdown.markdown_quote_attr import MarkdownQuoteAttr
 from .markdown.markdown_li_attr import MarkdownLiAttr
+from .markdown.markdown_hr_attr import MarkdownHrAttr
 from .markdown.markdown_aattr import MarkdownAAttr
 from .markdown.markdown_strong_attr import MarkdownStrongAttr
 from .markdown.markdown_em_attr import MarkdownEmAttr
