@@ -54,4 +54,4 @@ Report bugs and request features at [github.com/lpdfio/lpdf/issues](https://gith
 
 ---
 
-Licensed under the Lpdf License. See [LICENSE](LICENSE) for full terms.
+Licensed under the Lpdf License. See [LICENSE](https://github.com/lpdfio/lpdf-python/blob/main/LICENSE) for full terms.
