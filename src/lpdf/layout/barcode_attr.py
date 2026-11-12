@@ -15,13 +15,14 @@ class BarcodeAttr:
     places. To put barcodes in slots of one size, wrap each in a frame of that size.
     """
 
-    # The kind of barcode. qr, datamatrix and pdf417 are 2D codes; code128, code39, ean13, ean8,
-    # upca and gs1-128 are linear ones. gs1-128 and gs1-datamatrix carry GS1 data, written as
-    # (01)09501101530003(17)261231(10)AB12, and scanners read their fields as GS1. code39 takes
-    # the digits, the capitals A to Z, the space and - . $ / + % only; for other text use
-    # code128. ean13, ean8 and upca take their digits without the check digit, which is added,
-    # or with it, which is checked: 12 or 13 digits for ean13, 7 or 8 for ean8, 11 or 12 for
-    # upca. Data a type cannot hold draws a gray box with a red border in its place.
+    # The kind of barcode. qr, datamatrix, gs1-datamatrix and pdf417 are 2D codes; code128,
+    # code39, ean13, ean8, upca and gs1-128 are linear ones. gs1-128 and gs1-datamatrix carry
+    # GS1 data, written as (01)09501101530003(17)261231(10)AB12, and scanners read their fields
+    # as GS1. code39 takes the digits, the capitals A to Z, the space and - . $ / + % only; for
+    # other text use code128. ean13, ean8 and upca take their digits without the check digit,
+    # which is added, or with it, which is checked: 12 or 13 digits for ean13, 7 or 8 for ean8,
+    # 11 or 12 for upca. Data a type cannot hold draws a gray box with a red border in its
+    # place.
     type: str
     data: str
     # Height of the whole barcode, a length or a name from the height row of the tokens, with
@@ -29,12 +30,13 @@ class BarcodeAttr:
     # never stretched. With only a height, the width follows the barcode's proportions. With
     # both width and height, they are a maximum: the barcode takes the largest size that fits in
     # them, and its box becomes that size. A QR code is square, so it takes the smaller of the
-    # two. Without rows and columns, a datamatrix with one size is the smallest square that
-    # holds its data, and a pdf417 takes the columns that make it closest to three times as wide
-    # as high. Without a size, a code128, code39 or gs1-128 is as wide as its bars at 1pt per
-    # module and its bars are 40pt high, an ean13 or upca is the standard symbol, 0.33mm per
-    # module and bars 22.85mm high, and an ean8 0.33mm per module and bars 18.23mm high. The
-    # digits of hrt add 12pt to any of these. A qr, datamatrix or pdf417 needs a size.
+    # two. Without rows and columns, a datamatrix or gs1-datamatrix with one size is the
+    # smallest square that holds its data, and a pdf417 takes the columns that make it closest
+    # to three times as wide as high. Without a size, a code128, code39 or gs1-128 is as wide as
+    # its bars at 1pt per module and its bars are 40pt high, an ean13 or upca is the standard
+    # symbol, 0.33mm per module and bars 22.85mm high, and an ean8 0.33mm per module and bars
+    # 18.23mm high. The digits of hrt add 12pt to any of these. A qr, datamatrix, gs1-datamatrix
+    # or pdf417 needs a size.
     height: str | None = None
     # Error correction: how much of the code can be damaged and still scan. A qr takes L, M, Q
     # or H, from 7% to 30% of the code, and M without it. A pdf417 takes a level from 0 to 8,
