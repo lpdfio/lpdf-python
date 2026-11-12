@@ -2,17 +2,13 @@
 
 # lpdfio-lpdf
 
-**Python SDK for [Lpdf](https://lpdf.io?utm_campaign=sdk-python&utm_medium=referral&utm_source=readme) — PDF as Code on every platform**
-
-You describe a document as code or XML. Lpdf renders a compact, pixel-perfect PDF — identical across platforms.
+`lpdfio-lpdf` is the Python SDK for [Lpdf](https://lpdf.io?utm_campaign=sdk-python&utm_medium=referral&utm_source=readme), the PDF engine that renders a document written in XML or built in code to the same PDF in every language.
 
 ## Installation
 
 ```bash
 pip install lpdfio-lpdf
 ```
-
-`pip install` is the whole setup. The engine runs inside Python on the [`wasmtime`](https://pypi.org/project/wasmtime/) package, which pip installs with the SDK: there is no program to install or put on `PATH`.
 
 ## Usage
 
@@ -43,12 +39,10 @@ doc = L.document(DocumentAttr(size='letter'), [
 pdf = engine.render(doc)
 ```
 
-A render releases the GIL, so renders on threads run in parallel: use a thread pool, or `asyncio.to_thread` in async code. A render stops with an `EngineException` after 5 seconds; `L.engine(EngineOptions(timeout=60))` sets another limit in seconds, and `timeout=0` sets none. It also stops once it needs more than 1024 MB of memory; `max_memory_mb=2048` sets another cap, from 1 to 4096 MB.
-
 ## Requirements
 
-- Python 3.11+
-- A platform the `wasmtime` package has wheels for: Linux (x86_64, aarch64; glibc and musl), macOS (x86_64, arm64) or Windows (x64, arm64)
+- Python 3.11 or later, on Linux (x86_64 or aarch64, glibc or musl), macOS (x86_64 or arm64) or Windows (x64 or arm64)
+- Nothing else: the engine runs inside Python on the [`wasmtime`](https://pypi.org/project/wasmtime/) package, which pip installs with the SDK
 
 ## Docs
 
@@ -58,6 +52,6 @@ A render releases the GIL, so renders on threads run in parallel: use a thread p
 
 Report bugs and request features at [github.com/lpdfio/lpdf/issues](https://github.com/lpdfio/lpdf/issues), the one tracker for the engine, the SDKs and the VS Code extension. Pull requests are not accepted.
 
---
+---
 
-Dual-licensed: Community License (free) and Commercial License (paid). See [LICENSE](LICENSE) for full terms.
+Licensed under the Lpdf License. See [LICENSE](LICENSE) for full terms.
