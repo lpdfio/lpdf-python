@@ -159,6 +159,12 @@ def test_rulings_are_a_token_row_of_named_rulings_with_their_lines_by_the_schema
     assert d["attrs"]["tokens"] == {"rulings": rulings}
 
 
+def test_spots_are_a_token_row_of_named_spot_colors_by_the_schema_names():
+    spots = {"brand": {"ink": "PANTONE 1665 C", "value": "cmyk(0, 85, 100, 0)"}, "die": {"ink": "Dieline", "value": "#ff00ff", "overprint": True}}
+    d = L.document(DocumentAttr(tokens=DocumentTokens(spots=spots))).to_dict()
+    assert d["attrs"]["tokens"] == {"spots": spots}
+
+
 def test_a_section_names_a_ruling():
     assert L.section(SectionAttr(ruling="graph")).to_dict()["attrs"] == {"ruling": "graph"}
 

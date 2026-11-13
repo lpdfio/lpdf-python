@@ -547,6 +547,23 @@ def test_a_gradient_of_the_tokens_fills_a_box_and_renders_the_same_from_the_buil
     assert b"/ShadingType 2" in pdf
 
 
+def test_a_spot_color_of_the_tokens_is_its_ink_and_renders_the_same_from_the_builder_and_its_xml():
+    document = L.document(
+        DocumentAttr(tokens=DocumentTokens(spots={
+            "brand": {"ink": "PANTONE 1665 C", "value": "cmyk(0, 85, 100, 0)"},
+            "die": {"ink": "Dieline", "value": "#ff00ff", "overprint": True},
+        })),
+        [L.section(None, [L.layout(None, [
+            L.column(ColumnAttr(background="brand 30%", border="s die"), [L.text(TextAttr(color="brand"), ["Spot"])]),
+        ])])],
+    )
+    pdf = _render(document)
+    assert pdf == _render(L.to_xml(document))
+    assert b"/Separation /PANTONE#201665#20C /DeviceCMYK" in pdf
+    assert b"/Separation /Dieline /DeviceRGB" in pdf
+    assert '<spot name="die" ink="Dieline" value="#ff00ff" overprint="true"/>' in L.to_xml(document)
+
+
 def test_a_ruling_of_the_tokens_is_drawn_once_and_renders_the_same_from_the_builder_and_its_xml():
     document = L.document(
         DocumentAttr(tokens=DocumentTokens(rulings={

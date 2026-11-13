@@ -5,6 +5,7 @@ from dataclasses import dataclass, fields as dc_fields
 from ..shared.attrs_helper import assert_finite_in
 from .gradient import Gradient
 from .ruling import Ruling
+from .spot import Spot
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -26,6 +27,9 @@ class DocumentTokens:
     # Lines a section draws on every page with ruling="name", by name: {"graph": {"origin": "margin", "lines":
     # [{"step": "5mm"}, {"step": "25mm"}]}}. Each set of lines is cut by a step or a count, in x, in y or both.
     rulings: dict[str, Ruling] | None = None
+    # Spot colors, each an ink of its own printed from a plate of its own, by the name a color gives: {"brand": {"ink":
+    # "PANTONE 1665 C", "value": "cmyk(0, 85, 100, 0)"}}. A color takes the name, or a tint after a space: "brand 30%".
+    spots: dict[str, Spot] | None = None
 
     def to_dict(self) -> dict:
         _rename = {"text_size": "text-size", "line_height": "line-height"}
