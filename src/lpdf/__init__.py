@@ -20,6 +20,7 @@ from .kit.gradient import Gradient
 from .kit.gradient_stop import GradientStop
 from .kit.ruling import Ruling
 from .kit.ruling_lines import RulingLines
+from .kit.spot import Spot
 from .kit.font_attr import FontAttr
 from .kit.image_attr import ImageAttr
 from .kit.file_attr import FileAttr

@@ -31,8 +31,8 @@ RulingLines = TypedDict(
         "count-x": int,
         # Cuts the space into this many equal rows, from 1 to 100.
         "count-y": int,
-        # The color of the lines: hex, cmyk(), rgb(), hsl() or a color token. Defaults to
-        # line-muted.
+        # The color of the lines: hex, cmyk(), rgb(), hsl(), a color token, or a spot color
+        # or a tint of it. Defaults to line-muted.
         "color": str,
         # The thickness of the lines, a length or a name from the border row of the tokens.
         # Defaults to 0.4pt.

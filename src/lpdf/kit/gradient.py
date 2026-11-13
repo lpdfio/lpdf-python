@@ -15,12 +15,13 @@ Gradient = TypedDict(
         # linear runs along a line across the box. radial runs from the center out to the
         # farthest corner.
         "type": Required[str],
-        # The first color: hex, cmyk(), rgb(), hsl() or a color token, CMYK if to is and RGB
-        # if it is not. Used with to, when there are no stop children. For a radial gradient
-        # it is the center.
+        # The first color: hex, cmyk(), rgb(), hsl(), a color token, or a spot color or a
+        # tint of it: CMYK if to is and RGB if it is not, or the same spot color as to. Used
+        # with to, when there are no stop children. For a radial gradient it is the center.
         "from": str,
-        # The last color: hex, cmyk(), rgb(), hsl() or a color token. Used with from, when
-        # there are no stop children. For a radial gradient it is the edge.
+        # The last color: hex, cmyk(), rgb(), hsl(), a color token, or a spot color or a
+        # tint of it. Used with from, when there are no stop children. For a radial gradient
+        # it is the edge.
         "to": str,
         # The direction of a linear gradient, in degrees: 0 runs from the top to the bottom,
         # 90 from the left to the right, 180 from the bottom to the top. Default 0. A radial
