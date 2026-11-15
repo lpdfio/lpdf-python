@@ -86,6 +86,7 @@ jobs:
             gh release download "$CORE_TAG" \
               --repo lpdfio/lpdf \
               --pattern "lpdf-wasi.wasm" \
+              --pattern "THIRD_PARTY_LICENSES_ENGINE.txt" \
               --dir src/resources \
               --clobber && DOWNLOADED=1 && break
             echo "Attempt $attempt failed — retrying in 10s..."
