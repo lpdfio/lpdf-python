@@ -26,10 +26,38 @@ def _message(error: pytest.ExceptionInfo[EngineException]) -> str:
     return str(error.value).removeprefix(_PREFIX)
 
 
-def test_returns_one_pdf_with_the_pages_of_the_sources_in_order() -> None:
+def _signed_pdf() -> bytes:
+    """A PDF of one empty page whose catalog holds a certifying signature, which is what makes a file signed."""
+    objects = [
+        "<< /Type /Catalog /Pages 2 0 R /Perms << /DocMDP 4 0 R >> >>",
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] >>",
+        "<< /Type /Sig /Filter /Adobe.PPKLite /SubFilter /adbe.pkcs7.detached >>",
+    ]
+    pdf = "%PDF-1.7\n"
+    offsets = []
+    for number, body in enumerate(objects, start=1):
+        offsets.append(len(pdf))
+        pdf += f"{number} 0 obj\n{body}\nendobj\n"
+    xref = len(pdf)
+    pdf += f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n"
+    pdf += "".join(f"{offset:010d} 00000 n \n" for offset in offsets)
+    pdf += f"trailer << /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n"
+    return pdf.encode("latin-1")
+
+
+def test_returns_one_pdf_with_the_pages_of_the_sources() -> None:
     output = PdfEngine().merge([MergeSource(name="a.pdf", pdf=_pdf(2)), MergeSource(name="b.pdf", pdf=_pdf(1))])
     assert output.startswith(b"%PDF-")
     assert _page_count(output) == 3
+
+
+def test_puts_the_pages_in_the_order_of_the_sources() -> None:
+    # With double_sided a blank side follows a document of odd length unless it is the last: the order decides how many.
+    odd, even = MergeSource(name="odd.pdf", pdf=_pdf(1)), MergeSource(name="even.pdf", pdf=_pdf(2))
+    engine = PdfEngine()
+    assert _page_count(engine.merge([odd, even], MergeOptions(double_sided=True))) == 4
+    assert _page_count(engine.merge([even, odd], MergeOptions(double_sided=True))) == 3
 
 
 def test_adds_a_blank_side_after_a_document_with_an_odd_number_of_pages_with_double_sided_and_none_after_the_last() -> None:
@@ -61,6 +89,16 @@ def test_refuses_a_file_whose_owner_restricts_printing_or_copying_unless_allow_r
     output = engine.merge([MergeSource(name="limited.pdf", pdf=limited)], MergeOptions(allow_restricted=True))
     assert _page_count(output) == 1
     assert "/Encrypt" not in output.decode("latin-1")
+
+
+def test_refuses_a_signed_file_unless_allow_signed_is_set() -> None:
+    signed = [MergeSource(name="signed.pdf", pdf=_signed_pdf())]
+    engine = PdfEngine()
+    with pytest.raises(EngineException) as error:
+        engine.merge(signed)
+    assert _message(error).startswith("signed.pdf: the file is signed")
+    assert "set the allow-signed option" in _message(error)
+    assert _page_count(engine.merge(signed, MergeOptions(allow_signed=True))) == 1
 
 
 def test_raises_an_error_for_an_empty_list() -> None:
