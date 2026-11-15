@@ -12,6 +12,12 @@ if ! python -m zipfile -l "$wheel" | grep -q '^resources/lpdf-wasi.wasm'; then
   exit 1
 fi
 
+# The licenses of the crates the engine links ask for their text to travel with it.
+if ! python -m zipfile -l "$wheel" | grep -q '^resources/THIRD_PARTY_LICENSES_ENGINE.txt'; then
+  echo "::error::$wheel has no resources/THIRD_PARTY_LICENSES_ENGINE.txt. The core release carries it beside lpdf-wasi.wasm."
+  exit 1
+fi
+
 venv=$(mktemp -d)
 trap 'rm -rf "$venv"' EXIT
 
