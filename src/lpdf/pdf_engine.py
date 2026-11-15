@@ -11,6 +11,8 @@ from pathlib import Path
 
 from .engine.engine_exception import EngineException
 from .engine.engine_options import EngineOptions
+from .engine.merge_options import MergeOptions
+from .engine.merge_source import MergeSource
 from .engine.render_options import RenderOptions
 from .engine.stamp_attr import StampAttr
 from .engine.wasm_runner import WasmRunner
@@ -333,6 +335,50 @@ class PdfEngine:
             "pdf": base64.b64encode(pdf).decode(),
             "images": images,
             "stamps": request_stamps,
+        })
+        if "pdf" not in response:
+            raise EngineException("Unexpected response from the engine.")
+        return base64.b64decode(response["pdf"])
+
+    def merge(self, sources: Sequence[MergeSource], options: MergeOptions | None = None) -> bytes:
+        """Merge existing PDFs into one PDF made for printing, and return it. Nothing is laid out: each source page is
+        drawn on a page of the size it has as a viewer shows it, in the order of ``sources``, with the annotations that
+        print flattened from their stored appearances, so forms, links and bookmarks are gone and what prints is what
+        the page looked like. Layers cross over, each on or off by default as it prints in its source. The output is
+        made for printing, not for reading on screen, and its version is the highest among the sources'.
+
+        Each source opens without a password. A file that needs one, a file whose owner password restricts printing or
+        copying (unless ``allow_restricted``), a signed file (unless ``allow_signed``), a form field that has a value
+        and no stored appearance, which would print blank, and a file that can't be read are each an error that names
+        the file. ``double_sided`` adds a blank side after a document with an odd number of pages. Without a license
+        key each merged page gets the attribution line in its top-right corner, with no link.
+
+        The merge blocks until it is done, with the engine's ``timeout`` and ``max_memory_mb``, as a render does.
+
+        :raises EngineException: for any of the errors above, when ``sources`` is empty, or when the merge runs past
+            the timeout or needs more than ``max_memory_mb``, or the engine crashes.
+        :raises TypeError: when a source is not a ``MergeSource`` with a name and the PDF's bytes.
+        """
+        request_sources = []
+        for i, source in enumerate(sources, start=1):
+            if not isinstance(source, MergeSource) or not isinstance(source.name, str):
+                raise TypeError(f"source {i}: must be a MergeSource with a name, a string, and the PDF's bytes in pdf")
+            if not isinstance(source.pdf, (bytes, bytearray, memoryview)):
+                raise TypeError(f"source {i} ({source.name}): pdf must be the PDF's bytes")
+            request_sources.append({"name": source.name, "pdf": base64.b64encode(source.pdf).decode()})
+
+        options = options or MergeOptions()
+        response = self._runner().invoke({
+            "method": "merge",
+            "key": self._license_key,
+            # See render: without the clock the engine cannot check the key's expiry.
+            "now": int(time.time()),
+            "sources": request_sources,
+            "options": {
+                "allow-signed": options.allow_signed,
+                "allow-restricted": options.allow_restricted,
+                "double-sided": options.double_sided,
+            },
         })
         if "pdf" not in response:
             raise EngineException("Unexpected response from the engine.")
