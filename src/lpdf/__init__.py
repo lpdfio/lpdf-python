@@ -6,6 +6,8 @@ from .pdf_engine import PdfEngine
 # engine subpackage - commonly used types
 from .engine.engine_exception import EngineException
 from .engine.engine_options import EngineOptions
+from .engine.merge_options import MergeOptions
+from .engine.merge_source import MergeSource
 from .engine.render_options import RenderOptions
 from .engine.stamp_attr import StampAttr
 
