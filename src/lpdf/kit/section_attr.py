@@ -20,7 +20,11 @@ class SectionAttr:
     fill: ``ColumnFill.AUTO``, in order, the default, or ``ColumnFill.BALANCE``, levelled.
 
     ``ruling`` names a ruling of the tokens, whose lines are drawn on every page of the section, under everything
-    else."""
+    else.
+
+    ``grow`` is the sizes the page grows in to fit the content, ``Grow.WIDTH``, ``Grow.HEIGHT`` or
+    ``Grow.WIDTH_HEIGHT``, where it would start a new page or squeeze the content: ``size`` is then the starting size,
+    the smallest the page can be. A section with columns or an inset refuses it."""
 
     size: str | None = None
     orientation: str | None = None
@@ -39,3 +43,4 @@ class SectionAttr:
     column_rule: str | None = None
     column_fill: str | None = None
     ruling: str | None = None
+    grow: str | None = None

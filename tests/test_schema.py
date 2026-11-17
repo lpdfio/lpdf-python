@@ -7,7 +7,7 @@ from lpdf import (
     L, LMarkdown, NoAttr, PdfEngine, EngineException, EngineOptions, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
     MarkdownAttr, MarkdownH1Attr, MarkdownHrAttr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
-    ColumnFill, FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
+    ColumnFill, FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, Grow, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
 )
 from lpdf.layout.text_node import TextNode
@@ -346,6 +346,21 @@ def test_a_section_in_columns_and_an_inset_are_written_under_their_schema_names_
     assert _render(build(2)) == _render(xml)
     with pytest.raises(EngineException, match=r"col 3 and colspan 2 reach column 4, past the section's 3 columns"):
         _render(build(3))
+
+
+def test_a_section_that_grows_is_written_under_its_schema_name_renders_as_its_xml_on_one_page_and_grow_with_columns_is_rejected():
+    def build(columns=None):
+        lines = [L.text(None, [f"Line {n}"]) for n in range(1, 41)]
+        return L.document(None, [L.section(SectionAttr(size="80mm 40mm", grow=Grow.HEIGHT, columns=columns), [L.layout(None, lines)])])
+
+    xml = L.to_xml(build())
+    assert '<section grow="height" size="80mm 40mm">' in xml, xml
+    assert Grow.WIDTH_HEIGHT == "width height"
+    pdf = _render(build())
+    assert pdf == _render(xml)
+    assert pdf.count(b"/Contents ") == 1
+    with pytest.raises(EngineException, match=r"grow doesn't work with columns or an inset, in section 1"):
+        _render(build(2))
 
 
 def test_a_bulk_table_renders_from_data_as_the_table_without_bulk_and_one_built_with_l_which_has_no_data_is_rejected():
