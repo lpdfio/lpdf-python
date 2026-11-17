@@ -348,6 +348,20 @@ def test_a_section_in_columns_and_an_inset_are_written_under_their_schema_names_
         _render(build(3))
 
 
+def test_a_section_that_grows_is_written_under_its_schema_name_renders_as_its_xml_on_one_page_and_grow_with_columns_is_rejected():
+    def build(columns=None):
+        lines = [L.text(None, [f"Line {n}"]) for n in range(1, 41)]
+        return L.document(None, [L.section(SectionAttr(size="80mm 40mm", grow="height", columns=columns), [L.layout(None, lines)])])
+
+    xml = L.to_xml(build())
+    assert '<section grow="height" size="80mm 40mm">' in xml, xml
+    pdf = _render(build())
+    assert pdf == _render(xml)
+    assert pdf.count(b"/Contents ") == 1
+    with pytest.raises(EngineException, match=r"grow doesn't work with columns or an inset, in section 1"):
+        _render(build(2))
+
+
 def test_a_bulk_table_renders_from_data_as_the_table_without_bulk_and_one_built_with_l_which_has_no_data_is_rejected():
     def xml(bulk):
         return (
