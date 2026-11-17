@@ -36,6 +36,7 @@ from .kit.orientation import Orientation
 from .kit.section_type import SectionType
 from .kit.footnote_counter import FootnoteCounter
 from .kit.column_fill import ColumnFill
+from .kit.grow import Grow
 from .kit.cipher import Cipher
 from .kit.permission import Permission
 from .kit.file_relationship import FileRelationship

@@ -22,6 +22,7 @@ from .orientation import Orientation
 from .section_type import SectionType
 from .footnote_counter import FootnoteCounter
 from .column_fill import ColumnFill
+from .grow import Grow
 from .cipher import Cipher
 from .permission import Permission
 from .file_relationship import FileRelationship
@@ -51,6 +52,7 @@ __all__ = [
     "SectionType",
     "FootnoteCounter",
     "ColumnFill",
+    "Grow",
     "Cipher",
     "Permission",
     "FileRelationship",

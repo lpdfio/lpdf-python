@@ -22,9 +22,9 @@ class SectionAttr:
     ``ruling`` names a ruling of the tokens, whose lines are drawn on every page of the section, under everything
     else.
 
-    ``grow`` is the sizes the page grows in to fit the content, ``"width"``, ``"height"`` or ``"width height"``, where
-    it would start a new page or squeeze the content: ``size`` is then the starting size, the smallest the page can
-    be."""
+    ``grow`` is the sizes the page grows in to fit the content, ``Grow.WIDTH``, ``Grow.HEIGHT`` or
+    ``Grow.WIDTH_HEIGHT``, where it would start a new page or squeeze the content: ``size`` is then the starting size,
+    the smallest the page can be. A section with columns or an inset refuses it."""
 
     size: str | None = None
     orientation: str | None = None
