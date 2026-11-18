@@ -51,13 +51,15 @@ def _read(runner: WasmRunner, invoice_xml: bytes, invoice_map: str | None, forma
         for step in path:
             holder = holder[step]
         text = fn(holder[last], typed["name"])
-        # str() would bind the word "None" on the page, as a dict's get() gives for a code it has no word for.
-        if text is None:
+        # Text only: str() would bind the word "None", which a dict's get() gives for a code it has no word for, or a
+        # number written as Python writes it rather than as the caller chose.
+        if not isinstance(text, str):
+            returned = "None" if text is None else type(text).__name__
             raise TypeError(
-                f"format.{typed['type']} returned None for '{typed['name']}': return the text to bind, or the value as "
-                "it came."
+                f"format.{typed['type']} returned {returned} for '{typed['name']}': return the text to bind, or the "
+                "value as it came."
             )
-        holder[last] = str(text)
+        holder[last] = text
     return data
 
 
@@ -100,7 +102,7 @@ class LCrossIndustryInvoice:
             invoice file; or when the read or the render runs past the engine's timeout or needs more than its
             ``max_memory_mb``.
         :raises TypeError: when the XML or the map is not text or bytes, ``format`` is not an ``InvoiceFormat``, or one
-            of its functions returns None.
+            of its functions returns anything but a ``str``.
         """
         xml = _bytes_of("invoice_xml", invoice_xml)
         if not isinstance(created_on, str):
@@ -128,7 +130,7 @@ class LCrossIndustryInvoice:
         :raises EngineException: when the map is not one or doesn't fit the schema, the invoice is not a Cross Industry
             Invoice or is MINIMUM or BASIC WL, or lacks a value the map marks required.
         :raises TypeError: when the XML or the map is not text or bytes, ``format`` is not an ``InvoiceFormat``, or one
-            of its functions returns None.
+            of its functions returns anything but a ``str``.
         """
         return _read(_reader(), _bytes_of("invoice_xml", invoice_xml), _map_of(invoice_map), format)
 

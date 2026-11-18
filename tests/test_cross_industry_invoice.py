@@ -254,16 +254,21 @@ def test_refuses_arguments_of_the_wrong_kind():
         LCrossIndustryInvoice.extract_invoice_data(invoice("en16931.xml"), format={"date": str})
 
 
+UNITS = {"KGM": "kg"}
+
+
 @needs_fixtures
-def test_refuses_a_format_function_that_returns_none_naming_its_type_and_entry():
-    units = {"KGM": "kg"}
+@pytest.mark.parametrize(("not_text", "error"), [
     # dict.get gives None for H87, the unit of the invoice's lines, which has no word here.
-    no_word = InvoiceFormat(code=lambda value, entry_name: units.get(value) if entry_name == "lines.unit" else value)
+    (InvoiceFormat(code=lambda value, entry_name: UNITS.get(value) if entry_name == "lines.unit" else value),
+     "format.code returned None for 'lines.unit': return the text to bind, or the value as it came."),
+    (InvoiceFormat(amount=lambda value, entry_name: int(Decimal(value)) if entry_name == "totals.gross" else value),
+     "format.amount returned int for 'totals.gross': return the text to bind, or the value as it came."),
+], ids=["None", "a number"])
+def test_refuses_a_format_function_that_returns_anything_but_text_naming_its_type_and_entry(not_text, error):
     with pytest.raises(TypeError) as refused:
-        LCrossIndustryInvoice.extract_invoice_data(invoice("en16931.xml"), format=no_word)
-    assert str(refused.value) == (
-        "format.code returned None for 'lines.unit': return the text to bind, or the value as it came."
-    )
+        LCrossIndustryInvoice.extract_invoice_data(invoice("en16931.xml"), format=not_text)
+    assert str(refused.value) == error
 
 
 @needs_fixtures
