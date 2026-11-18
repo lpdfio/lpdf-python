@@ -197,6 +197,21 @@ class PdfEngine:
         input: str | PdfDocument,
         options: RenderOptions | None = None,
     ) -> bytes:
+        return self._render(input, options)
+
+    def _render(
+        self,
+        input: str | PdfDocument,
+        options: RenderOptions | None = None,
+        *,
+        created_on: str | None = None,
+        data: dict | None = None,
+        invoice: dict | None = None,
+    ) -> bytes:
+        """A render, and for ``LCrossIndustryInvoice.generate_pdf`` one with an ``invoice``: its XML as base64, and for
+        a template the map and the values read from the XML, which make the file a Factur-X invoice."""
+        if invoice is not None:
+            options = RenderOptions(created_on=created_on, data=data)
         if isinstance(input, PdfDocument):
             method = "render_tree_pdf"
             input_dict = input.to_dict()
@@ -286,6 +301,9 @@ class PdfEngine:
 
         if options is not None and options.data is not None and method == "render_pdf":
             payload["data"] = options.data
+
+        if invoice is not None:
+            payload["invoice"] = invoice
 
         response = self._runner().invoke(payload)
 
