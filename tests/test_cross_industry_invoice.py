@@ -1,7 +1,7 @@
 """LCrossIndustryInvoice: a Factur-X / ZUGFeRD invoice PDF made from the invoice's XML.
 
-The template, the invoices, the font and the snapshot hash are core's: its test/fixtures, test/assets and
-test/snapshots, which CI copies in from the core tag.
+The template is core's showcase-cross-industry-invoice fixture. It, the invoices, the font and the snapshot hash come
+from core's test/fixtures, test/assets and test/snapshots, which CI copies in from the core tag.
 """
 
 import json
@@ -15,7 +15,9 @@ from lpdf import (
     LCrossIndustryInvoice, LayoutAttr, NoAttr, RowAttr, TableAttr, TextAttr,
 )
 
-from .snapshot_helper import FIXTURES, ROOT, compare_or_update
+from .snapshot_helper import FIXTURES, HAS_FIXTURES, ROOT, compare_or_update
+
+needs_fixtures = pytest.mark.skipif(not HAS_FIXTURES, reason="fixture files not available outside the monorepo")
 
 FACTURX = ROOT / "test" / "assets" / "files" / "facturx"
 CREATED_ON = "2026-11-18T10:00:00Z"
@@ -31,7 +33,7 @@ def template() -> str:
 
 
 def engine():
-    """An unlicensed engine with the template's font loaded under its name."""
+    """An unlicensed engine with the templates' font loaded under its name, ``body``."""
     font = (ROOT / "test" / "assets" / "fonts" / "SourceSans3-Regular.otf").read_bytes()
     return L.engine().load_font("body", font)
 
@@ -41,8 +43,8 @@ CODE_NAMES = {
     "lines.unit": {"H87": "pcs", "KGM": "kg"},
 }
 
-# How values are written on the page, as the examples write them: the language's own formatters, and the words for
-# the codes.
+# A date as "31 October 2026", an amount with a comma between thousands and two decimals, and a code as its word in
+# CODE_NAMES for its entry, or as the invoice writes it when the entry has no word for it.
 FORMAT = InvoiceFormat(
     date=lambda value, _: f"{date.fromisoformat(value).day} {date.fromisoformat(value):%B %Y}",
     amount=lambda value, _: f"{Decimal(value):,.2f}",
@@ -51,8 +53,8 @@ FORMAT = InvoiceFormat(
 
 
 def document_in_code(invoice_data: dict):
-    """The page of the template, built in code with the values of ``extract_invoice_data``, as the second example
-    builds it."""
+    """The page of core's ``showcase-cross-industry-invoice`` fixture, built in code with the values of
+    ``extract_invoice_data``."""
     muted = TextAttr(font_size="9pt", color="#5b6475")
     muted_right = TextAttr(font_size="9pt", color="#5b6475", align="right")
     right = TextAttr(align="right")
@@ -136,6 +138,7 @@ def document_in_code(invoice_data: dict):
     ])
 
 
+@needs_fixtures
 def test_fills_the_template_with_the_invoice_and_gives_the_pdf_core_gives():
     pdf = LCrossIndustryInvoice.generate_pdf(engine(), template(), invoice_xml=invoice("en16931.xml"),
                                              data={"note": NOTE}, created_on=CREATED_ON)
@@ -144,6 +147,7 @@ def test_fills_the_template_with_the_invoice_and_gives_the_pdf_core_gives():
     assert b"<fx:DocumentFileName>factur-x.xml</fx:DocumentFileName>" in pdf
 
 
+@needs_fixtures
 def test_gives_the_same_page_from_the_template_and_from_the_document_built_in_code():
     invoice_xml = invoice("en16931.xml")
     from_template = LCrossIndustryInvoice.generate_pdf(engine(), template(), invoice_xml=invoice_xml, format=FORMAT,
@@ -154,6 +158,7 @@ def test_gives_the_same_page_from_the_template_and_from_the_document_built_in_co
     assert from_code == from_template
 
 
+@needs_fixtures
 def test_extracts_the_values_core_reads_and_formats_them_by_type_and_entry_name():
     expected = json.loads((FACTURX / "case-vat-rates.json").read_text(encoding="utf-8"))
     assert LCrossIndustryInvoice.extract_invoice_data(invoice("case-vat-rates.xml")) == expected
@@ -165,6 +170,7 @@ def test_extracts_the_values_core_reads_and_formats_them_by_type_and_entry_name(
     assert formatted["paymentTerms"][0]["due"] == "30 November 2026"
 
 
+@needs_fixtures
 def test_reads_through_a_map_given_as_text_or_bytes_under_its_own_names():
     invoice_map = ('<cross-industry-invoice-map prefix="rechnung">'
                    '<value name="nummer" path="rsm:ExchangedDocument/ram:ID"/></cross-industry-invoice-map>')
@@ -179,6 +185,7 @@ def test_gives_the_default_map_as_xml_text():
     assert '<cross-industry-invoice-map prefix="invoice">' in invoice_map
 
 
+@needs_fixtures
 def test_refuses_what_the_engine_refuses_with_its_error():
     with pytest.raises(EngineException, match="the invoice's profile is MINIMUM"):
         LCrossIndustryInvoice.extract_invoice_data(invoice("minimum.xml"))
@@ -187,6 +194,7 @@ def test_refuses_what_the_engine_refuses_with_its_error():
         LCrossIndustryInvoice.generate_pdf(engine(), typo, invoice_xml=invoice("en16931.xml"), created_on=CREATED_ON)
 
 
+@needs_fixtures
 def test_refuses_arguments_of_the_wrong_kind():
     with pytest.raises(TypeError):
         LCrossIndustryInvoice.extract_invoice_data(42)
