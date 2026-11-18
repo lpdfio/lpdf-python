@@ -136,7 +136,8 @@ class LCrossIndustryInvoice:
 
     @staticmethod
     def default_invoice_map() -> str:
-        """Lpdf's default invoice map, as XML text: every value EN 16931 numbers, the start of a map of your own."""
+        """Lpdf's default invoice map, as XML text: the values EN 16931 numbers but a party's identifiers, what a
+        line may hold several of, and an attached file's content. The start of a map of your own."""
         answer = _reader().invoke({"method": "default_invoice_map"})
         if "map" not in answer:
             raise EngineException("Unexpected response from the engine.")
