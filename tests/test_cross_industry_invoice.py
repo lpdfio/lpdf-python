@@ -215,9 +215,13 @@ def test_reads_through_a_map_given_as_text_or_bytes_under_its_own_names():
 
 @needs_fixtures
 def test_fills_a_template_through_the_map_given_and_refuses_a_name_the_map_lacks():
-    pdf = LCrossIndustryInvoice.generate_pdf(engine(), RECHNUNG_TEMPLATE, invoice_xml=invoice("en16931.xml"),
-                                             invoice_map=RECHNUNG_MAP, created_on=CREATED_ON)
-    assert pdf.startswith(b"%PDF-")
+    def generate(template_xml: str) -> bytes:
+        return LCrossIndustryInvoice.generate_pdf(engine(), template_xml, invoice_xml=invoice("en16931.xml"),
+                                                  invoice_map=RECHNUNG_MAP, created_on=CREATED_ON)
+
+    # The invoice's number written into the template, where the binding should put it.
+    written_in = RECHNUNG_TEMPLATE.replace('data-value="rechnung:nummer">0000', ">2026-0412")
+    assert generate(RECHNUNG_TEMPLATE) == generate(written_in)
     typo = RECHNUNG_TEMPLATE.replace("rechnung:nummer", "rechnung:nummr")
     with pytest.raises(EngineException) as refused:
         LCrossIndustryInvoice.generate_pdf(engine(), typo, invoice_xml=invoice("en16931.xml"), invoice_map=RECHNUNG_MAP,
