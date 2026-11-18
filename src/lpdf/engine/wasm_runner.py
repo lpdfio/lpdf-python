@@ -25,6 +25,10 @@ _TICKS_PER_SECOND = 10
 # The deadline of a render with no limit. A store's deadline is 0 until it is set, which stops it at the first tick.
 _NO_DEADLINE = 2**62
 
+# What a request runs, by its method, as its timeout's error names it: "The reading of the invoice timed out after 5
+# seconds." Any other method's is "the render".
+_WORK = {"extract_invoice_data": "reading of the invoice"}
+
 
 def _advance_epoch(engine: wasmtime.Engine) -> None:
     # Each tick is due at a time of the clock, not a sleep after the last one, so the ticks don't drift: 300 sleeps
@@ -81,12 +85,14 @@ class WasmRunner:
         :raises EngineException: when the engine reports an error, crashes, or runs past the timeout.
         """
         request = {**payload, "max_memory_mb": self._max_memory_mb}
-        response = json.loads(self._run(json.dumps(request).encode()))
+        work = _WORK.get(payload.get("method"), "render")
+        response = json.loads(self._run(json.dumps(request).encode(), work))
         if "error" in response:
             raise EngineException(f"lpdf render error: {response['error']}")
         return response
 
-    def _run(self, request: bytes) -> bytes:
+    def _run(self, request: bytes, work: str) -> bytes:
+        """The engine's response to ``request``; ``work`` names what it runs in the timeout's error."""
         engine, instance_pre = self._compiled()
         # WASI reads stdin only from a file or from this process's own stdin, so the request goes through a file. The
         # response and the engine's messages come back through files too: Wasmtime calls a Python callback for them
@@ -95,9 +101,9 @@ class WasmRunner:
         with tempfile.TemporaryDirectory(prefix="lpdf-", ignore_cleanup_errors=True) as folder:
             files = Path(folder)
             (files / "request.json").write_bytes(request)
-            return self._call(engine, instance_pre, files)
+            return self._call(engine, instance_pre, files, work)
 
-    def _call(self, engine: wasmtime.Engine, instance_pre: wasmtime.InstancePre, files: Path) -> bytes:
+    def _call(self, engine: wasmtime.Engine, instance_pre: wasmtime.InstancePre, files: Path, work: str) -> bytes:
         wasi = wasmtime.WasiConfig()
         wasi.stdin_file = files / "request.json"
         wasi.stdout_file = str(files / "response.json")
@@ -115,7 +121,7 @@ class WasmRunner:
                 raise EngineException(f"The engine exited with code {exited.code}.{_details(files)}") from exited
         except wasmtime.Trap as trap:
             if trap.trap_code == wasmtime.TrapCode.INTERRUPT:
-                raise EngineException(f"The render timed out after {_seconds(self._timeout)}.") from trap
+                raise EngineException(f"The {work} timed out after {_seconds(self._timeout)}.") from trap
             # Any other trap is a crash: a bug, a stack that ran out, or memory that did before the cap stopped the
             # render. Each render has a store of its own, so the next one starts on a fresh engine.
             crashed = EngineException(ENGINE_CRASHED)

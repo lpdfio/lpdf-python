@@ -278,6 +278,7 @@ def test_reads_the_invoice_of_a_template_on_the_engine_given_under_its_timeout(t
     binary = tmp_path / "engine.wasm"
     binary.write_bytes(wasmtime.wat2wasm(SPIN_ON_THE_READ))
     spinning = L.engine(EngineOptions(wasm_binary=str(binary), timeout=1))
-    with pytest.raises(EngineException, match=r"^The render timed out after 1 second\.$"):
+    with pytest.raises(EngineException) as refused:
         LCrossIndustryInvoice.generate_pdf(spinning, template(), invoice_xml=invoice("en16931.xml"),
                                            created_on=CREATED_ON)
+    assert str(refused.value) == "The reading of the invoice timed out after 1 second."
