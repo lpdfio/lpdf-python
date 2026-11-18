@@ -25,7 +25,17 @@ FACTURX = ROOT / "test" / "assets" / "files" / "facturx"
 CREATED_ON = "2026-11-18T10:00:00Z"
 NOTE = "Payable within 30 days, by bank transfer."
 
-RESPONSE = '{"pdf": "JVBERi0="}'
+# A map of other names than the default's, and a template that binds through it.
+RECHNUNG_MAP = ('<cross-industry-invoice-map prefix="rechnung">'
+                '<value name="nummer" path="rsm:ExchangedDocument/ram:ID"/></cross-industry-invoice-map>')
+RECHNUNG_TEMPLATE = (
+    '<lpdf version="1"><assets><font name="body" src="../assets/fonts/SourceSans3-Regular.otf"/></assets>'
+    '<document size="a4" font="body"><section><layout margin="48pt">'
+    '<text data-value="rechnung:nummer">0000</text>'
+    '</layout></section></document></lpdf>'
+)
+
+RESPONSE ='{"pdf": "JVBERi0="}'
 RESPONSE_IN_WAT = RESPONSE.replace('"', '\\"')
 
 # An engine binary of the test's own: it reads the start of the request, spins on an extract_invoice_data until the
@@ -198,11 +208,23 @@ def test_extracts_the_values_core_reads_and_formats_them_by_type_and_entry_name(
 
 @needs_fixtures
 def test_reads_through_a_map_given_as_text_or_bytes_under_its_own_names():
-    invoice_map = ('<cross-industry-invoice-map prefix="rechnung">'
-                   '<value name="nummer" path="rsm:ExchangedDocument/ram:ID"/></cross-industry-invoice-map>')
     xml = invoice("en16931.xml").decode("utf-8")
-    assert LCrossIndustryInvoice.extract_invoice_data(xml, invoice_map=invoice_map) == {"nummer": "2026-0412"}
-    assert LCrossIndustryInvoice.extract_invoice_data(xml, invoice_map=invoice_map.encode()) == {"nummer": "2026-0412"}
+    assert LCrossIndustryInvoice.extract_invoice_data(xml, invoice_map=RECHNUNG_MAP) == {"nummer": "2026-0412"}
+    assert LCrossIndustryInvoice.extract_invoice_data(xml, invoice_map=RECHNUNG_MAP.encode()) == {"nummer": "2026-0412"}
+
+
+@needs_fixtures
+def test_fills_a_template_through_the_map_given_and_refuses_a_name_the_map_lacks():
+    pdf = LCrossIndustryInvoice.generate_pdf(engine(), RECHNUNG_TEMPLATE, invoice_xml=invoice("en16931.xml"),
+                                             invoice_map=RECHNUNG_MAP, created_on=CREATED_ON)
+    assert pdf.startswith(b"%PDF-")
+    typo = RECHNUNG_TEMPLATE.replace("rechnung:nummer", "rechnung:nummr")
+    with pytest.raises(EngineException) as refused:
+        LCrossIndustryInvoice.generate_pdf(engine(), typo, invoice_xml=invoice("en16931.xml"), invoice_map=RECHNUNG_MAP,
+                                           created_on=CREATED_ON)
+    assert str(refused.value) == (
+        "lpdf render error: data-value=\"rechnung:nummr\": 'nummr' is not in the map: the invoice map has nummer"
+    )
 
 
 def test_gives_the_default_map_as_xml_text():
