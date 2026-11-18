@@ -33,11 +33,11 @@ def _reader() -> WasmRunner:
     return WasmRunner(wasm_binary=default_wasm_binary())
 
 
-def _read(invoice_xml: bytes, invoice_map: str | None, format: InvoiceFormat | None) -> dict:
-    """The values of an invoice, read by the engine, with the format function of each typed one applied."""
+def _read(runner: WasmRunner, invoice_xml: bytes, invoice_map: str | None, format: InvoiceFormat | None) -> dict:
+    """The values of an invoice, read by ``runner``, with the format function of each typed one applied."""
     if format is not None and not isinstance(format, InvoiceFormat):
         raise TypeError("format must be an InvoiceFormat")
-    answer = _reader().invoke({
+    answer = runner.invoke({
         "method": "extract_invoice_data",
         "invoice_xml": base64.b64encode(invoice_xml).decode(),
         "invoice_map": invoice_map,
@@ -85,12 +85,14 @@ class LCrossIndustryInvoice:
         as ``factur-x.xml``, or ``xrechnung.xml`` for XRECHNUNG. The document says only how the invoice looks: it
         declares no invoice file.
 
-        The engine carries the fonts, the license key and the limits. ``invoice_map`` is the map, an XML document, or
-        Lpdf's default map without it. ``created_on`` is the ISO 8601 creation date of the file, which PDF/A requires.
+        The engine carries the fonts, the license key and the limits, its timeout and ``max_memory_mb``, under which it
+        reads the invoice for a template and renders the file. ``invoice_map`` is the map, an XML document, or Lpdf's
+        default map without it. ``created_on`` is the ISO 8601 creation date of the file, which PDF/A requires.
 
         :raises EngineException: for what ``extract_invoice_data`` refuses, a template path under the prefix that the
             map lacks, a PDF/A level other than 3a, 3b or 3u, ``encrypt``, ``pdfx``, and a document that declares the
-            invoice file.
+            invoice file; or when the read or the render runs past the engine's timeout or needs more than its
+            ``max_memory_mb``.
         :raises TypeError: when the XML or the map is not text or bytes, or ``format`` is not an ``InvoiceFormat``.
         """
         xml = _bytes_of("invoice_xml", invoice_xml)
@@ -100,7 +102,7 @@ class LCrossIndustryInvoice:
         if not isinstance(template_or_document, PdfDocument):
             invoice_map_text = _map_of(invoice_map)
             invoice["map"] = invoice_map_text
-            invoice["data"] = _read(xml, invoice_map_text, format)
+            invoice["data"] = _read(engine._runner(), xml, invoice_map_text, format)
         return engine._render(template_or_document, created_on=created_on, data=data, invoice=invoice)
 
     @staticmethod
@@ -120,7 +122,7 @@ class LCrossIndustryInvoice:
             Invoice or is MINIMUM or BASIC WL, or lacks a value the map marks required.
         :raises TypeError: when the XML or the map is not text or bytes, or ``format`` is not an ``InvoiceFormat``.
         """
-        return _read(_bytes_of("invoice_xml", invoice_xml), _map_of(invoice_map), format)
+        return _read(_reader(), _bytes_of("invoice_xml", invoice_xml), _map_of(invoice_map), format)
 
     @staticmethod
     def default_invoice_map() -> str:

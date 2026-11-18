@@ -7,12 +7,14 @@ from core's test/fixtures, test/assets and test/snapshots, which CI copies in fr
 import json
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
+import wasmtime
 
 from lpdf import (
-    ColumnAttr, DividerAttr, DocumentAssets, DocumentAttr, DocumentMeta, EngineException, FontAttr, InvoiceFormat, L,
-    LCrossIndustryInvoice, LayoutAttr, NoAttr, RowAttr, TableAttr, TextAttr,
+    ColumnAttr, DividerAttr, DocumentAssets, DocumentAttr, DocumentMeta, EngineException, EngineOptions, FontAttr,
+    InvoiceFormat, L, LCrossIndustryInvoice, LayoutAttr, NoAttr, RowAttr, TableAttr, TextAttr,
 )
 
 from .snapshot_helper import FIXTURES, HAS_FIXTURES, ROOT, compare_or_update
@@ -22,6 +24,30 @@ needs_fixtures = pytest.mark.skipif(not HAS_FIXTURES, reason="fixture files not 
 FACTURX = ROOT / "test" / "assets" / "files" / "facturx"
 CREATED_ON = "2026-11-18T10:00:00Z"
 NOTE = "Payable within 30 days, by bank transfer."
+
+RESPONSE = '{"pdf": "JVBERi0="}'
+RESPONSE_IN_WAT = RESPONSE.replace('"', '\\"')
+
+# An engine binary of the test's own: it reads the start of the request, spins on an extract_invoice_data until the
+# runner stops it, and answers any other request with a response that holds the bytes "%PDF-". The SDK writes the
+# method first, so the request's byte 12, read to 140 here, is the method's first letter: an "e", 101, for
+# {"method": "extract_invoice_data".
+SPIN_ON_THE_READ = f'''
+(module
+  (import "wasi_snapshot_preview1" "fd_read" (func $read (param i32 i32 i32 i32) (result i32)))
+  (import "wasi_snapshot_preview1" "fd_write" (func $write (param i32 i32 i32 i32) (result i32)))
+  (memory (export "memory") 1)
+  (data (i32.const 64) "{RESPONSE_IN_WAT}")
+  (func (export "_start")
+    (i32.store (i32.const 0) (i32.const 128))
+    (i32.store (i32.const 4) (i32.const 16))
+    (drop (call $read (i32.const 0) (i32.const 0) (i32.const 1) (i32.const 8)))
+    (if (i32.eq (i32.load8_u (i32.const 140)) (i32.const 101))
+      (then (loop $spin (br $spin))))
+    (i32.store (i32.const 16) (i32.const 64))
+    (i32.store (i32.const 20) (i32.const {len(RESPONSE)}))
+    (drop (call $write (i32.const 1) (i32.const 16) (i32.const 1) (i32.const 24)))))
+'''
 
 
 def invoice(name: str) -> bytes:
@@ -200,3 +226,15 @@ def test_refuses_arguments_of_the_wrong_kind():
         LCrossIndustryInvoice.extract_invoice_data(42)
     with pytest.raises(TypeError):
         LCrossIndustryInvoice.extract_invoice_data(invoice("en16931.xml"), format={"date": str})
+
+
+@needs_fixtures
+def test_reads_the_invoice_of_a_template_on_the_engine_given_under_its_timeout(tmp_path: Path):
+    """The read runs on the engine's binary with its limits, so a read that runs long stops at the engine's timeout of
+    1 second, not at the default 5."""
+    binary = tmp_path / "engine.wasm"
+    binary.write_bytes(wasmtime.wat2wasm(SPIN_ON_THE_READ))
+    spinning = L.engine(EngineOptions(wasm_binary=str(binary), timeout=1))
+    with pytest.raises(EngineException, match=r"^The render timed out after 1 second\.$"):
+        LCrossIndustryInvoice.generate_pdf(spinning, template(), invoice_xml=invoice("en16931.xml"),
+                                           created_on=CREATED_ON)
