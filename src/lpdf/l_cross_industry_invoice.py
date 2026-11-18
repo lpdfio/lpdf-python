@@ -51,7 +51,14 @@ def _read(runner: WasmRunner, invoice_xml: bytes, invoice_map: str | None, forma
         holder = data
         for step in path:
             holder = holder[step]
-        holder[last] = str(fn(holder[last], typed["name"]))
+        text = fn(holder[last], typed["name"])
+        # str() would bind the word "None" on the page, as a dict's get() gives for a code it has no word for.
+        if text is None:
+            raise TypeError(
+                f"format.{typed['type']} returned None for '{typed['name']}': return the text to bind, or the value as "
+                "it came."
+            )
+        holder[last] = str(text)
     return data
 
 
@@ -93,7 +100,8 @@ class LCrossIndustryInvoice:
             map lacks, a PDF/A level other than 3a, 3b or 3u, ``encrypt``, ``pdfx``, and a document that declares the
             invoice file; or when the read or the render runs past the engine's timeout or needs more than its
             ``max_memory_mb``.
-        :raises TypeError: when the XML or the map is not text or bytes, or ``format`` is not an ``InvoiceFormat``.
+        :raises TypeError: when the XML or the map is not text or bytes, ``format`` is not an ``InvoiceFormat``, or one
+            of its functions returns None.
         """
         xml = _bytes_of("invoice_xml", invoice_xml)
         if not isinstance(created_on, str):
@@ -120,7 +128,8 @@ class LCrossIndustryInvoice:
 
         :raises EngineException: when the map is not one or doesn't fit the schema, the invoice is not a Cross Industry
             Invoice or is MINIMUM or BASIC WL, or lacks a value the map marks required.
-        :raises TypeError: when the XML or the map is not text or bytes, or ``format`` is not an ``InvoiceFormat``.
+        :raises TypeError: when the XML or the map is not text or bytes, ``format`` is not an ``InvoiceFormat``, or one
+            of its functions returns None.
         """
         return _read(_reader(), _bytes_of("invoice_xml", invoice_xml), _map_of(invoice_map), format)
 

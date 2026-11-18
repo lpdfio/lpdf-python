@@ -8,8 +8,8 @@ from dataclasses import dataclass
 class InvoiceFormat:
     """How the values of each type are written on the page, for ``LCrossIndustryInvoice``: each function takes the
     value in its normal form and the full name of its entry in the map, without the prefix or an item number
-    (``seller.country``, ``lines.unit``), and returns the text to bind. A type without a function is bound as the
-    invoice has it.
+    (``seller.country``, ``lines.unit``), and returns the text to bind: a function that returns None is refused with a
+    ``TypeError``. A type without a function is bound as the invoice has it.
 
     ``date`` gets a date as ``2026-10-31``, or ``2026-10`` and ``2026-W44`` for a month and a week. ``amount`` gets an
     amount as the invoice writes it, ``1250.10``. ``code`` gets a code as the invoice writes it, ``H87``, ``S``,

@@ -251,6 +251,18 @@ def test_refuses_arguments_of_the_wrong_kind():
 
 
 @needs_fixtures
+def test_refuses_a_format_function_that_returns_none_naming_its_type_and_entry():
+    units = {"KGM": "kg"}
+    # dict.get gives None for H87, the unit of the invoice's lines, which has no word here.
+    no_word = InvoiceFormat(code=lambda value, entry_name: units.get(value) if entry_name == "lines.unit" else value)
+    with pytest.raises(TypeError) as refused:
+        LCrossIndustryInvoice.extract_invoice_data(invoice("en16931.xml"), format=no_word)
+    assert str(refused.value) == (
+        "format.code returned None for 'lines.unit': return the text to bind, or the value as it came."
+    )
+
+
+@needs_fixtures
 def test_reads_the_invoice_of_a_template_on_the_engine_given_under_its_timeout(tmp_path: Path):
     """The read runs on the engine's binary with its limits, so a read that runs long stops at the engine's timeout of
     1 second, not at the default 5."""
