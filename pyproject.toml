@@ -8,7 +8,7 @@ requires-python = ">=3.11"
 dependencies = ["wasmtime>=50"]
 license = {file = "LICENSE"}
 authors = [{name = "lpdf.io", email = "support@lpdf.io"}]
-keywords = ["pdf", "wasm", "xml", "document"]
+keywords = ["pdf", "wasm", "xml", "document", "Factur-X", "ZUGFeRD"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
