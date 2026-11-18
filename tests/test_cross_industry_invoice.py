@@ -35,7 +35,7 @@ RECHNUNG_TEMPLATE = (
     '</layout></section></document></lpdf>'
 )
 
-RESPONSE ='{"pdf": "JVBERi0="}'
+RESPONSE = '{"pdf": "JVBERi0="}'
 RESPONSE_IN_WAT = RESPONSE.replace('"', '\\"')
 
 # An engine binary of the test's own: it reads the start of the request, spins on an extract_invoice_data until the
