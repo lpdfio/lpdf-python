@@ -899,7 +899,10 @@ def test_a_value_that_starts_with_a_digit_takes_the_last_word_of_its_enumeration
 
 
 def test_the_constants_of_the_closed_enumerations_are_the_words_the_schema_reads():
-    assert [PageSize.A4, PageSize.A3, PageSize.A5, PageSize.LETTER, PageSize.LEGAL] == ["a4", "a3", "a5", "letter", "legal"]
+    assert [
+        PageSize.A0, PageSize.A1, PageSize.A2, PageSize.A3, PageSize.A4, PageSize.A5, PageSize.A6,
+        PageSize.B4, PageSize.B5, PageSize.LETTER, PageSize.LEGAL, PageSize.TABLOID,
+    ] == ["a0", "a1", "a2", "a3", "a4", "a5", "a6", "b4", "b5", "letter", "legal", "tabloid"]
     assert [TextAlign.LEFT, TextAlign.CENTER, TextAlign.RIGHT, TextAlign.JUSTIFY] == ["left", "center", "right", "justify"]
     assert [Paginate.NO, Paginate.BREAK_BEFORE, Paginate.BREAK_AFTER, Paginate.KEEP_NEXT] == ["no", "break-before", "break-after", "keep-next"]
     assert Anchor.TOP_LEFT == "top-left"
