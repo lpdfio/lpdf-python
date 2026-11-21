@@ -12,8 +12,6 @@ from .barcode_node import BarcodeNode
 from .field_node import FieldNode
 from .region_node import RegionNode
 from .bookmark_node import BookmarkNode
-from .pin import Pin
-from .field_type import FieldType
 from .column_attr import ColumnAttr
 from .row_attr import RowAttr
 from .grid_attr import GridAttr
@@ -41,7 +39,6 @@ __all__ = [
     "Node",
     "ContainerNode", "TextNode", "CodeNode", "SpanNode", "CodeSpanNode", "FnNode", "DividerNode",
     "ImgNode", "ShapeNode", "BarcodeNode", "FieldNode", "RegionNode", "BookmarkNode",
-    "Pin", "FieldType",
     "ColumnAttr", "RowAttr",
     "GridAttr", "ListAttr", "LiAttr", "FrameAttr", "LinkAttr",
     "TextAttr", "CodeAttr", "SpanAttr", "CodeSpanAttr", "DividerAttr",
