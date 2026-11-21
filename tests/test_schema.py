@@ -9,6 +9,8 @@ from lpdf import (
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     ColumnFill, FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, Grow, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
+    Align, Anchor, BarcodeType, BoxAlign, BoxJustify, CellVAlign, ListFormat, Ocg, PageSize, Paginate, Pdf417EcLevel, PdfALevel, PdfUaPart, PdfXVersion,
+    QrEcLevel, StampScale, TextAlign,
 )
 from lpdf.layout.text_node import TextNode
 
@@ -883,6 +885,43 @@ def test_the_constants_are_the_schema_values():
     assert Orientation.LANDSCAPE == "landscape"
     assert BuiltinFont.TIMES_BOLD == "Times-Bold"
     assert Permission.ALL == "all"
+
+
+def test_a_value_that_starts_with_a_digit_takes_the_last_word_of_its_enumerations_name():
+    assert [PdfALevel.LEVEL_2A, PdfALevel.LEVEL_2B, PdfALevel.LEVEL_2U, PdfALevel.LEVEL_3A, PdfALevel.LEVEL_3B, PdfALevel.LEVEL_3U] == [
+        "2a", "2b", "2u", "3a", "3b", "3u",
+    ]
+    assert PdfUaPart.PART_1 == "1"
+    assert PdfXVersion.VERSION_4 == "4"
+    assert [Pdf417EcLevel.LEVEL_0, Pdf417EcLevel.LEVEL_8] == ["0", "8"]
+    assert BarcodeType.GS1_128 == "gs1-128"
+    assert BarcodeType.GS1_DATAMATRIX == "gs1-datamatrix"
+
+
+def test_the_constants_of_the_closed_enumerations_are_the_words_the_schema_reads():
+    assert [PageSize.A4, PageSize.A3, PageSize.A5, PageSize.LETTER, PageSize.LEGAL] == ["a4", "a3", "a5", "letter", "legal"]
+    assert [TextAlign.LEFT, TextAlign.CENTER, TextAlign.RIGHT, TextAlign.JUSTIFY] == ["left", "center", "right", "justify"]
+    assert [Paginate.NO, Paginate.BREAK_BEFORE, Paginate.BREAK_AFTER, Paginate.KEEP_NEXT] == ["no", "break-before", "break-after", "keep-next"]
+    assert Anchor.TOP_LEFT == "top-left"
+    assert BoxAlign.STRETCH == "stretch"
+    assert BoxJustify.BETWEEN == "between"
+    assert [Align.START, Align.CENTER, Align.END] == ["start", "center", "end"]
+    assert CellVAlign.MIDDLE == "middle"
+    assert ListFormat.LOWER_ROMAN == "lower-roman"
+    assert QrEcLevel.H == "H"
+    assert Ocg.PRINT == "print"
+    assert StampScale.FIT == "fit"
+
+
+def test_a_document_built_with_the_constants_renders_as_the_xml_with_their_words():
+    built = L.document(DocumentAttr(size=PageSize.A4, orientation=Orientation.LANDSCAPE), [
+        L.section(None, [L.layout(None, [
+            L.text(TextAttr(align=TextAlign.CENTER, paginate=Paginate.KEEP_NEXT), ["x"]),
+            L.barcode(BarcodeAttr(type=BarcodeType.QR, data="x", ec=QrEcLevel.H, height="40pt")),
+        ])]),
+    ])
+    xml = '<lpdf version="1"><document size="a4" orientation="landscape"><section><layout><text align="center" paginate="keep-next">x</text><barcode type="qr" data="x" ec="H" height="40pt"/></layout></section></document></lpdf>'
+    assert _render(xml) == _render(built)
 
 
 # ── Markdown ───────────────────────────────────────────────────────────────────

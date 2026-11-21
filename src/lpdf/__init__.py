@@ -1,3 +1,6 @@
+# The constants of the schema's enumerations, generated from it: one StrEnum each, such as Orientation
+from .constants import *  # noqa: F403
+
 # Top-level facades
 from .L import L, NoAttr
 from .l_markdown import LMarkdown
@@ -30,22 +33,11 @@ from .kit.image_attr import ImageAttr
 from .kit.file_attr import FileAttr
 from .kit.profile_attr import ProfileAttr
 from .kit.layout_attr import LayoutAttr
-from .kit.builtin_font import BuiltinFont
 from .kit.section_node import SectionNode
 from .kit.section_attr import SectionAttr
 from .kit.section_layout import SectionLayout
-from .kit.orientation import Orientation
-from .kit.section_type import SectionType
-from .kit.footnote_counter import FootnoteCounter
-from .kit.column_fill import ColumnFill
-from .kit.grow import Grow
-from .kit.cipher import Cipher
-from .kit.permission import Permission
-from .kit.file_relationship import FileRelationship
 
-# layout subpackage - attrs and enums
-from .layout.pin import Pin
-from .layout.field_type import FieldType
+# layout subpackage - attrs
 from .layout.column_attr import ColumnAttr
 from .layout.row_attr import RowAttr
 from .layout.grid_attr import GridAttr

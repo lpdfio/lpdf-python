@@ -19,18 +19,18 @@ class StampAttr:
     x: str | None = None
     y: str | None = None
     # The point of the page the box is placed from, and the point of the box that goes there: top-left, top-center,
-    # top-right, center-left, center, center-right, bottom-left, bottom-center or bottom-right.
+    # top-right, center-left, center, center-right, bottom-left, bottom-center or bottom-right (Anchor).
     anchor: str | None = None
     # The size of the box, in pt, mm or in.
     width: str
     height: str
-    # Where the image sits across the box, in the room it leaves: start, center (the default) or end.
+    # Where the image sits across the box, in the room it leaves: start, center (the default) or end (Align).
     align: str | None = None
-    # Where the image sits down the box, in the room it leaves: start, center (the default) or end.
+    # Where the image sits down the box, in the room it leaves: start, center (the default) or end (Align).
     justify: str | None = None
     # How the image is sized in the box, keeping its proportions: fit (the default) shrinks an image larger than the
     # box and keeps a smaller one at its natural size, from the resolution the PNG records, or a pixel to a point;
-    # fill takes the largest size that fits.
+    # fill takes the largest size that fits (StampScale).
     scale: str | None = None
     # How many times its natural size fit may grow an image, never past the box: 1, the default, or more.
     max_grow: float | None = None
