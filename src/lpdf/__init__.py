@@ -37,7 +37,7 @@ from .kit.section_node import SectionNode
 from .kit.section_attr import SectionAttr
 from .kit.section_layout import SectionLayout
 
-# layout subpackage - attrs and enums
+# layout subpackage - attrs
 from .layout.column_attr import ColumnAttr
 from .layout.row_attr import RowAttr
 from .layout.grid_attr import GridAttr
