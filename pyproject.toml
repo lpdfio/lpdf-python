@@ -1,7 +1,7 @@
 [project]
 name = "lpdfio-lpdf"
 version = "0.0.0"
-description = "Lpdf Python SDK: render PDF documents from XML or from code."
+description = "Lpdf Python SDK: render PDF documents from XML or from code. With data binding, PDF/A, PDF/UA, PDF/X and Factur-X / ZUGFeRD."
 readme = "README.md"
 requires-python = ">=3.11"
 # The engine runs inside Python on the wasmtime package. No upper bound: the weekly CI run tests the newest.
