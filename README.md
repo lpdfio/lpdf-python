@@ -2,7 +2,9 @@
 
 # lpdfio-lpdf
 
-`lpdfio-lpdf` is the [Lpdf](https://lpdf.io?utm_campaign=sdk-python&utm_medium=referral&utm_source=readme) Python SDK: render PDF documents from XML or from code.
+[Lpdf](https://lpdf.io?utm_campaign=sdk-python&utm_medium=referral&utm_source=readme) Python SDK: render PDF documents from XML or from code.
+
+With data binding, PDF/A, PDF/UA, PDF/X and Factur-X / ZUGFeRD.
 
 ## Installation
 
