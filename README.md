@@ -17,7 +17,7 @@ from lpdf import L, NoAttr, DocumentAttr, LayoutAttr, ColumnAttr, RowAttr, TextA
 
 engine = L.engine()
 
-doc = L.document(DocumentAttr(size='letter'), [
+doc = L.document(DocumentAttr(size='Letter'), [
     L.section(NoAttr, [
         L.layout(LayoutAttr(margin='48pt'), [
             L.column(ColumnAttr(gap='24pt'), [

@@ -49,18 +49,18 @@ __all__ = [
 class PageSize(StrEnum):
     """The named values of the `size` attribute of a document or a section. A width and a height, such as 100pt 200pt, is a string."""
 
-    A0 = "a0"
-    A1 = "a1"
-    A2 = "a2"
-    A3 = "a3"
-    A4 = "a4"
-    A5 = "a5"
-    A6 = "a6"
-    B4 = "b4"
-    B5 = "b5"
-    LETTER = "letter"
-    LEGAL = "legal"
-    TABLOID = "tabloid"
+    A0 = "A0"
+    A1 = "A1"
+    A2 = "A2"
+    A3 = "A3"
+    A4 = "A4"
+    A5 = "A5"
+    A6 = "A6"
+    B4 = "B4"
+    B5 = "B5"
+    LETTER = "Letter"
+    LEGAL = "Legal"
+    TABLOID = "Tabloid"
 
 
 class Orientation(StrEnum):

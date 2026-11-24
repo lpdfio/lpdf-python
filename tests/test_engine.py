@@ -256,7 +256,7 @@ class TestAssetSrcExtraction:
         invoke.return_value = _engine_response()
         img_file = tmp_path / "logo.png"
         img_file.write_bytes(b"\x89PNG")
-        xml = f'<lpdf><assets><image name="logo" src="{img_file}"/></assets><document size="a4"><pages><page/></pages></document></lpdf>'
+        xml = f'<lpdf><assets><image name="logo" src="{img_file}"/></assets><document size="A4"><pages><page/></pages></document></lpdf>'
         engine = PdfEngine().set_license_key("key")
         engine.render(xml)
         payload = _extract_payload(invoke)
