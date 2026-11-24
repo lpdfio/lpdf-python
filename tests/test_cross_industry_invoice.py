@@ -30,7 +30,7 @@ RECHNUNG_MAP = ('<cross-industry-invoice-map prefix="rechnung">'
                 '<value name="nummer" path="rsm:ExchangedDocument/ram:ID"/></cross-industry-invoice-map>')
 RECHNUNG_TEMPLATE = (
     '<lpdf version="1"><assets><font name="body" src="../assets/fonts/SourceSans3-Regular.otf"/></assets>'
-    '<document size="a4" font="body"><section><layout margin="48pt">'
+    '<document size="A4" font="body"><section><layout margin="48pt">'
     '<text data-value="rechnung:nummer">0000</text>'
     '</layout></section></document></lpdf>'
 )
@@ -101,7 +101,7 @@ def document_in_code(invoice_data: dict):
         L.text(muted, ["VAT in"]), L.text(muted, [totals["taxCurrency"]]), L.text(muted, [totals["vatInTaxCurrency"]]),
     ])] if "vatInTaxCurrency" in totals else []
     return L.document(DocumentAttr(
-        size="a4", font="body",
+        size="A4", font="body",
         assets=DocumentAssets(fonts=[FontAttr(name="body", src="../assets/fonts/SourceSans3-Regular.otf")]),
         meta=DocumentMeta(title="Invoice", author="Northwind Paper SAS", lang="en"),
     ), [

@@ -67,10 +67,10 @@ def test_divider():
 
 def test_section():
     layout = L.layout(NoAttr, [L.text(NoAttr, ["Hello"])])
-    section = L.section(SectionAttr(size="a4", background="#ffffff"), [layout])
+    section = L.section(SectionAttr(size="A4", background="#ffffff"), [layout])
     d = section.to_dict()
     assert d["type"] == "section"
-    assert d["attrs"] == {"size": "a4", "background": "#ffffff"}
+    assert d["attrs"] == {"size": "A4", "background": "#ffffff"}
     assert len(d["nodes"]) == 1
 
 
@@ -113,13 +113,13 @@ def test_document_includes_version():
 def test_document_with_meta_and_tokens():
     doc = L.document(
         DocumentAttr(
-            size="a4",
+            size="A4",
             meta=DocumentMeta(title="Test", author="Me"),
             tokens=DocumentTokens(colors={"primary": "#000"}),
         ),
     )
     d = doc.to_dict()
-    assert d["attrs"]["size"] == "a4"
+    assert d["attrs"]["size"] == "A4"
     assert d["attrs"]["meta"] == {"title": "Test", "author": "Me"}
     assert d["attrs"]["tokens"] == {"colors": {"primary": "#000"}}
 

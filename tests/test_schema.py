@@ -118,8 +118,8 @@ def test_a_required_attribute_cannot_be_left_out():
 @pytest.mark.parametrize("build", [
     pytest.param(lambda: ImgAttr("logo", "40pt"), id="ImgAttr"),  # type: ignore[call-arg]
     pytest.param(lambda: TextAttr("12pt"), id="TextAttr"),  # type: ignore[call-arg]
-    pytest.param(lambda: SectionAttr("a4"), id="SectionAttr"),  # type: ignore[call-arg]
-    pytest.param(lambda: DocumentAttr("letter"), id="DocumentAttr"),  # type: ignore[call-arg]
+    pytest.param(lambda: SectionAttr("A4"), id="SectionAttr"),  # type: ignore[call-arg]
+    pytest.param(lambda: DocumentAttr("Letter"), id="DocumentAttr"),  # type: ignore[call-arg]
     pytest.param(lambda: DocumentMeta("Report"), id="DocumentMeta"),  # type: ignore[call-arg]
     pytest.param(lambda: DocumentOutput("aes-256"), id="DocumentOutput"),  # type: ignore[call-arg]
     pytest.param(lambda: DocumentTokens({"primary": "#336699"}), id="DocumentTokens"),  # type: ignore[call-arg]
@@ -225,7 +225,7 @@ def test_a_transform_is_a_string_a_layer_accepts():
 # ── Rendering ──────────────────────────────────────────────────────────────────
 
 def _built_document():
-    return L.document(DocumentAttr(size="a4"), [
+    return L.document(DocumentAttr(size="A4"), [
         L.section(NoAttr, [
             L.layout(NoAttr, [
                 L.column(ColumnAttr(gap="12pt"), [
@@ -368,7 +368,7 @@ def test_a_section_that_grows_is_written_under_its_schema_name_renders_as_its_xm
 def test_a_bulk_table_renders_from_data_as_the_table_without_bulk_and_one_built_with_l_which_has_no_data_is_rejected():
     def xml(bulk):
         return (
-            '<lpdf version="1"><document size="a4"><section><layout margin="36pt">'
+            '<lpdf version="1"><document size="A4"><section><layout margin="36pt">'
             f'<table cols="1fr 2fr"{bulk}><thead><td><text bold="true">Date</text></td><td><text bold="true">Amount</text></td></thead>'
             '<tr data-source="entries"><td><text data-value="date">-</text></td><td><text data-value="amount">-</text></td></tr></table>'
             '<region pin="bottom"><text align="right">Page {page} of {pages}</text></region></layout></section></document></lpdf>'
@@ -902,7 +902,7 @@ def test_the_constants_of_the_closed_enumerations_are_the_words_the_schema_reads
     assert [
         PageSize.A0, PageSize.A1, PageSize.A2, PageSize.A3, PageSize.A4, PageSize.A5, PageSize.A6,
         PageSize.B4, PageSize.B5, PageSize.LETTER, PageSize.LEGAL, PageSize.TABLOID,
-    ] == ["a0", "a1", "a2", "a3", "a4", "a5", "a6", "b4", "b5", "letter", "legal", "tabloid"]
+    ] == ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "B4", "B5", "Letter", "Legal", "Tabloid"]
     assert [TextAlign.LEFT, TextAlign.CENTER, TextAlign.RIGHT, TextAlign.JUSTIFY] == ["left", "center", "right", "justify"]
     assert [Paginate.NO, Paginate.BREAK_BEFORE, Paginate.BREAK_AFTER, Paginate.KEEP_NEXT] == ["no", "break-before", "break-after", "keep-next"]
     assert Anchor.TOP_LEFT == "top-left"
@@ -923,7 +923,7 @@ def test_a_document_built_with_the_constants_renders_as_the_xml_with_their_words
             L.barcode(BarcodeAttr(type=BarcodeType.QR, data="x", ec=QrEcLevel.H, height="40pt")),
         ])]),
     ])
-    xml = '<lpdf version="1"><document size="a4" orientation="landscape"><section><layout><text align="center" paginate="keep-next">x</text><barcode type="qr" data="x" ec="H" height="40pt"/></layout></section></document></lpdf>'
+    xml = '<lpdf version="1"><document size="A4" orientation="landscape"><section><layout><text align="center" paginate="keep-next">x</text><barcode type="qr" data="x" ec="H" height="40pt"/></layout></section></document></lpdf>'
     assert _render(xml) == _render(built)
 
 
