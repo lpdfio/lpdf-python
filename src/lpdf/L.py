@@ -36,7 +36,9 @@ from .layout.barcode_node import BarcodeNode
 from .layout.bookmark_attr import BookmarkAttr
 from .layout.bookmark_node import BookmarkNode
 from .layout.chart_attr import ChartAttr
-from .layout.chart_node import ChartCategoryNode, ChartNode, ChartSeriesNode
+from .layout.chart_category_node import ChartCategoryNode
+from .layout.chart_node import ChartNode
+from .layout.chart_series_node import ChartSeriesNode
 from .layout.column_attr import ColumnAttr
 from .layout.container_node import ContainerNode
 from .layout.divider_attr import DividerAttr

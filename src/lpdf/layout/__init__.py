@@ -12,7 +12,10 @@ from .barcode_node import BarcodeNode
 from .field_node import FieldNode
 from .region_node import RegionNode
 from .bookmark_node import BookmarkNode
-from .chart_node import ChartNode, ChartSeriesNode, ChartCategoryNode, ChartValueNode
+from .chart_node import ChartNode
+from .chart_series_node import ChartSeriesNode
+from .chart_category_node import ChartCategoryNode
+from .chart_value_node import ChartValueNode
 from .column_attr import ColumnAttr
 from .row_attr import RowAttr
 from .grid_attr import GridAttr

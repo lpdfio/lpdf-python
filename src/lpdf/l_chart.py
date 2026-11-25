@@ -4,8 +4,10 @@ import math
 from decimal import Decimal
 
 from .layout.chart_category_attr import ChartCategoryAttr
-from .layout.chart_node import ChartCategoryNode, ChartSeriesNode, ChartValueNode
+from .layout.chart_category_node import ChartCategoryNode
 from .layout.chart_series_attr import ChartSeriesAttr
+from .layout.chart_series_node import ChartSeriesNode
+from .layout.chart_value_node import ChartValueNode
 from .shared.attrs_helper import options_to_attrs
 
 
@@ -19,10 +21,12 @@ def plain_number(value: int | float) -> str:
         return str(value)
     if not math.isfinite(value):
         raise ValueError(f"a chart's value is a finite number, not {value}")
-    if value.is_integer():
-        return str(int(value))
-    # repr gives the shortest digits that read back as the float, which Decimal writes out in full.
-    return format(Decimal(repr(value)), "f")
+    if value == 0:
+        return "0"
+    # repr gives the shortest digits that read back as the float, which Decimal writes out in full: 1e23 is
+    # 100000000000000000000000, not the 99999999999999991611392 of its binary value.
+    text = format(Decimal(repr(value)), "f")
+    return text.removesuffix(".0") if value.is_integer() else text
 
 
 class LChart:
