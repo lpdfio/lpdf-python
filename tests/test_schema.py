@@ -1,5 +1,6 @@
 """The builders write the schema's names, and what they build renders like the XML it converts to."""
 import re
+from decimal import Decimal
 
 import pytest
 
@@ -956,12 +957,16 @@ def test_a_chart_its_series_its_categories_and_their_values_are_built_with_the_s
     (0.25, "0.25"), (-3.5, "-3.5"), (3.0, "3"), (1e21, "1000000000000000000000"), (1.5e-7, "0.00000015"),
     (1e-7, "0.0000001"), (-0.0, "0"), (1e23, "100000000000000000000000"), (2.0**60, "1152921504606847000"),
     (12345678901234567890, "12345678901234567890"), ("0.250", "0.250"),
+    (Decimal("0.250"), "0.250"), (Decimal("1E+3"), "1000"), (Decimal("-0.00"), "0.00"), (Decimal("-12.5"), "-12.5"),
 ])
 def test_a_number_of_a_value_is_written_in_full_with_no_exponent(value, text):
     assert LChart.value(NoAttr, [value]).to_dict()["nodes"] == [text]
 
 
-@pytest.mark.parametrize(("value", "error"), [(float("nan"), ValueError), (float("inf"), ValueError), (True, TypeError)])
+@pytest.mark.parametrize(("value", "error"), [
+    (float("nan"), ValueError), (float("inf"), ValueError), (Decimal("NaN"), ValueError), (Decimal("-Infinity"), ValueError),
+    (True, TypeError),
+])
 def test_a_value_that_is_not_a_finite_number_or_a_string_is_refused(value, error):
     with pytest.raises(error):
         LChart.value(NoAttr, [value])

@@ -11,14 +11,19 @@ from .layout.chart_value_node import ChartValueNode
 from .shared.attrs_helper import options_to_attrs
 
 
-def plain_number(value: int | float) -> str:
+def plain_number(value: int | float | Decimal) -> str:
     """A number as the text of a chart's value: in full, with no exponent, which ``str(1e21)`` and ``str(1e-07)``
-    write, and a whole float without its ``.0``, as the other SDKs write it.
+    write, and a whole float without its ``.0``, as the other SDKs write it. A ``Decimal`` keeps its decimals:
+    ``Decimal("0.250")`` is ``0.250``, and ``Decimal("1E+3")`` is ``1000``.
 
-    :raises ValueError: when the float is not finite.
+    :raises ValueError: when the float or the Decimal is not finite.
     """
     if isinstance(value, int):
         return str(value)
+    if isinstance(value, Decimal):
+        if not value.is_finite():
+            raise ValueError(f"a chart's value is a finite number, not {value}")
+        return format(value.copy_abs() if value.is_zero() else value, "f")
     if not math.isfinite(value):
         raise ValueError(f"a chart's value is a finite number, not {value}")
     if value == 0:
@@ -53,23 +58,23 @@ class LChart:
         return ChartCategoryNode(options_to_attrs(attrs), list(nodes or []))
 
     @staticmethod
-    def value(attrs: None = None, nodes: list[int | float | str] | None = None) -> ChartValueNode:
-        """Build a value of a category: a number, written in full with no exponent and no locale, or a string that is
-        one, such as ``"0.250"``, taken as written so its label keeps its decimals. No value, ``[]``, draws no bar. It
-        has no attributes: pass ``NoAttr``.
+    def value(attrs: None = None, nodes: list[int | float | Decimal | str] | None = None) -> ChartValueNode:
+        """Build a value of a category: one number, written in full with no exponent and no locale, a ``Decimal``
+        with its decimals, or a string that is a number, such as ``"0.250"``, taken as written so its label keeps its
+        decimals. No value, ``[]``, draws no bar. It has no attributes: pass ``NoAttr``.
 
-        :raises TypeError: when a value is not an int, a float or a string.
-        :raises ValueError: when a float is not finite.
+        :raises TypeError: when a value is not an int, a float, a Decimal or a string.
+        :raises ValueError: when a float or a Decimal is not finite.
         """
         texts: list[str] = []
         for index, child in enumerate(nodes or []):
             if isinstance(child, str):
                 texts.append(child)
-            elif isinstance(child, (int, float)) and not isinstance(child, bool):
+            elif isinstance(child, (int, float, Decimal)) and not isinstance(child, bool):
                 texts.append(plain_number(child))
             else:
                 raise TypeError(
-                    f"value() child at index {index} must be an int, a float or a string, "
+                    f"value() child at index {index} must be an int, a float, a Decimal or a string, "
                     f"got {type(child).__name__}"
                 )
         return ChartValueNode(texts)
