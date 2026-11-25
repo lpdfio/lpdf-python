@@ -12,6 +12,7 @@ from .barcode_node import BarcodeNode
 from .field_node import FieldNode
 from .region_node import RegionNode
 from .bookmark_node import BookmarkNode
+from .chart_node import ChartNode, ChartSeriesNode, ChartCategoryNode, ChartValueNode
 from .column_attr import ColumnAttr
 from .row_attr import RowAttr
 from .grid_attr import GridAttr
@@ -34,14 +35,19 @@ from .thead_attr import TheadAttr
 from .tr_attr import TrAttr
 from .td_attr import TdAttr
 from .bookmark_attr import BookmarkAttr
+from .chart_attr import ChartAttr
+from .chart_series_attr import ChartSeriesAttr
+from .chart_category_attr import ChartCategoryAttr
 
 __all__ = [
     "Node",
     "ContainerNode", "TextNode", "CodeNode", "SpanNode", "CodeSpanNode", "FnNode", "DividerNode",
     "ImgNode", "ShapeNode", "BarcodeNode", "FieldNode", "RegionNode", "BookmarkNode",
+    "ChartNode", "ChartSeriesNode", "ChartCategoryNode", "ChartValueNode",
     "ColumnAttr", "RowAttr",
     "GridAttr", "ListAttr", "LiAttr", "FrameAttr", "LinkAttr",
     "TextAttr", "CodeAttr", "SpanAttr", "CodeSpanAttr", "DividerAttr",
     "ImgAttr", "ShapeAttr", "BarcodeAttr", "FieldAttr", "RegionAttr",
     "TableAttr", "TheadAttr", "TrAttr", "TdAttr", "BookmarkAttr",
+    "ChartAttr", "ChartSeriesAttr", "ChartCategoryAttr",
 ]
