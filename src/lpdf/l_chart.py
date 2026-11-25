@@ -61,8 +61,8 @@ class LChart:
     def value(attrs: None = None, nodes: list[int | float | Decimal | str] | None = None) -> ChartValueNode:
         """Build a value of a category: one number, written in full with no exponent and no locale, a ``Decimal``
         with its decimals, or a string that is a number, such as ``"0.250"``, taken as written so its label keeps its
-        decimals. No value, ``[]``, draws no bar and breaks a line; a stacked area counts it as zero. It has no
-        attributes: pass ``NoAttr``.
+        decimals. No value, ``[]``, draws no bar and breaks a line, an area or a sparkline; a stacked area counts it
+        as zero. It has no attributes: pass ``NoAttr``.
 
         :raises TypeError: when a value is not an int, a float, a Decimal or a string.
         :raises ValueError: when a float or a Decimal is not finite.
