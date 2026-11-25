@@ -3,6 +3,7 @@ from .constants import *  # noqa: F403
 
 # Top-level facades
 from .L import L, NoAttr
+from .l_chart import LChart
 from .l_markdown import LMarkdown
 from .l_cross_industry_invoice import LCrossIndustryInvoice
 from .pdf_engine import PdfEngine
@@ -60,6 +61,9 @@ from .layout.thead_attr import TheadAttr
 from .layout.tr_attr import TrAttr
 from .layout.td_attr import TdAttr
 from .layout.bookmark_attr import BookmarkAttr
+from .layout.chart_attr import ChartAttr
+from .layout.chart_series_attr import ChartSeriesAttr
+from .layout.chart_category_attr import ChartCategoryAttr
 
 # markdown subpackage - the attribute classes of a markdown, its styles and their rules
 from .markdown.markdown_attr import MarkdownAttr

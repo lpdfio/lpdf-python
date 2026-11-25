@@ -41,6 +41,9 @@ __all__ = [
     "ShapeType",
     "CellVAlign",
     "FieldType",
+    "ChartType",
+    "ChartDirection",
+    "ChartLegend",
     "BuiltinFont",
     "StampScale",
 ]
@@ -385,6 +388,28 @@ class FieldType(StrEnum):
     DROPDOWN = "dropdown"
     RADIO = "radio"
     BUTTON = "button"
+
+
+class ChartType(StrEnum):
+    """The values of the `type` attribute of a chart: the kind of chart. bar draws a bar for each value."""
+
+    BAR = "bar"
+
+
+class ChartDirection(StrEnum):
+    """The values of the `direction` attribute of a chart: which way its bars run."""
+
+    VERTICAL = "vertical"
+    HORIZONTAL = "horizontal"
+
+
+class ChartLegend(StrEnum):
+    """The values of the `legend` attribute of a chart: where its legend goes, or none."""
+
+    BOTTOM = "bottom"
+    TOP = "top"
+    RIGHT = "right"
+    NONE = "none"
 
 
 class BuiltinFont(StrEnum):

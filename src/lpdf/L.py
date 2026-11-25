@@ -35,6 +35,10 @@ from .layout.barcode_attr import BarcodeAttr
 from .layout.barcode_node import BarcodeNode
 from .layout.bookmark_attr import BookmarkAttr
 from .layout.bookmark_node import BookmarkNode
+from .layout.chart_attr import ChartAttr
+from .layout.chart_category_node import ChartCategoryNode
+from .layout.chart_node import ChartNode
+from .layout.chart_series_node import ChartSeriesNode
 from .layout.column_attr import ColumnAttr
 from .layout.container_node import ContainerNode
 from .layout.divider_attr import DividerAttr
@@ -252,6 +256,13 @@ class L:
     @staticmethod
     def barcode(attrs: BarcodeAttr) -> BarcodeNode:
         return BarcodeNode(options_to_attrs(attrs))
+
+    @staticmethod
+    def chart(attrs: ChartAttr, nodes: list[ChartSeriesNode | ChartCategoryNode] | None = None) -> ChartNode:
+        """Build a chart drawn from numbers, written like a table: ``LChart.series`` are its columns, each
+        ``LChart.category`` a row and each ``LChart.value`` a cell, a value for each series in the series' order. A
+        chart with one series needs no series."""
+        return ChartNode(options_to_attrs(attrs), list(nodes or []))
 
     @staticmethod
     def region(attrs: RegionAttr, nodes: list | None = None) -> RegionNode:

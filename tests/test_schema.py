@@ -1,16 +1,18 @@
 """The builders write the schema's names, and what they build renders like the XML it converts to."""
 import re
+from decimal import Decimal
 
 import pytest
 
 from lpdf import (
-    L, LMarkdown, NoAttr, PdfEngine, EngineException, EngineOptions, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
+    L, LChart, LMarkdown, NoAttr, PdfEngine, EngineException, EngineOptions, RenderOptions, DocumentMeta, DocumentOutput, ProfileAttr,
     MarkdownAttr, MarkdownH1Attr, MarkdownHrAttr, MarkdownQuoteAttr, MarkdownStylesAttr,
     BarcodeAtAttr, BarcodeAttr, BookmarkAttr, BuiltinFont, CodeAttr, CodeSpanAttr, ImgAtAttr, ListAttr, TextAtAttr, CircleAttr, DocumentAssets, DocumentAttr, DocumentTokens, EllipseAttr,
     ColumnFill, FieldAttr, FieldType, FileAttr, FileRelationship, FontAttr, FootnoteCounter, Grow, ImageAttr, ImgAttr, LayerAttr, LineAttr, LinkAttr, Orientation, PathAttr, Permission, Pin,
     RectAttr, RegionAttr, RowAttr, SectionAttr, SectionType, ShapeAttr, SpanAttr, TableAttr, TdAttr, TrAttr, ColumnAttr, FrameAttr, GridAttr, TextAttr, Transform,
     Align, Anchor, BarcodeType, BoxAlign, BoxJustify, CellVAlign, ListFormat, Ocg, PageSize, Paginate, Pdf417EcLevel, PdfALevel, PdfUaPart, PdfXVersion,
     QrEcLevel, StampScale, TextAlign,
+    ChartAttr, ChartCategoryAttr, ChartDirection, ChartLegend, ChartSeriesAttr, ChartType,
 )
 from lpdf.layout.text_node import TextNode
 
@@ -925,6 +927,65 @@ def test_a_document_built_with_the_constants_renders_as_the_xml_with_their_words
     ])
     xml = '<lpdf version="1"><document size="A4" orientation="landscape"><section><layout><text align="center" paginate="keep-next">x</text><barcode type="qr" data="x" ec="H" height="40pt"/></layout></section></document></lpdf>'
     assert _render(xml) == _render(built)
+
+
+# ── Charts ─────────────────────────────────────────────────────────────────────
+
+def _revenue_chart():
+    return _in_layout(L.chart(
+        ChartAttr(type=ChartType.BAR, height="180pt", prefix="$", legend=ChartLegend.TOP, thousands_mark=".", decimal_mark=","),
+        [
+            LChart.series(ChartSeriesAttr(label="Revenue", color="#1763cf")),
+            LChart.series(ChartSeriesAttr(label="Costs")),
+            LChart.category(ChartCategoryAttr(label="Q1"), [LChart.value(NoAttr, [120000]), LChart.value(NoAttr, [95000.5])]),
+            LChart.category(ChartCategoryAttr(label="Q2"), [LChart.value(NoAttr, ["131000"]), LChart.value(NoAttr)]),
+        ],
+    ))
+
+
+def test_a_chart_its_series_its_categories_and_their_values_are_built_with_the_schema_names():
+    chart = L.chart(ChartAttr(type=ChartType.BAR, height="100pt", value_labels=True, direction=ChartDirection.HORIZONTAL)).to_dict()
+    assert chart == {"type": "chart", "attrs": {"type": "bar", "height": "100pt", "direction": "horizontal", "value-labels": True}, "nodes": []}
+    assert LChart.series(ChartSeriesAttr(label="Revenue")).to_dict() == {"type": "series", "attrs": {"label": "Revenue"}}
+    assert LChart.category(ChartCategoryAttr(label="Q1"), [LChart.value(NoAttr, [41200])]).to_dict() == {
+        "type": "category", "attrs": {"label": "Q1"}, "nodes": [{"type": "value", "attrs": {}, "nodes": ["41200"]}],
+    }
+    assert LChart.value(NoAttr).to_dict() == {"type": "value", "attrs": {}, "nodes": []}
+
+
+@pytest.mark.parametrize(("value", "text"), [
+    (0.25, "0.25"), (-3.5, "-3.5"), (3.0, "3"), (1e21, "1000000000000000000000"), (1.5e-7, "0.00000015"),
+    (1e-7, "0.0000001"), (-0.0, "0"), (1e23, "100000000000000000000000"), (2.0**60, "1152921504606847000"),
+    (12345678901234567890, "12345678901234567890"), ("0.250", "0.250"),
+    (Decimal("0.250"), "0.250"), (Decimal("1E+3"), "1000"), (Decimal("-0.00"), "0.00"), (Decimal("-12.5"), "-12.5"),
+])
+def test_a_number_of_a_value_is_written_in_full_with_no_exponent(value, text):
+    assert LChart.value(NoAttr, [value]).to_dict()["nodes"] == [text]
+
+
+@pytest.mark.parametrize(("value", "error"), [
+    (float("nan"), ValueError), (float("inf"), ValueError), (Decimal("NaN"), ValueError), (Decimal("-Infinity"), ValueError),
+    (True, TypeError),
+])
+def test_a_value_that_is_not_a_finite_number_or_a_string_is_refused(value, error):
+    with pytest.raises(error):
+        LChart.value(NoAttr, [value])
+
+
+def test_a_chart_renders_the_same_from_the_builder_and_its_xml():
+    xml = L.to_xml(_revenue_chart())
+    assert "<value>120000</value>" in xml
+    assert "<value>95000.5</value>" in xml
+    assert re.search(r"<value\s*/>", xml)
+    assert _render(_revenue_chart()) == _render(xml)
+
+
+def test_a_category_with_the_wrong_count_of_values_is_refused():
+    document = _in_layout(L.chart(ChartAttr(type=ChartType.BAR, height="100pt"), [
+        LChart.series(), LChart.series(), LChart.category(ChartCategoryAttr(label="Q1"), [LChart.value(NoAttr, [1])]),
+    ]))
+    with pytest.raises(EngineException, match="category 'Q1' has 1 value, and the chart has 2 series"):
+        _render(document)
 
 
 # ── Markdown ───────────────────────────────────────────────────────────────────
