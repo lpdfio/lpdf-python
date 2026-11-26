@@ -391,9 +391,12 @@ class FieldType(StrEnum):
 
 
 class ChartType(StrEnum):
-    """The values of the `type` attribute of a chart: the kind of chart. bar draws a bar for each value."""
+    """The values of the `type` attribute of a chart: the kind of chart. bar draws a bar for each value, line a line through the values of each series, area a line filled down to zero, or stacked, and sparkline a small line with no axis, labels or legend."""
 
     BAR = "bar"
+    LINE = "line"
+    AREA = "area"
+    SPARKLINE = "sparkline"
 
 
 class ChartDirection(StrEnum):
